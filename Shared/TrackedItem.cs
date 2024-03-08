@@ -7,11 +7,17 @@ namespace BlazorApp.Shared
 {
     public class TrackedItem
     {
+        public TrackedItem() { }
+        public TrackedItem(string name) 
+        {
+            Name = name;
+        }
+
         public string Name { get; set; }
         public string Category { get; set; }
-        public ICollection<Occurrence> PastOccurrences { get; set; }
+        public ICollection<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();
 
-        public ICollection<Target> Targets { get; set; }
+        public ICollection<Target> Targets { get; set; } = new List<Target>();
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {

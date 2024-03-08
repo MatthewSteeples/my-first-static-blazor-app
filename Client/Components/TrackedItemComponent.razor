@@ -1,0 +1,28 @@
+﻿@using BlazorApp.Shared
+<h3>@ItemToTrack.Name</h3>
+
+@if (ItemToTrack.PastOccurrences.Any())
+{
+    <p>Last Tracked: @ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max()</p>
+}
+
+<p>Next Occurrences:</p>
+<ol>
+    @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 5))
+    {
+        <li>@occurrence</li>
+    }
+</ol>
+
+<button @onclick="OnClick">Click me!</button>
+
+@code {
+    void OnClick()
+    {
+        ItemToTrack.AddOccurrence(DateTime.UtcNow);
+    }
+
+
+    [Parameter]
+    public TrackedItem ItemToTrack { get; set; }
+}
