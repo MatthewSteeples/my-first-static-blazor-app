@@ -3,6 +3,8 @@
 
 @if (ItemToTrack.PastOccurrences.Any())
 {
+    <p>@ItemToTrack.PastOccurrences.Count</p>
+
     <p>Last Tracked: @ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max()</p>
 }
 
