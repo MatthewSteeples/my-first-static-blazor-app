@@ -8,22 +8,54 @@
 Welcome to your new app.
 
 @code {
-    private TrackedItem item = new TrackedItem("My Item")
-    {
-        Targets = 
+    private TrackedItem[] items = [
+        new TrackedItem("Item1")
         {
-            new Target
+            Targets =
             {
-                Qty = 4,
-                Frequency = TimeSpan.FromDays(1)
-            },
-            new Target
+                new Target
+                {
+                    Qty = 4,
+                    Frequency = TimeSpan.FromDays(1)
+                },
+                new Target
+                {
+                    Qty = 1,
+                    Frequency = TimeSpan.FromHours(4)
+                },
+            }
+        },
+        new TrackedItem("Item2")
+        {
+            Targets =
             {
-                Qty = 1,
-                Frequency = TimeSpan.FromHours(4)
-            },
+                new Target
+                {
+                    Qty = 4,
+                    Frequency = TimeSpan.FromDays(1)
+                },
+                new Target
+                {
+                    Qty = 1,
+                    Frequency = TimeSpan.FromHours(4)
+                },
+            }
+        },
+        new TrackedItem("Item3")
+        {
+            Targets =
+            {
+                new Target
+                {
+                    Qty = 3,
+                    Frequency = TimeSpan.FromDays(1)
+                },
+            }
         }
-    };
+    ];
 }
 
-<BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
+@foreach (var item in items)
+{
+    <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
+}
