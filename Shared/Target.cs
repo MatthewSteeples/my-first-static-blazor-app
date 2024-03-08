@@ -14,7 +14,9 @@ namespace BlazorApp.Shared
         {
             var relevantPeriod = now - Frequency;
 
-            var relevantPastOccurrences = pastOccurrences.Where(o => o > relevantPeriod).ToList();
+            var relevantPastOccurrences = pastOccurrences
+                .Where(o => o >= relevantPeriod)
+                .ToList();
 
             if (relevantPastOccurrences.Count < Qty)
             {

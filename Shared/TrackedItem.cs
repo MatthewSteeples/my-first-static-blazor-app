@@ -29,9 +29,16 @@ namespace BlazorApp.Shared
 
         public void AddOccurrence(DateTime timestamp)
         {
-            var nextOccurrence = Targets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Select(o => o.SafetyTimestamp))).Max();
+            var nextOccurrence = Targets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
 
+            var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
+            
             PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence });
+
+            foreach (var item in futureOccurrences)
+            {
+                item.SafetyTimestamp = Targets.Select(t => t.GetNextOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
+            }
         }
     }
 }
