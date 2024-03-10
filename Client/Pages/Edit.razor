@@ -1,0 +1,18 @@
+﻿@page "/edit/{id:guid}"
+@using BlazorApp.Shared 
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h3>@item.Name</h3>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private TrackedItem item;
+
+    protected override async Task OnInitializedAsync()
+    {
+        item = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+    }
+}

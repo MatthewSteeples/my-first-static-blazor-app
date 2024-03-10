@@ -35,6 +35,6 @@ Welcome to your new app.
     {
         TrackedItem item = new TrackedItem("Item" + (items.Count + 1));
         items.Add(item);
-        localStorage.SetItemAsync(nameof(TrackedItem) + item.Name, item);
+        localStorage.SetItemAsync(nameof(TrackedItem) + item.Id, item);
     }
 }

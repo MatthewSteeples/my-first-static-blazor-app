@@ -2,8 +2,9 @@
 @using BlazorApp.Shared
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager Navigation
 
-<h3>@ItemToTrack.Name <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" /></h3>
+<h3>@ItemToTrack.Name <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" OnClick="edit" /></h3>
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
 
 <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
@@ -39,7 +40,12 @@
     void OnClick()
     {
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
-        localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Name, ItemToTrack);
+        localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
+    }
+
+    void edit()
+    {
+        Navigation.NavigateTo("/edit/" + ItemToTrack.Id);
     }
 
     private int showHistoryCount = 5;
