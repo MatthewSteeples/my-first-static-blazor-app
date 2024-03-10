@@ -31,10 +31,10 @@ Welcome to your new app.
 <button class="btn btn-primary" @onclick="AddItem">Click me</button>
 
 @code {
-    private void AddItem()
+    private async void AddItem()
     {
         TrackedItem item = new TrackedItem("Item" + (items.Count + 1));
         items.Add(item);
-        localStorage.SetItemAsync(nameof(TrackedItem) + item.Id, item);
+        await localStorage.SetItemAsync(nameof(TrackedItem) + item.Id, item);
     }
 }

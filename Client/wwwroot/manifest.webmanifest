@@ -1,6 +1,6 @@
 {
-  "name": "ComponentsWebAssembly-CSharp",
-  "short_name": "ComponentsWebAssembly-CSharp",
+  "name": "P4nda Tracker",
+  "short_name": "Tracker",
   "id": "./",
   "start_url": "./",
   "display": "standalone",

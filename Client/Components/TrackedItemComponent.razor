@@ -37,10 +37,10 @@
 <button @onclick="OnClick">Track</button>
 
 @code {
-    void OnClick()
+    async void OnClick()
     {
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
-        localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
+        await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
     }
 
     void edit()
