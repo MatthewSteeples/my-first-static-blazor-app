@@ -11,21 +11,24 @@
     {
         <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
             <ol>
-                @foreach (var occurrence in ItemToTrack.PastOccurrences)
+                @foreach (var occurrence in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount))
                 {
                     <li>@occurrence.ActualTimestamp</li>
                 }
             </ol>
+            <button @onclick="() => showHistoryCount += 5">Show More</button>
+
         </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
     }
 
     <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
         <ol>
-            @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 5))
+            @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
             {
                 <li>@occurrence</li>
             }
         </ol>
+        <button @onclick="() => showFutureCount += 5">Show More</button>
     </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
 
 </Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
@@ -38,6 +41,9 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Name, ItemToTrack);
     }
+
+    private int showHistoryCount = 5;
+    private int showFutureCount = 5;
 
     [Parameter]
     public TrackedItem ItemToTrack { get; set; }
