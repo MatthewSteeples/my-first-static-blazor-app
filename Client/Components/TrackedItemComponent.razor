@@ -1,8 +1,9 @@
-﻿@using BlazorApp.Shared
+﻿@using Microsoft.FluentUI.AspNetCore.Components
+@using BlazorApp.Shared
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h3>@ItemToTrack.Name</h3>
+<h3>@ItemToTrack.Name <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" /></h3>
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
 
 <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
