@@ -3,21 +3,31 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <h3>@ItemToTrack.Name</h3>
+<p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
 
-@if (ItemToTrack.PastOccurrences.Any())
-{
-    <p>@ItemToTrack.PastOccurrences.Count</p>
-
-    <p>Last Tracked: @ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max()</p>
-}
-
-<p>Next Occurrences:</p>
-<ol>
-    @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 5))
+<Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
+    @if (ItemToTrack.PastOccurrences.Any())
     {
-        <li>@occurrence</li>
+        <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
+            <ol>
+                @foreach (var occurrence in ItemToTrack.PastOccurrences)
+                {
+                    <li>@occurrence.ActualTimestamp</li>
+                }
+            </ol>
+        </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
     }
-</ol>
+
+    <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
+        <ol>
+            @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 5))
+            {
+                <li>@occurrence</li>
+            }
+        </ol>
+    </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
+
+</Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
 
 <button @onclick="OnClick">Track</button>
 
