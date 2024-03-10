@@ -1,4 +1,7 @@
 ﻿@using BlazorApp.Shared
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
 <h3>@ItemToTrack.Name</h3>
 
 @if (ItemToTrack.PastOccurrences.Any())
@@ -16,14 +19,14 @@
     }
 </ol>
 
-<button @onclick="OnClick">Click me!</button>
+<button @onclick="OnClick">Track</button>
 
 @code {
     void OnClick()
     {
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
+        localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Name, ItemToTrack);
     }
-
 
     [Parameter]
     public TrackedItem ItemToTrack { get; set; }

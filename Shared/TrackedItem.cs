@@ -8,7 +8,7 @@ namespace BlazorApp.Shared
     public class TrackedItem
     {
         public TrackedItem() { }
-        public TrackedItem(string name) 
+        public TrackedItem(string name)
         {
             Name = name;
         }
@@ -21,6 +21,9 @@ namespace BlazorApp.Shared
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {
+            if (Targets.Count == 0)
+                yield break;
+
             var pastOccurrences = PastOccurrences
                 .Select(o => o.SafetyTimestamp)
                 .ToList();
@@ -35,10 +38,16 @@ namespace BlazorApp.Shared
 
         public void AddOccurrence(DateTime timestamp)
         {
+            if (Targets.Count == 0)
+            {
+                PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp });
+                return;
+            }
+
             var nextOccurrence = Targets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
 
             var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
-            
+
             PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence });
 
             foreach (var item in futureOccurrences)
