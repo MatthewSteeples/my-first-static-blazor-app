@@ -7,6 +7,11 @@
 <h3>@ItemToTrack.Name <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" OnClick="edit" /></h3>
 
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
+<p>Last Tracked: @LastTracked</p>
+@if (ItemToTrack.Targets.Any())
+{
+    <p>Next Due: @ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault(DateTime.UtcNow).ToShortTimeString()</p>
+}
 
 <p>
     <button class="btn btn-success" @onclick="OnClick">Track</button>
@@ -65,4 +70,23 @@
 
     [Parameter]
     public TrackedItem ItemToTrack { get; set; }
+
+    public string LastTracked
+    {
+        get
+        {
+            if (ItemToTrack.PastOccurrences.Any())
+            {
+                var max = ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max();
+                if (max.Date == DateTime.UtcNow.Date)
+                {
+                    return max.ToShortTimeString();
+                }
+
+                return max.ToString("G");
+            }
+
+            return "Never";
+        }
+    }
 }
