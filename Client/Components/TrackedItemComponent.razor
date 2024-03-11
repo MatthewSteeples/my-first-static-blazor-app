@@ -10,7 +10,7 @@
 <p>Last Tracked: @LastTracked</p>
 @if (ItemToTrack.Targets.Any())
 {
-    <p>Next Due: @ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault(DateTime.UtcNow).ToShortTimeString()</p>
+    <p>Next Due: @ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault(DateTime.UtcNow).ToRelativeDateString()</p>
 }
 
 <p>
@@ -45,7 +45,7 @@
         <ol>
             @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
             {
-                <li>@occurrence</li>
+                <li>@occurrence.ToString("g")</li>
             }
         </ol>
         <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
@@ -78,12 +78,7 @@
             if (ItemToTrack.PastOccurrences.Any())
             {
                 var max = ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max();
-                if (max.Date == DateTime.UtcNow.Date)
-                {
-                    return max.ToShortTimeString();
-                }
-
-                return max.ToString("G");
+                return max.ToRelativeDateString();
             }
 
             return "Never";

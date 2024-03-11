@@ -34,6 +34,12 @@ namespace BlazorApp.Shared
             for (int i = 0; i < count; i++)
             {
                 var nextOccurrence = eligibleTargets.Select(t => t.GetEarliestOccurrence(now, pastOccurrences)).Max();
+
+                if (nextOccurrence == now)
+                {
+                    nextOccurrence = eligibleTargets.Select(t => t.GetSpacedOccurrence(now, pastOccurrences)).Max();
+                }
+
                 yield return nextOccurrence;
                 pastOccurrences.Add(nextOccurrence);
             }

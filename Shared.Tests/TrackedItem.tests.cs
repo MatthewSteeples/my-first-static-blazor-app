@@ -45,6 +45,34 @@ namespace Shared.Tests
         }
 
         [TestMethod]
+        public void Test_SingleTargetSpacesOut()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Name = "Tablet",
+                Targets = new List<Target>
+                {
+                    new Target
+                    {
+                        Qty = 4,
+                        Frequency = TimeSpan.FromDays(1)
+                    },
+                },
+                PastOccurrences = [],
+            };
+
+            var now = new DateTime(2024, 2, 28, 12, 0, 0);
+            var futureOccurrences = trackedItem.GetFutureOccurrences(now, 5).ToList();
+
+            Assert.AreEqual(5, futureOccurrences.Count);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), futureOccurrences[0]);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), futureOccurrences[1]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), futureOccurrences[2]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 6, 0, 0), futureOccurrences[3]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), futureOccurrences[4]);
+        }
+
+        [TestMethod]
         public void Test_CanAddOccurrence()
         {
             var trackedItem = new TrackedItem()
