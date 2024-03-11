@@ -1,5 +1,7 @@
 ﻿@page "/edit/{id:guid}"
 @using BlazorApp.Shared
+@using Microsoft.FluentUI.AspNetCore.Components
+
 @inject NavigationManager Navigation
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
@@ -11,6 +13,18 @@
         Name:
         <InputText @bind-Value="Item.Name" />
     </label>
+
+    <p>Past Occurrences:</p>
+    
+    @foreach (var occurrence in Item.PastOccurrences.Reverse())
+    {
+        <p>
+            <FluentDatePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
+            <FluentTimePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
+            <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+        </p>
+    }
+
     <button type="submit" class="btn btn-success">Save</button>
     <button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
     <button @onclick="Delete" class="btn btn-danger">Delete</button>
