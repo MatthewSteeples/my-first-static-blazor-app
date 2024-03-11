@@ -1,18 +1,34 @@
 ﻿@page "/edit/{id:guid}"
-@using BlazorApp.Shared 
+@using BlazorApp.Shared
+@inject NavigationManager Navigation
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<h3>@item.Name</h3>
+<EditForm Model="Item" OnSubmit="Save">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <label>
+        Name:
+        <InputText @bind-Value="Item.Name" />
+    </label>
+    <button type="submit">Save</button>
+</EditForm>
 
 @code {
     [Parameter]
     public Guid Id { get; set; }
 
-    private TrackedItem item;
+    [SupplyParameterFromForm]
+    public TrackedItem Item { get; set; } = new TrackedItem(); //Needs to be "new" otherwise the form complains as it loads before the data is loaded
 
     protected override async Task OnInitializedAsync()
     {
-        item = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+        Item = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+    }
+
+    async void Save()
+    {
+        await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
+        Navigation.NavigateTo("/");
     }
 }
