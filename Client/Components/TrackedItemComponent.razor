@@ -5,14 +5,19 @@
 @inject NavigationManager Navigation
 
 <h3>@ItemToTrack.Name <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" OnClick="edit" /></h3>
+
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
+
+<p>
+    <button class="btn btn-success" @onclick="OnClick">Track</button>
+</p>
 
 <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
     @if (ItemToTrack.PastOccurrences.Any())
     {
         <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
             <ul>
-            @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.Date).OrderByDescending(a => a.Key))
+                @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.Date).OrderByDescending(a => a.Key))
                 {
                     <li>
                         <strong>@occurrences.Key.ToShortDateString()</strong>
@@ -42,8 +47,6 @@
     </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
 
 </Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
-
-<button class="btn btn-success" @onclick="OnClick">Track</button>
 
 @code {
     async void OnClick()

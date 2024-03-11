@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BlazorApp.Shared
+@using Microsoft.FluentUI.AspNetCore.Components
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
@@ -24,10 +25,16 @@ Welcome to your new app.
     }
 }
 
-@foreach (var item in items)
-{
-    <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
-}
+<FluentGrid Spacing="6">
+
+    @foreach (var item in items)
+    {
+        <FluentGridItem>
+            <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
+        </FluentGridItem>
+    }
+
+</FluentGrid>
 
 <p>
     <button class="btn btn-primary" @onclick="AddItem">Add New</button>
