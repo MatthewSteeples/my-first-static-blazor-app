@@ -21,8 +21,8 @@
     @foreach (var occurrence in Item.PastOccurrences.Reverse())
     {
         <p>
-            <FluentDatePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
-            <FluentTimePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
+            <FluentDatePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => UpdateOccurrence(occurrence, e.GetValueOrDefault()))" />
+            <FluentTimePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => UpdateOccurrence(occurrence, e.GetValueOrDefault()))" />
             <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
         </p>
     }
@@ -64,6 +64,12 @@
         {
             Item.Id = Id;
         }
+    }
+
+    void UpdateOccurrence(Occurrence occurrence, DateTime newTimestamp)
+    {
+        Item.PastOccurrences.Remove(occurrence);
+        Item.AddOccurrence(newTimestamp);
     }
 
     async void Save()
