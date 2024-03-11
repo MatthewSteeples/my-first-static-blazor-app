@@ -1,0 +1,22 @@
+﻿@using BlazorApp.Shared
+@using Microsoft.FluentUI.AspNetCore.Components
+
+<InputNumber @bind-Value="Target.Qty" />
+<InputNumber @bind-Value="Hours" />
+
+@code {
+    [Parameter]
+    public Target Target { get; set; }
+
+    public double Hours
+    {
+        get
+        {
+            return Target.Frequency.TotalHours;
+        }
+        set
+        {
+            Target.Frequency = TimeSpan.FromHours(value);
+        }
+    }
+}

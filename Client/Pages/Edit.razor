@@ -1,4 +1,5 @@
 ﻿@page "/edit/{id:guid}"
+@using BlazorApp.Client.Components
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
 
@@ -6,9 +7,10 @@
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<EditForm Model="Item" OnSubmit="Save">
+<EditForm Model="Item" OnValidSubmit="Save">
     <DataAnnotationsValidator />
     <ValidationSummary />
+
     <label>
         Name:
         <InputText @bind-Value="Item.Name" />
@@ -29,8 +31,7 @@
     @foreach (var target in Item.Targets)
     {
         <p>
-            <InputNumber @bind-Value="target.Qty" />
-            @* <InputNumber Value="@target.Frequency.TotalHours" TValue=double ValueChanged="@(f => target.Frequency = TimeSpan.FromHours(f))" /> *@
+            <TargetEditor Target="target" />
             <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
         </p>
     }
