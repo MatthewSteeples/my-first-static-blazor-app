@@ -45,7 +45,8 @@ async function onFetch(event) {
         // If you need some URLs to be server-rendered, edit the following check to exclude those URLs
         const shouldServeIndexHtml = event.request.mode === 'navigate'
             && !manifestUrlList.some(url => url === event.request.url)
-            && !event.request.url.includes('/.auth/');
+            && !event.request.url.includes('/.auth/')
+            && !event.request.url.includes('/api/');
 
         const request = shouldServeIndexHtml ? 'index.html' : event.request;
         const cache = await caches.open(cacheName);
