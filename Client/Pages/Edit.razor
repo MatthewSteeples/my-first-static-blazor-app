@@ -74,6 +74,15 @@
 
     async void Save()
     {
+        //Reset all safety times in case the Targets have changed
+        var occurrences = Item.PastOccurrences;
+        Item.PastOccurrences = new List<Occurrence>();
+
+        foreach (var occurrence in occurrences)
+        {
+            Item.AddOccurrence(occurrence.ActualTimestamp);
+        }
+
         await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
         Navigation.NavigateTo("/");
     }
