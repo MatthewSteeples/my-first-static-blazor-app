@@ -16,9 +16,9 @@ namespace BlazorApp.Shared
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
-        public ICollection<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();
+        public List<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();
 
-        public ICollection<Target> Targets { get; set; } = new List<Target>();
+        public List<Target> Targets { get; set; } = new List<Target>();
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {

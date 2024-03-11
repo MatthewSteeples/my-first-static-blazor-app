@@ -18,7 +18,7 @@
 
     <p>Past Occurrences:</p>
 
-    @foreach (var occurrence in Item.PastOccurrences.Reverse())
+    @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp))
     {
         <p>
             <FluentDatePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
