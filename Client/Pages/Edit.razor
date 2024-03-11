@@ -12,6 +12,8 @@
         <InputText @bind-Value="Item.Name" />
     </label>
     <button type="submit">Save</button>
+    <button @onclick="Cancel">Cancel</button>
+    <button @onclick="Delete">Delete</button>
 </EditForm>
 
 @code {
@@ -29,6 +31,17 @@
     async void Save()
     {
         await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
+        Navigation.NavigateTo("/");
+    }
+
+    void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+    async void Delete()
+    {
+        await localStorage.RemoveItemAsync(nameof(TrackedItem) + Item.Id);
         Navigation.NavigateTo("/");
     }
 }
