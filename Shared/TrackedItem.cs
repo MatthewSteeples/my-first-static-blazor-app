@@ -13,7 +13,7 @@ namespace BlazorApp.Shared
             Name = name;
         }
 
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
         public ICollection<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();

@@ -17,7 +17,7 @@
                     <li>@occurrence.ActualTimestamp</li>
                 }
             </ol>
-            <button @onclick="() => showHistoryCount += 5">Show More</button>
+            <button class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
 
         </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
     }
@@ -29,12 +29,12 @@
                 <li>@occurrence</li>
             }
         </ol>
-        <button @onclick="() => showFutureCount += 5">Show More</button>
+        <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
     </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
 
 </Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
 
-<button @onclick="OnClick">Track</button>
+<button class="btn btn-success" @onclick="OnClick">Track</button>
 
 @code {
     async void OnClick()

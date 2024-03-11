@@ -11,9 +11,9 @@
         Name:
         <InputText @bind-Value="Item.Name" />
     </label>
-    <button type="submit">Save</button>
-    <button @onclick="Cancel">Cancel</button>
-    <button @onclick="Delete">Delete</button>
+    <button type="submit" class="btn btn-success">Save</button>
+    <button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
+    <button @onclick="Delete" class="btn btn-danger">Delete</button>
 </EditForm>
 
 @code {
@@ -25,7 +25,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Item = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+        var loadedItem = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+
+        if (loadedItem != null)
+        {
+            Item = loadedItem;
+        }
+        else
+        {
+            Item.Id = Id;
+        }
     }
 
     async void Save()

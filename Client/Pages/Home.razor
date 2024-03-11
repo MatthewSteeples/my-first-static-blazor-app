@@ -2,6 +2,7 @@
 @using BlazorApp.Shared
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
@@ -28,13 +29,13 @@ Welcome to your new app.
     <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
 }
 
-<button class="btn btn-primary" @onclick="AddItem">Click me</button>
+<p>
+    <button class="btn btn-primary" @onclick="AddItem">Add New</button>
+</p>
 
 @code {
-    private async void AddItem()
+    private void AddItem()
     {
-        TrackedItem item = new TrackedItem("Item" + (items.Count + 1));
-        items.Add(item);
-        await localStorage.SetItemAsync(nameof(TrackedItem) + item.Id, item);
+        Navigation.NavigateTo("/edit/" + Guid.NewGuid());
     }
 }
