@@ -11,12 +11,21 @@
     @if (ItemToTrack.PastOccurrences.Any())
     {
         <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
-            <ol>
-                @foreach (var occurrence in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount))
+            <ul>
+            @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.Date).OrderByDescending(a => a.Key))
                 {
-                    <li>@occurrence.ActualTimestamp</li>
+                    <li>
+                        <strong>@occurrences.Key.ToShortDateString()</strong>
+                        <ol>
+                            @foreach (var occurrence in occurrences.OrderByDescending(a => a.ActualTimestamp))
+                            {
+                                <li>@occurrence.ActualTimestamp.ToShortTimeString()</li>
+                            }
+
+                        </ol>
+                    </li>
                 }
-            </ol>
+            </ul>
             <button class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
 
         </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
