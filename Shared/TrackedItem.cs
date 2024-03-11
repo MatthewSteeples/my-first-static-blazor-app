@@ -33,7 +33,7 @@ namespace BlazorApp.Shared
 
             for (int i = 0; i < count; i++)
             {
-                var nextOccurrence = eligibleTargets.Select(t => t.GetNextOccurrence(now, pastOccurrences)).Max();
+                var nextOccurrence = eligibleTargets.Select(t => t.GetEarliestOccurrence(now, pastOccurrences)).Max();
                 yield return nextOccurrence;
                 pastOccurrences.Add(nextOccurrence);
             }
@@ -49,7 +49,7 @@ namespace BlazorApp.Shared
                 return;
             }
 
-            var nextOccurrence = eligibleTargets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
+            var nextOccurrence = eligibleTargets.Select(t => t.GetEarliestOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
 
             var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
 
@@ -57,7 +57,7 @@ namespace BlazorApp.Shared
 
             foreach (var item in futureOccurrences)
             {
-                item.SafetyTimestamp = eligibleTargets.Select(t => t.GetNextOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
+                item.SafetyTimestamp = eligibleTargets.Select(t => t.GetEarliestOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
             }
         }
     }

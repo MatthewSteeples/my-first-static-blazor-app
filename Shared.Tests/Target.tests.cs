@@ -24,16 +24,16 @@ namespace BlazorApp.Shared
             };
 
             DateTime now = new DateTime(2024, 2, 28, 12, 0, 0);
-            var nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            var nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(now, nextOccurrence);
 
             pastOccurrences.Add(nextOccurrence);
             now = new DateTime(2024, 2, 29, 12, 0, 0);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(now, nextOccurrence);
 
             pastOccurrences.Add(nextOccurrence);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(new DateTime(2024, 3, 1, 12, 0, 0), nextOccurrence);
         }
 
@@ -53,20 +53,20 @@ namespace BlazorApp.Shared
             };
 
             DateTime now = new DateTime(2024, 2, 28, 12, 0, 0);
-            var nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            var nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(now, nextOccurrence);
 
             pastOccurrences.Add(nextOccurrence);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(now, nextOccurrence);
 
             pastOccurrences.Add(nextOccurrence);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), nextOccurrence);
         }
 
         [TestMethod]
-        public void Test_GetNextOccurrence_FourTimesPerDayIsSpreadOut()
+        public void Test_GetNextOccurrence_FourTimesPerDay()
         {
             var target = new Target
             {
@@ -77,16 +77,56 @@ namespace BlazorApp.Shared
             var pastOccurrences = new List<DateTime>();
 
             DateTime now = new DateTime(2024, 2, 28, 12, 0, 0);
-            var nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            var nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
             Assert.AreEqual(now, nextOccurrence);
 
             pastOccurrences.Add(now);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetEarliestOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), nextOccurrence);
+        }
+
+        [TestMethod]
+        public void Test_GetNextOccurrence_FourTimesPerDay_IsSpreadOut()
+        {
+            var target = new Target
+            {
+                Qty = 4,
+                Frequency = TimeSpan.FromDays(1)
+            };
+
+            var pastOccurrences = new List<DateTime>();
+
+            DateTime now = new DateTime(2024, 2, 28, 12, 0, 0);
+            var nextOccurrence = target.GetSpacedOccurrence(now, pastOccurrences);
+            Assert.AreEqual(now, nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetSpacedOccurrence(now, pastOccurrences);
             Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), nextOccurrence);
 
             pastOccurrences.Add(now);
-            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            nextOccurrence = target.GetSpacedOccurrence(now, pastOccurrences);
             Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetSpacedOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 6, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetSpacedOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), nextOccurrence);
         }
     }
 }
