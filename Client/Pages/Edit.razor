@@ -25,6 +25,18 @@
         </p>
     }
 
+    <p>Targets: </p>
+    @foreach (var target in Item.Targets)
+    {
+        <p>
+            <InputNumber @bind-Value="target.Qty" />
+            @* <InputNumber Value="@target.Frequency.TotalHours" TValue=double ValueChanged="@(f => target.Frequency = TimeSpan.FromHours(f))" /> *@
+            <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
+        </p>
+    }
+
+    <button class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
+
     <button type="submit" class="btn btn-success">Save</button>
     <button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
     <button @onclick="Delete" class="btn btn-danger">Delete</button>

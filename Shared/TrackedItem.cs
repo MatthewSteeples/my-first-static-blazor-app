@@ -22,7 +22,9 @@ namespace BlazorApp.Shared
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {
-            if (Targets.Count == 0)
+            var eligibleTargets = Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero);
+
+            if (eligibleTargets.Any() is false)
                 yield break;
 
             var pastOccurrences = PastOccurrences
@@ -31,7 +33,7 @@ namespace BlazorApp.Shared
 
             for (int i = 0; i < count; i++)
             {
-                var nextOccurrence = Targets.Select(t => t.GetNextOccurrence(now, pastOccurrences)).Max();
+                var nextOccurrence = eligibleTargets.Select(t => t.GetNextOccurrence(now, pastOccurrences)).Max();
                 yield return nextOccurrence;
                 pastOccurrences.Add(nextOccurrence);
             }
@@ -39,13 +41,15 @@ namespace BlazorApp.Shared
 
         public void AddOccurrence(DateTime timestamp)
         {
-            if (Targets.Count == 0)
+            var eligibleTargets = Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero);
+
+            if (eligibleTargets.Any() is false)
             {
                 PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp });
                 return;
             }
 
-            var nextOccurrence = Targets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
+            var nextOccurrence = eligibleTargets.Select(t => t.GetNextOccurrence(timestamp, PastOccurrences.Where(a => a.ActualTimestamp < timestamp).Select(o => o.SafetyTimestamp))).Max();
 
             var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
 
@@ -53,7 +57,7 @@ namespace BlazorApp.Shared
 
             foreach (var item in futureOccurrences)
             {
-                item.SafetyTimestamp = Targets.Select(t => t.GetNextOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
+                item.SafetyTimestamp = eligibleTargets.Select(t => t.GetNextOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
             }
         }
     }
