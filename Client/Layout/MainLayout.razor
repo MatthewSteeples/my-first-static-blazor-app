@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Reflection
+@inherits LayoutComponentBase
 <div class="page">
     <main>
         <article class="content px-4">
@@ -6,3 +7,18 @@
         </article>
     </main>
 </div>
+
+<footer>
+    <div class="container">
+        <span>&copy; P4nda Tracker 2021. Version @GetVersion()</span>
+    </div
+</footer>
+
+@code {
+    public string GetVersion()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var version = assembly.GetName().Version.ToString();
+        return version;
+    }
+}
