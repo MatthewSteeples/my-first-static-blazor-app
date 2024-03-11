@@ -36,11 +36,11 @@
         </p>
     }
 
-    <button class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
+    <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
 
     <button type="submit" class="btn btn-success">Save</button>
-    <button @onclick="Cancel" class="btn btn-secondary">Cancel</button>
-    <button @onclick="Delete" class="btn btn-danger">Delete</button>
+    <button type="button" @onclick="Cancel" class="btn btn-secondary">Cancel</button>
+    <button type="button" @onclick="Delete" class="btn btn-danger">Delete</button>
 </EditForm>
 
 @code {
