@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BlazorApp.Shared
 {
@@ -18,8 +17,25 @@ namespace BlazorApp.Shared
                 .Where(o => o >= relevantPeriod)
                 .ToList();
 
-            if (relevantPastOccurrences.Count < Qty)
+            if (relevantPastOccurrences.Count == 0)
             {
+                return now;
+            }
+            else if (relevantPastOccurrences.Count < Qty)
+            {
+                var mostRecentOccurrence = relevantPastOccurrences.Where(a => a <= now).DefaultIfEmpty().Min();
+
+                var diff = Qty - (Qty - relevantPastOccurrences.Count);
+                //var diff = 1;
+                var proRata = TimeSpan.FromMilliseconds((Frequency.TotalMilliseconds / Qty) * diff);
+
+                mostRecentOccurrence = mostRecentOccurrence.Add(proRata);
+
+                if (mostRecentOccurrence > now)
+                {
+                    return mostRecentOccurrence;
+                }
+
                 return now;
             }
             else if (relevantPastOccurrences.Count == Qty)

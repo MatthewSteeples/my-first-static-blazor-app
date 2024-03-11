@@ -38,9 +38,9 @@ namespace Shared.Tests
 
             Assert.AreEqual(5, futureOccurrences.Count);
             Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), futureOccurrences[0]);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), futureOccurrences[1]);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 20, 0, 0), futureOccurrences[2]);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), futureOccurrences[3]);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), futureOccurrences[1]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), futureOccurrences[2]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 6, 0, 0), futureOccurrences[3]);
             Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), futureOccurrences[4]);
         }
 
@@ -67,43 +67,48 @@ namespace Shared.Tests
             };
 
             trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 12, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(0).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(0).SafetyTimestamp);
+
             trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 16, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(1).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), trackedItem.PastOccurrences.ElementAt(1).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 19, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 28, 19, 0, 0), trackedItem.PastOccurrences.ElementAt(2).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), trackedItem.PastOccurrences.ElementAt(2).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 2, 29, 2, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 29, 2, 0, 0), trackedItem.PastOccurrences.ElementAt(3).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 6, 0, 0), trackedItem.PastOccurrences.ElementAt(3).SafetyTimestamp);
 
             trackedItem.AddOccurrence(new DateTime(2024, 2, 29, 11, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 29, 11, 0, 0), trackedItem.PastOccurrences.ElementAt(4).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(4).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 2, 29, 15, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 29, 15, 0, 0), trackedItem.PastOccurrences.ElementAt(5).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 18, 0, 0), trackedItem.PastOccurrences.ElementAt(5).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 2, 29, 21, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 2, 29, 21, 0, 0), trackedItem.PastOccurrences.ElementAt(6).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 3, 1, 0, 0, 0), trackedItem.PastOccurrences.ElementAt(6).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 3, 1, 3, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 3, 1, 3, 0, 0), trackedItem.PastOccurrences.ElementAt(7).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 3, 1, 6, 0, 0), trackedItem.PastOccurrences.ElementAt(7).SafetyTimestamp);
 
+            
             trackedItem.AddOccurrence(new DateTime(2024, 3, 1, 7, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 3, 1, 7, 0, 0), trackedItem.PastOccurrences.ElementAt(8).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 3, 1, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(8).SafetyTimestamp);
+            
             trackedItem.AddOccurrence(new DateTime(2024, 3, 1, 11, 0, 0));
+            Assert.AreEqual(new DateTime(2024, 3, 1, 11, 0, 0), trackedItem.PastOccurrences.ElementAt(9).ActualTimestamp);
+            Assert.AreEqual(new DateTime(2024, 3, 1, 18, 0, 0), trackedItem.PastOccurrences.ElementAt(9).SafetyTimestamp);
 
 
             Assert.AreEqual(10, trackedItem.PastOccurrences.Count);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(0).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(0).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(1).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(1).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 19, 0, 0), trackedItem.PastOccurrences.ElementAt(2).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 20, 0, 0), trackedItem.PastOccurrences.ElementAt(2).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 2, 0, 0), trackedItem.PastOccurrences.ElementAt(3).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 2, 0, 0), trackedItem.PastOccurrences.ElementAt(3).SafetyTimestamp);
-
-            Assert.AreEqual(new DateTime(2024, 2, 29, 11, 0, 0), trackedItem.PastOccurrences.ElementAt(4).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(4).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 15, 0, 0), trackedItem.PastOccurrences.ElementAt(5).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(5).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 21, 0, 0), trackedItem.PastOccurrences.ElementAt(6).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 21, 0, 0), trackedItem.PastOccurrences.ElementAt(6).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 3, 1, 3, 0, 0), trackedItem.PastOccurrences.ElementAt(7).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 3, 1, 3, 0, 0), trackedItem.PastOccurrences.ElementAt(7).SafetyTimestamp);
-
-            Assert.AreEqual(new DateTime(2024, 3, 1, 7, 0, 0), trackedItem.PastOccurrences.ElementAt(8).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 3, 1, 12, 0, 0), trackedItem.PastOccurrences.ElementAt(8).SafetyTimestamp);
-            Assert.AreEqual(new DateTime(2024, 3, 1, 11, 0, 0), trackedItem.PastOccurrences.ElementAt(9).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 3, 1, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(9).SafetyTimestamp);
-
         }
 
         [TestMethod]
@@ -134,7 +139,7 @@ namespace Shared.Tests
 
             trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 16, 0, 0));
             Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(1).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), trackedItem.PastOccurrences.ElementAt(1).SafetyTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), trackedItem.PastOccurrences.ElementAt(1).SafetyTimestamp);
 
             trackedItem.AddOccurrence(new DateTime(2024, 2, 29, 2, 0, 0));
             Assert.AreEqual(new DateTime(2024, 2, 29, 2, 0, 0), trackedItem.PastOccurrences.ElementAt(2).ActualTimestamp);
@@ -142,11 +147,11 @@ namespace Shared.Tests
 
             trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 23, 0, 0));
             Assert.AreEqual(new DateTime(2024, 2, 28, 23, 0, 0), trackedItem.PastOccurrences.ElementAt(3).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 28, 23, 0, 0), trackedItem.PastOccurrences.ElementAt(3).SafetyTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), trackedItem.PastOccurrences.ElementAt(3).SafetyTimestamp);
 
             //Check that previous elements have been recalculated
             Assert.AreEqual(new DateTime(2024, 2, 29, 2, 0, 0), trackedItem.PastOccurrences.ElementAt(2).ActualTimestamp);
-            Assert.AreEqual(new DateTime(2024, 2, 29, 3, 0, 0), trackedItem.PastOccurrences.ElementAt(2).SafetyTimestamp);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 6, 0, 0), trackedItem.PastOccurrences.ElementAt(2).SafetyTimestamp);
 
 
             Assert.AreEqual(4, trackedItem.PastOccurrences.Count);

@@ -64,5 +64,29 @@ namespace BlazorApp.Shared
             nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
             Assert.AreEqual(new DateTime(2024, 2, 29, 12, 0, 0), nextOccurrence);
         }
+
+        [TestMethod]
+        public void Test_GetNextOccurrence_FourTimesPerDayIsSpreadOut()
+        {
+            var target = new Target
+            {
+                Qty = 4,
+                Frequency = TimeSpan.FromDays(1)
+            };
+
+            var pastOccurrences = new List<DateTime>();
+
+            DateTime now = new DateTime(2024, 2, 28, 12, 0, 0);
+            var nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            Assert.AreEqual(now, nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 18, 0, 0), nextOccurrence);
+
+            pastOccurrences.Add(now);
+            nextOccurrence = target.GetNextOccurrence(now, pastOccurrences);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 0, 0, 0), nextOccurrence);
+        }
     }
 }
