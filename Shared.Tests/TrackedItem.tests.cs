@@ -73,6 +73,39 @@ namespace Shared.Tests
         }
 
         [TestMethod]
+        public void Test_SingleTarget_Status()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Name = "Tablet",
+                Targets = new List<Target>
+                {
+                    new Target
+                    {
+                        Qty = 4,
+                        Frequency = TimeSpan.FromDays(1)
+                    },
+                },
+                PastOccurrences = [],
+            };
+
+            var now = new DateTime(2024, 2, 28, 12, 0, 0);
+
+            Assert.AreEqual(StatusEnum.Ok, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+            Assert.AreEqual(StatusEnum.Ok, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+            Assert.AreEqual(StatusEnum.Ok, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+            Assert.AreEqual(StatusEnum.Ok, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+            Assert.AreEqual(StatusEnum.AtLimit, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+            Assert.AreEqual(StatusEnum.OverLimit, trackedItem.GetStatus(now));
+            trackedItem.AddOccurrence(now);
+        }
+
+        [TestMethod]
         public void Test_CanAddOccurrence()
         {
             var trackedItem = new TrackedItem()

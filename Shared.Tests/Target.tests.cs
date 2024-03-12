@@ -38,6 +38,31 @@ namespace BlazorApp.Shared
         }
 
         [TestMethod]
+        public void Test_Status_OncePerDay()
+        {
+            var target = new Target
+            {
+                Qty = 1,
+                Frequency = TimeSpan.FromDays(1)
+            };
+
+            var pastOccurrences = new List<DateTime>
+            {
+                new DateTime(2024,2,26,12,0,0),
+                new DateTime(2024,2,27,12,0,0),
+            };
+
+            Assert.AreEqual(StatusEnum.AtLimit, target.GetStatus(new DateTime(2024, 2, 28, 11, 59, 59), pastOccurrences));
+            Assert.AreEqual(StatusEnum.Ok, target.GetStatus(new DateTime(2024, 2, 28, 12, 0, 0), pastOccurrences));
+
+            DateTime now = new DateTime(2024, 2, 27, 12, 0, 0);
+            pastOccurrences.Add(now);
+
+            Assert.AreEqual(StatusEnum.OverLimit, target.GetStatus(new DateTime(2024, 2, 27, 12, 0, 0), pastOccurrences));
+            Assert.AreEqual(StatusEnum.Ok, target.GetStatus(new DateTime(2024, 2, 28, 12, 0, 0), pastOccurrences));
+        }
+
+        [TestMethod]
         public void Test_GetNextOccurrence_TwicePerDay()
         {
             var target = new Target

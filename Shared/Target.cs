@@ -9,6 +9,28 @@ namespace BlazorApp.Shared
         public int Qty { get; set; }
         public TimeSpan Frequency { get; set; }
 
+        public StatusEnum GetStatus(DateTime now, IEnumerable<DateTime> pastOccurrences)
+        {
+            var relevantPeriod = now - Frequency;
+
+            var relevantPastOccurrences = pastOccurrences
+                .Where(o => o > relevantPeriod)
+                .ToList();
+
+            if (relevantPastOccurrences.Count < Qty)
+            {
+                return StatusEnum.Ok;
+            }
+            else if (relevantPastOccurrences.Count == Qty)
+            {
+                return StatusEnum.AtLimit;
+            }
+            else
+            {
+                return StatusEnum.OverLimit;
+            }
+        }
+
         public DateTime GetEarliestOccurrence(DateTime now, IEnumerable<DateTime> pastOccurrences)
         {
             var relevantPeriod = now - Frequency;

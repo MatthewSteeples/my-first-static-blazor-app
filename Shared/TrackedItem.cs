@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Schema;
 
 namespace BlazorApp.Shared
 {
@@ -19,6 +20,18 @@ namespace BlazorApp.Shared
         public List<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();
 
         public List<Target> Targets { get; set; } = new List<Target>();
+
+        public StatusEnum GetStatus(DateTime now)
+        {
+            var eligibleTargets = Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero);
+
+            if (eligibleTargets.Any() is false)
+                return StatusEnum.Ok;
+
+            var statuses = eligibleTargets.Select(t => t.GetStatus(now, PastOccurrences.Select(o => o.SafetyTimestamp)));
+
+            return statuses.Max();
+        }
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {
