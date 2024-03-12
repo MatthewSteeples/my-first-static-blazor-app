@@ -11,7 +11,14 @@
         {
             if (dateTime.Date == relativeTo.Date)
             {
-                return dateTime.ToShortTimeString();
+                if (dateTime.TimeOfDay == relativeTo.TimeOfDay)
+                {
+                    return "Now";
+                }
+                else
+                {
+                    return dateTime.ToShortTimeString();
+                }
             }
 
             return dateTime.ToString("g");

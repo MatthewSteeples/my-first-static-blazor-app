@@ -24,7 +24,7 @@
 <p>Last Tracked: @LastTracked</p>
 @if (ItemToTrack.Targets.Any())
 {
-    <p>Next Due: @ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault(DateTime.UtcNow).ToRelativeDateString()</p>
+    <p>Next Due: @NextDue</p>
 }
 
 <p>
@@ -32,6 +32,7 @@
 </p>
 
 <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
+
     @if (ItemToTrack.PastOccurrences.Any())
     {
         <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
@@ -45,25 +46,26 @@
                             {
                                 <li>@occurrence.ActualTimestamp.ToShortTimeString()</li>
                             }
-
                         </ol>
                     </li>
                 }
             </ul>
             <button class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
-
         </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
     }
 
-    <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
-        <ol>
-            @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
-            {
-                <li>@occurrence.ToString("g")</li>
-            }
-        </ol>
-        <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
-    </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
+    @if (ItemToTrack.Targets.Any())
+    {
+        <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
+            <ol>
+                @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
+                {
+                    <li>@occurrence.ToString("g")</li>
+                }
+            </ol>
+            <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
+        </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
+    }
 
 </Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
 
@@ -96,6 +98,16 @@
             }
 
             return "Never";
+        }
+    }
+
+    public string NextDue
+    {
+        get
+        {
+            var now = DateTime.UtcNow;
+
+            return ItemToTrack.GetFutureOccurrences(now, 1).FirstOrDefault(now).ToRelativeDateString(now);
         }
     }
 }
