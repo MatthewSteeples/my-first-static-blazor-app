@@ -1,8 +1,15 @@
 ﻿@using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
 
-<InputNumber @bind-Value="Target.Qty" />
-<InputNumber @bind-Value="Hours" />
+<label>
+    Qty:
+    <InputNumber @bind-Value="Target.Qty" />
+</label>
+
+<label>
+    Hours:
+    <InputNumber @bind-Value="Hours" />
+</label>
 
 @code {
     [Parameter]
