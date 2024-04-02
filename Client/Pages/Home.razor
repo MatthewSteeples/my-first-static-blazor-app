@@ -7,10 +7,6 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
 @code {
     private List<TrackedItem> items = [];
 
@@ -29,7 +25,7 @@ Welcome to your new app.
 
     @foreach (var item in items)
     {
-        <FluentGridItem>
+        <FluentGridItem Style="min-width: 250px">
             <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
         </FluentGridItem>
     }
