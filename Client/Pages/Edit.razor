@@ -21,8 +21,8 @@
     @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp))
     {
         <p>
-            <FluentDatePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
-            <FluentTimePicker Value="@occurrence.ActualTimestamp" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault())" />
+            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
             <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
         </p>
     }

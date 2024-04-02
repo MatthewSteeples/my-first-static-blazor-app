@@ -44,7 +44,7 @@
                         <ol>
                             @foreach (var occurrence in occurrences.OrderByDescending(a => a.ActualTimestamp))
                             {
-                                <li>@occurrence.ActualTimestamp.ToShortTimeString()</li>
+                                <li>@occurrence.ActualTimestamp.ToLocalTime().ToShortTimeString()</li>
                             }
                         </ol>
                     </li>
@@ -60,7 +60,7 @@
             <ol>
                 @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
                 {
-                    <li>@occurrence.ToString("g")</li>
+                    <li>@occurrence.ToLocalTime().ToString("g")</li>
                 }
             </ol>
             <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
@@ -93,7 +93,7 @@
         {
             if (ItemToTrack.PastOccurrences.Any())
             {
-                var max = ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max();
+                var max = ItemToTrack.PastOccurrences.Select(a => a.ActualTimestamp).Max().ToLocalTime();
                 return max.ToRelativeDateString();
             }
 
@@ -105,9 +105,13 @@
     {
         get
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
 
-            return ItemToTrack.GetFutureOccurrences(now, 1).FirstOrDefault(now).ToRelativeDateString(now);
+            return ItemToTrack
+                .GetFutureOccurrences(now, 1)
+                .FirstOrDefault(now)
+                .ToLocalTime()
+                .ToRelativeDateString(now);
         }
     }
 }
