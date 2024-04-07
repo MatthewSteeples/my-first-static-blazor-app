@@ -105,13 +105,13 @@
     {
         get
         {
-            var now = DateTime.Now;
+            var utcNow = DateTime.UtcNow;
 
             return ItemToTrack
-                .GetFutureOccurrences(now, 1)
-                .FirstOrDefault(now)
+                .GetFutureOccurrences(utcNow, 1)
+                .FirstOrDefault(utcNow)
                 .ToLocalTime()
-                .ToRelativeDateString(now);
+                .ToRelativeDateString(utcNow.ToLocalTime());
         }
     }
 }
