@@ -21,16 +21,23 @@
     }
 }
 
-<FluentGrid Spacing="6">
+@if (items.Any())
+{
+    <FluentGrid Spacing="6">
 
-    @foreach (var item in items)
-    {
-        <FluentGridItem Style="min-width: 250px">
-            <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
-        </FluentGridItem>
-    }
+        @foreach (var item in items)
+        {
+            <FluentGridItem Style="min-width: 250px">
+                <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
+            </FluentGridItem>
+        }
 
-</FluentGrid>
+    </FluentGrid>
+}
+else
+{
+    <p>No items currently tracked. Click the button below to add a new item.</p>
+}
 
 <p>
     <button class="btn btn-primary" @onclick="AddItem">Add New</button>
