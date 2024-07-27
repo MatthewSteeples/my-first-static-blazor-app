@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using BlazorApp.Shared
+@using BlazorApp.Shared.Comparers
 @using Microsoft.FluentUI.AspNetCore.Components
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
@@ -18,6 +19,8 @@
         {
             items.Add(await localStorage.GetItemAsync<TrackedItem>(key));
         }
+
+        items.Sort(new TrackedItemComparerDescending());
     }
 }
 
