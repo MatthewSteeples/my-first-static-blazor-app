@@ -37,7 +37,7 @@
     {
         <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
             <ul>
-                @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.Date).OrderByDescending(a => a.Key))
+                @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.ToLocalTime().Date).OrderByDescending(a => a.Key))
                 {
                     <li>
                         <strong>@occurrences.Key.ToShortDateString()</strong>
