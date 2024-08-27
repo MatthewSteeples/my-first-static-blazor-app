@@ -1,5 +1,4 @@
-﻿@page "/Export"
-@using System.IO
+﻿@using System.IO
 @using BlazorApp.Shared
 @using System.Text
 
@@ -7,8 +6,6 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @*Taken from https://learn.microsoft.com/en-us/aspnet/core/blazor/file-downloads?view=aspnetcore-8.0#download-from-a-stream*@
-
-<PageTitle>File Download 1</PageTitle>
 
 <script>
     window.downloadFileFromStream = async (fileName, contentStreamReference) => {
@@ -24,11 +21,7 @@
     }
 </script>
 
-<h1>File Download Example 1</h1>
-
-<button @onclick="DownloadFileFromStream">
-    Download File From Stream
-</button>
+<button class="btn btn-info" @onclick="DownloadFileFromStream">Export</button>
 
 @code {
     private async Task<Stream> GetFileStream()
@@ -51,7 +44,7 @@
     private async Task DownloadFileFromStream()
     {
         var fileStream = await GetFileStream();
-        var fileName = "log.txt";
+        var fileName = "tracker.json";
 
         using var streamRef = new DotNetStreamReference(stream: fileStream);
 
