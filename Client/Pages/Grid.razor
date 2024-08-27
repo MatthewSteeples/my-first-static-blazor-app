@@ -1,0 +1,71 @@
+﻿@page "/Grid"
+@using BlazorApp.Shared
+@using BlazorApp.Shared.Comparers
+@using Microsoft.FluentUI.AspNetCore.Components
+
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager Navigation
+
+<PageTitle>Grid</PageTitle>
+
+@code {
+    DateTime utcNow = DateTime.UtcNow;
+
+    private List<TrackedItem> items = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
+
+        foreach (var key in keys)
+        {
+            items.Add(await localStorage.GetItemAsync<TrackedItem>(key));
+        }
+
+        items.Sort(new TrackedItemComparerDescending());
+    }
+}
+
+@if (items.Any())
+{
+    <FluentDataGrid Items="@items.AsQueryable()">
+        <PropertyColumn Property="@(p => p.Name)" Sortable="true" />
+        <TemplateColumn Title="Last Tracked">
+            @if (context.PastOccurrences.Any())
+            {
+                var max = context.PastOccurrences.Select(a => a.ActualTimestamp).Max().ToLocalTime();
+                @max.ToRelativeDateString()
+            }
+        </TemplateColumn>
+        <TemplateColumn Title="Next Due">
+            @if (context.Targets.Any())
+            {
+                @context.GetFutureOccurrences(utcNow, 1).FirstOrDefault(utcNow).ToLocalTime().ToRelativeDateString(utcNow.ToLocalTime());
+            }
+        </TemplateColumn>
+        <TemplateColumn>
+            <button class="btn btn-success" @onclick="@(() => OnClickTrack(context))">Track</button>
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+else
+{
+    <p>No items currently tracked. Click the button below to add a new item.</p>
+}
+
+<p>
+    <button class="btn btn-primary" @onclick="AddItem">Add New</button>
+</p>
+
+@code {
+    async void OnClickTrack(TrackedItem trackedItem)
+    {
+        trackedItem.AddOccurrence(DateTime.UtcNow);
+        await localStorage.SetItemAsync(nameof(TrackedItem) + trackedItem.Id, trackedItem);
+    }
+
+    private void AddItem()
+    {
+        Navigation.NavigateTo("/edit/" + Guid.NewGuid());
+    }
+}
