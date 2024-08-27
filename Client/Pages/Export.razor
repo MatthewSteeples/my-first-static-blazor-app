@@ -1,0 +1,60 @@
+﻿@page "/Export"
+@using System.IO
+@using BlazorApp.Shared
+@using System.Text
+
+@inject IJSRuntime JS
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@*Taken from https://learn.microsoft.com/en-us/aspnet/core/blazor/file-downloads?view=aspnetcore-8.0#download-from-a-stream*@
+
+<PageTitle>File Download 1</PageTitle>
+
+<script>
+    window.downloadFileFromStream = async (fileName, contentStreamReference) => {
+      const arrayBuffer = await contentStreamReference.arrayBuffer();
+      const blob = new Blob([arrayBuffer]);
+      const url = URL.createObjectURL(blob);
+      const anchorElement = document.createElement('a');
+      anchorElement.href = url;
+      anchorElement.download = fileName ?? '';
+      anchorElement.click();
+      anchorElement.remove();
+      URL.revokeObjectURL(url);
+    }
+</script>
+
+<h1>File Download Example 1</h1>
+
+<button @onclick="DownloadFileFromStream">
+    Download File From Stream
+</button>
+
+@code {
+    private async Task<Stream> GetFileStream()
+    {
+        var items = new List<string>();
+
+        var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
+
+        foreach (var key in keys)
+        {
+            items.Add(await localStorage.GetItemAsStringAsync(key));
+        }
+
+        var bigString = "[" + string.Join(", ", items) + "]";
+
+        byte[] byteArray = Encoding.UTF8.GetBytes(bigString);
+        return new MemoryStream(byteArray);
+    }
+
+    private async Task DownloadFileFromStream()
+    {
+        var fileStream = await GetFileStream();
+        var fileName = "log.txt";
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+}
