@@ -9,6 +9,7 @@
 <PageTitle>Home</PageTitle>
 
 @code {
+    private List<TrackedItem> allItems = [];
     private List<TrackedItem> items = [];
 
     protected override async Task OnInitializedAsync()
@@ -17,25 +18,40 @@
 
         foreach (var key in keys)
         {
-            items.Add(await localStorage.GetItemAsync<TrackedItem>(key));
+            TrackedItem item = await localStorage.GetItemAsync<TrackedItem>(key);
+
+            allItems.Add(item);
         }
 
-        items.Sort(new TrackedItemComparerDescending());
+        allItems.Sort(new TrackedItemComparerDescending());
+
+        items = allItems;
     }
 }
 
-@if (items.Any())
+@if (allItems.Any())
 {
-    <FluentGrid Spacing="6">
+    <FluentTextField @oninput=searchChange Placeholder="Search..." @ref="txtSearch">
+        <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Color="@Color.Neutral" Slot="end" />
+    </FluentTextField>
 
-        @foreach (var item in items)
-        {
-            <FluentGridItem Style="min-width: 250px">
-                <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
-            </FluentGridItem>
-        }
+    if (items.Any())
+    {
+        <FluentGrid Spacing="6">
 
-    </FluentGrid>
+            @foreach (var item in items)
+            {
+                <FluentGridItem Style="min-width: 250px">
+                    <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
+                </FluentGridItem>
+            }
+
+        </FluentGrid>
+    }
+    else
+    {
+        <p>No items found.</p>
+    }
 }
 else
 {
@@ -52,6 +68,41 @@ else
 </p>
 
 @code {
+    private FluentTextField txtSearch;
+
+    private void searchChange(ChangeEventArgs e)
+    {
+        var newFilter = e.Value?.ToString();
+
+        searchChange(newFilter);
+    }
+
+    private void searchChange(string? newFilter)
+    {
+        if (newFilter == null)
+            return;
+
+        if (_searchFilter == newFilter)
+            return;
+        
+        if (string.IsNullOrEmpty(newFilter))
+        {
+            items = allItems;
+        }
+        else if (newFilter.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase))
+        {
+            items = items.Where(a => a.Name.Contains(newFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        else
+        {
+            items = allItems.Where(a => a.Name.Contains(newFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        _searchFilter = newFilter;
+    }
+
+    private string _searchFilter = "";
+
     private void AddItem()
     {
         Navigation.NavigateTo("/edit/" + Guid.NewGuid());
