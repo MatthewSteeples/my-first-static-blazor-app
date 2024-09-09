@@ -18,7 +18,7 @@
 
     <p>Past Occurrences:</p>
 
-    @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp))
+    @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
     {
         <p>
             <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
@@ -26,6 +26,8 @@
             <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
         </p>
     }
+
+    <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
 
     <p>Targets: </p>
     @foreach (var target in Item.Targets)
@@ -51,6 +53,8 @@
 
     [SupplyParameterFromForm]
     public TrackedItem Item { get; set; } = new TrackedItem(); //Needs to be "new" otherwise the form complains as it loads before the data is loaded
+
+    private int showHistoryCount = 5;
 
     protected override async Task OnInitializedAsync()
     {
