@@ -19,7 +19,9 @@
 
         foreach (var key in keys)
         {
-            items.Add(await localStorage.GetItemAsync<TrackedItem>(key));
+            var item = await localStorage.GetItemAsync<TrackedItem>(key);
+            if (item != null)
+                items.Add(item);
         }
 
         items.Sort(new TrackedItemComparerDescending());

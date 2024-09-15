@@ -32,7 +32,10 @@
 
         foreach (var key in keys)
         {
-            items.Add(await localStorage.GetItemAsStringAsync(key));
+            var item = await localStorage.GetItemAsStringAsync(key);
+
+            if (!string.IsNullOrEmpty(item))
+                items.Add(item);
         }
 
         var bigString = "[" + string.Join(", ", items) + "]";

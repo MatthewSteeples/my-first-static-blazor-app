@@ -18,9 +18,10 @@
 
         foreach (var key in keys)
         {
-            TrackedItem item = await localStorage.GetItemAsync<TrackedItem>(key);
+            var item = await localStorage.GetItemAsync<TrackedItem>(key);
 
-            allItems.Add(item);
+            if (item != null)
+                allItems.Add(item);
         }
 
         allItems.Sort(new TrackedItemComparerDescending());
@@ -31,7 +32,7 @@
 
 @if (allItems.Any())
 {
-    <FluentTextField @oninput=searchChange Placeholder="Search..." @ref="txtSearch">
+    <FluentTextField @oninput=searchChange Placeholder="Search...">
         <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Color="@Color.Neutral" Slot="end" />
     </FluentTextField>
 
@@ -68,8 +69,6 @@ else
 </p>
 
 @code {
-    private FluentTextField txtSearch;
-
     private void searchChange(ChangeEventArgs e)
     {
         var newFilter = e.Value?.ToString();
