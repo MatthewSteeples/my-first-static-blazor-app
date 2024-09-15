@@ -24,7 +24,12 @@
 <p>Last Tracked: @LastTracked</p>
 @if (ItemToTrack.Targets.Any())
 {
-    <p>Next Due: @NextDue</p>
+    <p>
+        Next Due: @NextDue @if (NextDue != NextSpaced)
+        {
+            <span> (@NextSpaced)</span>
+        }
+    </p>
 }
 
 <p>
@@ -101,17 +106,36 @@
         }
     }
 
+    private DateTime getNextDueTime(DateTime utcNow)
+    {
+        return ItemToTrack
+            .GetFutureOccurrences(utcNow, 1)
+            .FirstOrDefault(utcNow);
+    }
+
     public string NextDue
     {
         get
         {
             var utcNow = DateTime.UtcNow;
 
-            return ItemToTrack
-                .GetFutureOccurrences(utcNow, 1)
-                .FirstOrDefault(utcNow)
+            return getNextDueTime(utcNow)
                 .ToLocalTime()
                 .ToRelativeDateString(utcNow.ToLocalTime());
+        }
+    }
+
+    public string NextSpaced
+    {
+        get
+        {
+            var utcNow = DateTime.UtcNow;
+
+            return ItemToTrack
+                .GetFutureSpacedOccurrences(utcNow, 1)
+                .FirstOrDefault(utcNow)
+                .ToLocalTime()
+                .ToRelativeDateString(getNextDueTime(utcNow).ToLocalTime());
         }
     }
 }

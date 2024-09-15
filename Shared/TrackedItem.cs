@@ -60,6 +60,28 @@ namespace BlazorApp.Shared
             }
         }
 
+        public IEnumerable<DateTime> GetFutureSpacedOccurrences(DateTime now, int count)
+        {
+            var eligibleTargets = Targets
+                .Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero)
+                .ToList();
+
+            if (eligibleTargets.Any() is false)
+                yield break;
+
+            var pastOccurrences = PastOccurrences
+                .Select(o => o.SafetyTimestamp)
+                .ToList();
+
+            for (int i = 0; i < count; i++)
+            {
+                var nextOccurrence = eligibleTargets.Select(t => t.GetSpacedOccurrence(now, pastOccurrences)).Max();
+
+                yield return nextOccurrence;
+                pastOccurrences.Add(nextOccurrence);
+            }
+        }
+
         public void AddOccurrence(DateTime timestamp)
         {
             var eligibleTargets = Targets
