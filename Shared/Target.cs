@@ -13,15 +13,15 @@ namespace BlazorApp.Shared
         {
             var relevantPeriod = now - Frequency;
 
-            var relevantPastOccurrences = pastOccurrences
+            var relevantPastOccurrencesCount = pastOccurrences
                 .Where(o => o > relevantPeriod)
-                .ToList();
+                .Count();
 
-            if (relevantPastOccurrences.Count < Qty)
+            if (relevantPastOccurrencesCount < Qty)
             {
                 return StatusEnum.Ok;
             }
-            else if (relevantPastOccurrences.Count == Qty)
+            else if (relevantPastOccurrencesCount == Qty)
             {
                 return StatusEnum.AtLimit;
             }
