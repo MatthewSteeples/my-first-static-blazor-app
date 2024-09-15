@@ -123,7 +123,7 @@ namespace BlazorApp.Shared
         }
 
         [TestMethod]
-        public void Test_GetNextOccurrence_FourTimesPerDay_IsSpreadOut()
+        public void Test_GetSpacedOccurrence_FourTimesPerDay_IsSpreadOut()
         {
             var target = new Target
             {

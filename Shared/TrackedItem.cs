@@ -35,7 +35,9 @@ namespace BlazorApp.Shared
 
         public IEnumerable<DateTime> GetFutureOccurrences(DateTime now, int count)
         {
-            var eligibleTargets = Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero);
+            var eligibleTargets = Targets
+                .Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero)
+                .ToList();
 
             if (eligibleTargets.Any() is false)
                 yield break;
@@ -48,7 +50,7 @@ namespace BlazorApp.Shared
             {
                 var nextOccurrence = eligibleTargets.Select(t => t.GetEarliestOccurrence(now, pastOccurrences)).Max();
 
-                if (nextOccurrence == now)
+                if (nextOccurrence == now && eligibleTargets.All(a => a.Qty > 1))
                 {
                     nextOccurrence = eligibleTargets.Select(t => t.GetSpacedOccurrence(now, pastOccurrences)).Max();
                 }
@@ -60,7 +62,9 @@ namespace BlazorApp.Shared
 
         public void AddOccurrence(DateTime timestamp)
         {
-            var eligibleTargets = Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero);
+            var eligibleTargets = Targets
+                .Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero)
+                .ToList();
 
             if (eligibleTargets.Any() is false)
             {
