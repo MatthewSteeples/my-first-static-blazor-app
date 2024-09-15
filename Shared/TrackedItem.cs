@@ -17,9 +17,9 @@ namespace BlazorApp.Shared
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
-        public List<Occurrence> PastOccurrences { get; set; } = new List<Occurrence>();
+        public List<Occurrence> PastOccurrences { get; set; } = [];
 
-        public List<Target> Targets { get; set; } = new List<Target>();
+        public List<Target> Targets { get; set; } = [];
 
         public StatusEnum GetStatus(DateTime now)
         {

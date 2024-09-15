@@ -17,8 +17,8 @@ namespace Shared.Tests
             var trackedItem = new TrackedItem()
             {
                 Name = "Tablet",
-                Targets = new List<Target>
-                {
+                Targets =
+                [
                     new Target
                     {
                         Qty = 4,
@@ -29,7 +29,7 @@ namespace Shared.Tests
                         Qty = 1,
                         Frequency = TimeSpan.FromHours(4)
                     },
-                },
+                ],
                 PastOccurrences = [],
             };
 
@@ -50,14 +50,14 @@ namespace Shared.Tests
             var trackedItem = new TrackedItem()
             {
                 Name = "Tablet",
-                Targets = new List<Target>
-                {
+                Targets =
+                [
                     new Target
                     {
                         Qty = 4,
                         Frequency = TimeSpan.FromDays(1)
                     },
-                },
+                ],
                 PastOccurrences = [],
             };
 
@@ -78,14 +78,14 @@ namespace Shared.Tests
             var trackedItem = new TrackedItem()
             {
                 Name = "Tablet",
-                Targets = new List<Target>
-                {
+                Targets =
+                [
                     new Target
                     {
                         Qty = 4,
                         Frequency = TimeSpan.FromDays(1)
                     },
-                },
+                ],
                 PastOccurrences = [],
             };
 
@@ -111,8 +111,8 @@ namespace Shared.Tests
             var trackedItem = new TrackedItem()
             {
                 Name = "Tablet",
-                Targets = new List<Target>
-                {
+                Targets =
+                [
                     new Target
                     {
                         Qty = 4,
@@ -123,7 +123,7 @@ namespace Shared.Tests
                         Qty = 1,
                         Frequency = TimeSpan.FromHours(4)
                     },
-                },
+                ],
                 PastOccurrences = [],
             };
 
@@ -178,8 +178,8 @@ namespace Shared.Tests
             var trackedItem = new TrackedItem()
             {
                 Name = "Tablet",
-                Targets = new List<Target>
-                {
+                Targets =
+                [
                     new Target
                     {
                         Qty = 4,
@@ -190,7 +190,7 @@ namespace Shared.Tests
                         Qty = 1,
                         Frequency = TimeSpan.FromHours(4)
                     },
-                },
+                ],
                 PastOccurrences = [],
             };
 
