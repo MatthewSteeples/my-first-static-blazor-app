@@ -2,6 +2,7 @@
 {
     public static class DateTimeHelper
     {
+        public const string Now = "Now";
         public static string ToRelativeDateString(this DateTime dateTime)
         {
             return dateTime.ToRelativeDateString(DateTime.Now);
@@ -13,7 +14,7 @@
             {
                 if (dateTime.TimeOfDay == relativeTo.TimeOfDay)
                 {
-                    return "Now";
+                    return Now;
                 }
                 else
                 {

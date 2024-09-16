@@ -73,9 +73,11 @@ namespace BlazorApp.Shared
                 .Select(o => o.SafetyTimestamp)
                 .ToList();
 
+            DateTime nextOccurrence = now;
+
             for (int i = 0; i < count; i++)
             {
-                var nextOccurrence = eligibleTargets.Select(t => t.GetSpacedOccurrence(now, pastOccurrences)).Max();
+                nextOccurrence = eligibleTargets.Select(t => t.GetSpacedOccurrence(nextOccurrence, pastOccurrences)).Max();
 
                 yield return nextOccurrence;
                 pastOccurrences.Add(nextOccurrence);

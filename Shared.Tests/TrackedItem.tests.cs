@@ -115,6 +115,76 @@ namespace Shared.Tests
         }
 
         [TestMethod]
+        public void Test_MultipleTargets_Spaced_WithStartingValues()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Name = "Tablet",
+                Targets =
+                [
+                    new Target
+                    {
+                        Qty = 4,
+                        Frequency = TimeSpan.FromDays(1)
+                    },
+                    new Target
+                    {
+                        Qty = 1,
+                        Frequency = TimeSpan.FromHours(4)
+                    },
+                ],
+                PastOccurrences = [],
+            };
+
+            var now = new DateTime(2024, 2, 28, 12, 0, 0);
+
+            trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 4, 0, 0));
+            trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 8, 0, 0));
+
+            var futureOccurrences = trackedItem.GetFutureSpacedOccurrences(now, 5).ToList();
+
+            Assert.AreEqual(5, futureOccurrences.Count);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), futureOccurrences[0]);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 22, 0, 0), futureOccurrences[1]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 4, 0, 0), futureOccurrences[2]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 8, 0, 0), futureOccurrences[3]);
+            Assert.AreEqual(new DateTime(2024, 2, 29, 16, 0, 0), futureOccurrences[4]);
+        }
+
+        [TestMethod]
+        public void Test_MultipleTargets_Spaced_WithStartingValues2()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Name = "Tablet",
+                Targets =
+                [
+                    new Target
+                    {
+                        Qty = 4,
+                        Frequency = TimeSpan.FromDays(1)
+                    },
+                    new Target
+                    {
+                        Qty = 1,
+                        Frequency = TimeSpan.FromHours(4)
+                    },
+                ],
+                PastOccurrences = [],
+            };
+
+            var now = new DateTime(2024, 2, 28, 13, 0, 0);
+
+            trackedItem.AddOccurrence(new DateTime(2024, 2, 27, 18, 0, 0));
+            trackedItem.AddOccurrence(new DateTime(2024, 2, 28, 12, 0, 0));
+
+            var futureOccurrences = trackedItem.GetFutureSpacedOccurrences(now, 1).ToList();
+
+            Assert.AreEqual(1, futureOccurrences.Count);
+            Assert.AreEqual(new DateTime(2024, 2, 28, 16, 0, 0), futureOccurrences[0]);
+        }
+
+        [TestMethod]
         public void Test_SingleTargetSpacesOut()
         {
             var trackedItem = new TrackedItem()
