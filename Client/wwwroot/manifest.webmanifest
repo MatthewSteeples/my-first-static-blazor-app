@@ -1,12 +1,19 @@
 {
   "name": "P4nda Tracker",
   "short_name": "Tracker",
-  "id": "./",
+  "id": "d8eb5d06-7db1-4072-b9de-a6404da77998",
+  "description": "Tracker is designed to help with your medication. It let's you log when you take them to help ensure you don't take them too frequently",
   "start_url": "./",
+  "scope": "https://tracker.p4nda.co.uk",
+  "lang": "en",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",
   "prefer_related_applications": false,
+  "orientation": "any",
+  "edge_side_panel": {
+    "preferred_width": "400"
+  },
   "icons": [
     {
       "src": "icon-512.png",
@@ -18,5 +25,8 @@
       "type": "image/png",
       "sizes": "192x192"
     }
-  ]
+  ],
+  "launch_handler": {
+    "client_mode": "auto"
+  }
 }
