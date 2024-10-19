@@ -4,6 +4,8 @@
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+@inject IHttpClientFactory HttpClientFactory
 
 <h3>
     @ItemToTrack.Name
@@ -35,6 +37,7 @@
 
 <p>
     <button class="btn btn-success" @onclick="OnClick">Track</button>
+    <button class="btn" @onclick="Notify">Notify</button>
 </p>
 
 <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
@@ -82,6 +85,24 @@
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000);
+    }
+
+    async void Notify()
+    {
+        var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+
+        if (subscription != null)
+        {
+            subscription.Message = "Time for " + ItemToTrack.Name;
+            subscription.TargetTime = getNextDueTime(DateTime.UtcNow);
+
+            using var httpClient = HttpClientFactory.CreateClient("PushNotifications");
+            
+            await httpClient.PostAsJsonAsync("api/notifications", subscription);
+
+            ToastService.ShowToast(ToastIntent.Success, "Notification scheduled for " + subscription.TargetTime.ToRelativeDateString(DateTime.UtcNow), 5000);
+            // await JSRuntime.InvokeVoidAsync("blazorPushNotifications.sendNotification", subscription, "New Occurrence", "A new occurrence has been tracked.");
+        }
     }
 
     void edit()
