@@ -15,4 +15,6 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
 
+builder.Services.AddHttpClient();
+
 await builder.Build().RunAsync();
