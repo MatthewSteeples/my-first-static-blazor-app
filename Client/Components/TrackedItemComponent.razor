@@ -19,6 +19,15 @@
             break;
     }
 
+    @if (ItemToTrack.Favourite)
+    {
+        <FluentIcon Value="@(new Icons.Filled.Size24.Star())" OnClick="toggleFavourite" />
+    }
+    else
+    {
+        <FluentIcon Value="@(new Icons.Regular.Size24.StarOff())" OnClick="toggleFavourite" />
+    }
+
 </h3>
 
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
@@ -87,6 +96,12 @@
     void edit()
     {
         Navigation.NavigateTo("/edit/" + ItemToTrack.Id);
+    }
+
+    async void toggleFavourite()
+    {
+        ItemToTrack.Favourite = !ItemToTrack.Favourite;
+        await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
     }
 
     private int showHistoryCount = 5;

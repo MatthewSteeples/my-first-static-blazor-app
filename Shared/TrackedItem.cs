@@ -17,6 +17,7 @@ namespace BlazorApp.Shared
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
+        public bool Favourite { get; set; }
         public List<Occurrence> PastOccurrences { get; set; } = [];
 
         public List<Target> Targets { get; set; } = [];

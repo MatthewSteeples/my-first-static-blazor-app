@@ -19,9 +19,18 @@ namespace BlazorApp.Shared.Comparers
     {
         public int Compare(TrackedItem x, TrackedItem y)
         {
-            if (x.PastOccurrences.Any())
+            if (x.Favourite && y.Favourite is false)
             {
-                if (y.PastOccurrences.Any())
+                return 1;
+            }
+            else if (y.Favourite && x.Favourite is false)
+            {
+                return -1;
+            }
+
+            if (x.PastOccurrences.Count != 0)
+            {
+                if (y.PastOccurrences.Count != 0)
                 {
                     var maxX = x.PastOccurrences.Max(o => o.ActualTimestamp);
                     var maxY = y.PastOccurrences.Max(o => o.ActualTimestamp);
@@ -49,7 +58,7 @@ namespace BlazorApp.Shared.Comparers
                     return 1;
                 }
             }
-            else if (y.PastOccurrences.Any())
+            else if (y.PastOccurrences.Count != 0)
             {
                 return -1;
             }
