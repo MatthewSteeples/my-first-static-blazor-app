@@ -90,7 +90,7 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
-        ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000);
+        ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
     }
 
     void edit()
