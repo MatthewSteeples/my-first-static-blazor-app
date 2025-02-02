@@ -19,9 +19,7 @@
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.0.0" />
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.10.4" />
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.10.4" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="3.6.3" />
-    <PackageVersion Include="MSTest.TestFramework" Version="3.6.3" />
+    <PackageVersion Include="MSTest" Version="3.7.3" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.0" />
     <PackageVersion Include="WebPush" Version="1.0.12" />
   </ItemGroup>
