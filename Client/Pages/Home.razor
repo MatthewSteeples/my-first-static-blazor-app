@@ -2,6 +2,7 @@
 @using BlazorApp.Shared
 @using BlazorApp.Shared.Comparers
 @using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
@@ -33,7 +34,7 @@
 @if (allItems.Any())
 {
     <FluentTextField @oninput=searchChange Placeholder="Search...">
-        <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Color="@Color.Neutral" Slot="end" />
+        <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="end" />
     </FluentTextField>
 
     if (items.Any())

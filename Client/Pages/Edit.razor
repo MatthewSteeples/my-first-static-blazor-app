@@ -2,6 +2,7 @@
 @using BlazorApp.Client.Components
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @inject NavigationManager Navigation
 
@@ -23,7 +24,7 @@
         <p>
             <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
             <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-            <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
         </p>
     }
 
@@ -34,7 +35,7 @@
     {
         <p>
             <TargetEditor Target="target" />
-            <FluentIcon Value="@(new Icons.Regular.Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
+            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
         </p>
     }
 

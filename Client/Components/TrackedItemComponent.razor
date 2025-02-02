@@ -1,5 +1,7 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Shared
+@using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
@@ -7,25 +9,25 @@
 
 <h3>
     @ItemToTrack.Name
-    <FluentIcon Value="@(new Icons.Regular.Size24.Edit())" OnClick="edit" />
+    <FluentIcon Value="@(new Regular.Size24.Edit())" OnClick="edit" />
 
     @switch (ItemToTrack.GetStatus(DateTime.UtcNow))
     {
         case StatusEnum.AtLimit:
-            <FluentIcon Value="@(new Icons.Filled.Size24.Warning())" Color="@Color.Warning" />
+            <FluentIcon Value="@(new Filled.Size24.Warning())" Color="@Color.Warning" />
             break;
         case StatusEnum.OverLimit:
-            <FluentIcon Value="@(new Icons.Filled.Size24.ErrorCircle())" Color="@Color.Error" />
+            <FluentIcon Value="@(new Filled.Size24.ErrorCircle())" Color="@Color.Error" />
             break;
     }
 
     @if (ItemToTrack.Favourite)
     {
-        <FluentIcon Value="@(new Icons.Filled.Size24.Star())" OnClick="toggleFavourite" />
+        <FluentIcon Value="@(new Filled.Size24.Star())" OnClick="toggleFavourite" />
     }
     else
     {
-        <FluentIcon Value="@(new Icons.Regular.Size24.StarOff())" OnClick="toggleFavourite" />
+        <FluentIcon Value="@(new Regular.Size24.StarOff())" OnClick="toggleFavourite" />
     }
 
 </h3>
