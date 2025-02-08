@@ -17,20 +17,34 @@
         <InputText @bind-Value="Item.Name" />
     </label>
 
-    <p>Past Occurrences:</p>
-
-    @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+    @if (Item.PastOccurrences.Any())
     {
-        <p>
-            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
-        </p>
+        <h2>Past Occurrences:</h2>
+
+        @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+        {
+            <p>
+                <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+            </p>
+        }
+
+        <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
     }
 
-    <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
+    <h2>Limits: </h2>
+    <p>What kind of limits do you want to set on this item. <FluentIcon Id="limitTooltip" Icon="Size24.Info" /> </p>
 
-    <p>Targets: </p>
+    <FluentTooltip Anchor="limitTooltip">
+        <strong>For example</strong>
+        <p>if you are tracking Paracetamol then you want to add 2 limits:</p>
+        <ul>
+            <li>1 every 4 hours</li>
+            <li>4 every 24 hours</li>
+        </ul>
+    </FluentTooltip>
+
     @foreach (var target in Item.Targets)
     {
         <p>
@@ -41,7 +55,7 @@
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
 
-    <p>
+    <p class="mt-5"> 
         <button type="submit" class="btn btn-success">Save</button>
         <button type="button" @onclick="Cancel" class="btn btn-secondary">Cancel</button>
         <button type="button" @onclick="Delete" class="btn btn-danger">Delete</button>
