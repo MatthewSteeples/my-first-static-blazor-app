@@ -82,17 +82,31 @@
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
 
     <h2>Stock Acquisitions:</h2>
-    @foreach (var acquisition in Item.StockAcquisitions)
-    {
-        <p>
-            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
-            <FluentLabel>
-                Quantity:
-                <InputNumber @bind-Value="acquisition.Quantity" />
-            </FluentLabel>
-            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
-        </p>
-    }
+    <table>
+        <thead>
+            <tr>
+                <th>Date Acquired</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var acquisition in Item.StockAcquisitions)
+            {
+                <tr>
+                    <td>
+                        <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+                    </td>
+                    <td>
+                        <InputNumber @bind-Value="acquisition.Quantity" />
+                    </td>
+                    <td>
+                        <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">Add Stock Acquisition</button>
 
