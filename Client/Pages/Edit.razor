@@ -1,4 +1,4 @@
-﻿@page "/edit/{id:guid}"
+@page "/edit/{id:guid}"
 @using BlazorApp.Client.Components
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
@@ -46,10 +46,7 @@
                             <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
                         </td>
                         <td>
-                            <FluentLabel>
-                                Stock Used:
-                                <InputNumber @bind-Value="occurrence.StockUsed" />
-                            </FluentLabel>
+                            <InputNumber @bind-Value="occurrence.StockUsed" />
                         </td>
                         <td>
                             <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
