@@ -30,6 +30,13 @@
         <FluentIcon Value="@(new Regular.Size24.StarOff())" OnClick="toggleFavourite" />
     }
 
+    @if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
+    {
+        @if (ItemToTrack.CalculateCurrentStockLevel() <= 7 * (ItemToTrack.DefaultStockUsage ?? 1))
+        {
+            <FluentIcon Value="@(new Regular.Size24.BoxArrowUp())" Color="@Color.Warning" />
+        }
+    }
 </h3>
 
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
@@ -42,6 +49,11 @@
             <span> (@NextSpaced)</span>
         }
     </p>
+}
+
+@if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
+{
+    <p>Current Stock Level: @ItemToTrack.CalculateCurrentStockLevel()</p>
 }
 
 <p>
