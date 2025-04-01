@@ -30,6 +30,10 @@
         <FluentIcon Value="@(new Regular.Size24.StarOff())" OnClick="toggleFavourite" />
     }
 
+    @if (ItemToTrack.CalculateCurrentStockLevel() <= 7 * (ItemToTrack.DefaultStockUsage ?? 1))
+    {
+        <FluentIcon Value="@(new Filled.Size24.Warning())" Color="@Color.Warning" />
+    }
 </h3>
 
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>

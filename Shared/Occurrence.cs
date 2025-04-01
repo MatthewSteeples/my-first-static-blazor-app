@@ -9,5 +9,7 @@ namespace BlazorApp.Shared
         public DateTime ActualTimestamp { get; set; }
 
         public DateTime SafetyTimestamp { get; set; }
+
+        public int? StockUsed { get; set; } // Pe61a
     }
 }

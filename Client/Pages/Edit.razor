@@ -17,6 +17,11 @@
         <InputText @bind-Value="Item.Name" />
     </label>
 
+    <label>
+        Default Stock Usage:
+        <InputNumber @bind-Value="Item.DefaultStockUsage" />
+    </label>
+
     @if (Item.PastOccurrences.Any())
     {
         <h2>Past Occurrences:</h2>
@@ -26,6 +31,10 @@
             <p>
                 <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
                 <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                <label>
+                    Stock Used:
+                    <InputNumber @bind-Value="occurrence.StockUsed" />
+                </label>
                 <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
             </p>
         }
@@ -54,6 +63,21 @@
     }
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
+
+    <h2>Stock Acquisitions:</h2>
+    @foreach (var acquisition in Item.StockAcquisitions)
+    {
+        <p>
+            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+            <label>
+                Quantity:
+                <InputNumber @bind-Value="acquisition.Quantity" />
+            </label>
+            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
+        </p>
+    }
+
+    <button type="button" class="btn btn-primary" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">Add Stock Acquisition</button>
 
     <p class="mt-5"> 
         <button type="submit" class="btn btn-success">Save</button>

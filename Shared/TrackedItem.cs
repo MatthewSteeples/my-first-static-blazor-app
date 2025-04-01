@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,8 +19,9 @@ namespace BlazorApp.Shared
         public string Category { get; set; }
         public bool Favourite { get; set; }
         public List<Occurrence> PastOccurrences { get; set; } = [];
-
         public List<Target> Targets { get; set; } = [];
+        public int? DefaultStockUsage { get; set; } // P0022
+        public List<StockAcquisition> StockAcquisitions { get; set; } = []; // Pddc3
 
         public StatusEnum GetStatus(DateTime now)
         {
@@ -93,7 +94,7 @@ namespace BlazorApp.Shared
 
             if (eligibleTargets.Any() is false)
             {
-                PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp });
+                PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp, StockUsed = DefaultStockUsage });
                 return;
             }
 
@@ -101,12 +102,19 @@ namespace BlazorApp.Shared
 
             var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
 
-            PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence });
+            PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence, StockUsed = DefaultStockUsage });
 
             foreach (var item in futureOccurrences)
             {
                 item.SafetyTimestamp = eligibleTargets.Select(t => t.GetEarliestOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
             }
+        }
+
+        public int CalculateCurrentStockLevel() // Paabd
+        {
+            int totalAcquired = StockAcquisitions.Sum(sa => sa.Quantity);
+            int totalUsed = PastOccurrences.Sum(po => po.StockUsed ?? 0);
+            return totalAcquired - totalUsed;
         }
     }
 }
