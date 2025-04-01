@@ -87,6 +87,7 @@
             <tr>
                 <th>Date Acquired</th>
                 <th>Quantity</th>
+                <th>Note</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -99,6 +100,9 @@
                     </td>
                     <td>
                         <InputNumber @bind-Value="acquisition.Quantity" />
+                    </td>
+                    <td>
+                        <InputText @bind-Value="acquisition.Note" />
                     </td>
                     <td>
                         <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
