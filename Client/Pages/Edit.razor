@@ -12,15 +12,15 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <label>
+    <FluentLabel>
         Name:
         <InputText @bind-Value="Item.Name" />
-    </label>
+    </FluentLabel>
 
-    <label>
+    <FluentLabel>
         Default Stock Usage:
         <InputNumber @bind-Value="Item.DefaultStockUsage" />
-    </label>
+    </FluentLabel>
 
     @if (Item.PastOccurrences.Any())
     {
@@ -31,10 +31,10 @@
             <p>
                 <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
                 <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                <label>
+                <FluentLabel>
                     Stock Used:
                     <InputNumber @bind-Value="occurrence.StockUsed" />
-                </label>
+                </FluentLabel>
                 <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
             </p>
         }
@@ -69,10 +69,10 @@
     {
         <p>
             <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
-            <label>
+            <FluentLabel>
                 Quantity:
                 <InputNumber @bind-Value="acquisition.Quantity" />
-            </label>
+            </FluentLabel>
             <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
         </p>
     }
