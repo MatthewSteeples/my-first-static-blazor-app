@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BlazorApp.Shared
 {
@@ -9,5 +7,7 @@ namespace BlazorApp.Shared
         public DateTime ActualTimestamp { get; set; }
 
         public DateTime SafetyTimestamp { get; set; }
+
+        public decimal? StockUsed { get; set; }
     }
 }

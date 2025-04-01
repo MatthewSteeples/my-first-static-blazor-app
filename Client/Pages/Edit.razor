@@ -1,4 +1,4 @@
-﻿@page "/edit/{id:guid}"
+@page "/edit/{id:guid}"
 @using BlazorApp.Client.Components
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
@@ -12,23 +12,49 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <label>
+    <FluentLabel>
         Name:
         <InputText @bind-Value="Item.Name" />
-    </label>
+    </FluentLabel>
+
+    <FluentLabel>
+        Default Stock Usage:
+        <InputNumber @bind-Value="Item.DefaultStockUsage" />
+    </FluentLabel>
 
     @if (Item.PastOccurrences.Any())
     {
         <h2>Past Occurrences:</h2>
 
-        @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
-        {
-            <p>
-                <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
-            </p>
-        }
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Stock Used</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+                {
+                    <tr>
+                        <td>
+                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                        </td>
+                        <td>
+                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                        </td>
+                        <td>
+                            <InputNumber @bind-Value="occurrence.StockUsed" />
+                        </td>
+                        <td>
+                            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
         <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
     }
@@ -54,6 +80,39 @@
     }
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
+
+    <h2>Stock Acquisitions:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date Acquired</th>
+                <th>Quantity</th>
+                <th>Note</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var acquisition in Item.StockAcquisitions)
+            {
+                <tr>
+                    <td>
+                        <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+                    </td>
+                    <td>
+                        <InputNumber @bind-Value="acquisition.Quantity" />
+                    </td>
+                    <td>
+                        <InputText @bind-Value="acquisition.Note" />
+                    </td>
+                    <td>
+                        <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-primary" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">Add Stock Acquisition</button>
 
     <p class="mt-5"> 
         <button type="submit" class="btn btn-success">Save</button>
@@ -93,7 +152,7 @@
 
         foreach (var occurrence in occurrences)
         {
-            Item.AddOccurrence(occurrence.ActualTimestamp);
+            Item.AddOccurrence(occurrence.ActualTimestamp, occurrence.StockUsed);
         }
 
         await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);

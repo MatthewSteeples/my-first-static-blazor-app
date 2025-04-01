@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Xml.Schema;
 
 namespace BlazorApp.Shared
 {
@@ -19,8 +17,9 @@ namespace BlazorApp.Shared
         public string Category { get; set; }
         public bool Favourite { get; set; }
         public List<Occurrence> PastOccurrences { get; set; } = [];
-
         public List<Target> Targets { get; set; } = [];
+        public decimal? DefaultStockUsage { get; set; }
+        public List<StockAcquisition> StockAcquisitions { get; set; } = [];
 
         public StatusEnum GetStatus(DateTime now)
         {
@@ -85,7 +84,9 @@ namespace BlazorApp.Shared
             }
         }
 
-        public void AddOccurrence(DateTime timestamp)
+        public void AddOccurrence(DateTime timestamp) => AddOccurrence(timestamp, DefaultStockUsage);
+
+        public void AddOccurrence(DateTime timestamp, decimal? stockUsed)
         {
             var eligibleTargets = Targets
                 .Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero)
@@ -93,7 +94,7 @@ namespace BlazorApp.Shared
 
             if (eligibleTargets.Any() is false)
             {
-                PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp });
+                PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = timestamp, StockUsed = stockUsed });
                 return;
             }
 
@@ -101,12 +102,19 @@ namespace BlazorApp.Shared
 
             var futureOccurrences = PastOccurrences.Where(o => o.ActualTimestamp > timestamp).ToList();
 
-            PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence });
+            PastOccurrences.Add(new Occurrence { ActualTimestamp = timestamp, SafetyTimestamp = nextOccurrence, StockUsed = stockUsed });
 
             foreach (var item in futureOccurrences)
             {
                 item.SafetyTimestamp = eligibleTargets.Select(t => t.GetEarliestOccurrence(item.ActualTimestamp, PastOccurrences.Where(a => a.ActualTimestamp < item.ActualTimestamp).Select(o => o.SafetyTimestamp))).Max();
             }
+        }
+
+        public decimal CalculateCurrentStockLevel() // Paabd
+        {
+            var totalAcquired = StockAcquisitions.Sum(sa => sa.Quantity);
+            var totalUsed = PastOccurrences.Sum(po => po.StockUsed ?? 0);
+            return totalAcquired - totalUsed;
         }
     }
 }

@@ -3,9 +3,13 @@
 @using BlazorApp.Shared.Comparers
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using Microsoft.AspNetCore.Components
+@using System.Net.Http
+@using System.Net.Http.Json
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject HttpClient Http
 
 <PageTitle>Home</PageTitle>
 
@@ -69,6 +73,10 @@ else
     <a href="/Grid">View Grid</a>
 </p>
 
+<p>
+    <button class="btn btn-primary" @onclick="SendTrackedItems">Send Tracked Items</button>
+</p>
+
 @code {
     private void searchChange(ChangeEventArgs e)
     {
@@ -106,5 +114,20 @@ else
     private void AddItem()
     {
         Navigation.NavigateTo("/edit/" + Guid.NewGuid());
+    }
+
+    private async Task SendTrackedItems()
+    {
+        var trackedItems = new List<TrackedItem>(); // Get your tracked items here
+        var response = await Http.PostAsJsonAsync("api/SaveTrackedItems", trackedItems);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Handle success
+        }
+        else
+        {
+            // Handle failure
+        }
     }
 }
