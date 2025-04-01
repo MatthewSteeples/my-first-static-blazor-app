@@ -26,18 +26,38 @@
     {
         <h2>Past Occurrences:</h2>
 
-        @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
-        {
-            <p>
-                <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                <FluentLabel>
-                    Stock Used:
-                    <InputNumber @bind-Value="occurrence.StockUsed" />
-                </FluentLabel>
-                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
-            </p>
-        }
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Stock Used</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+                {
+                    <tr>
+                        <td>
+                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                        </td>
+                        <td>
+                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                        </td>
+                        <td>
+                            <FluentLabel>
+                                Stock Used:
+                                <InputNumber @bind-Value="occurrence.StockUsed" />
+                            </FluentLabel>
+                        </td>
+                        <td>
+                            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
         <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
     }
