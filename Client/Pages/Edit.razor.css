@@ -119,6 +119,139 @@
     transform: scale(0.98);
 }
 
+/* Section styling */
+::deep .section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+::deep .section-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+}
+
+/* Custom styling for FluentUI components */
+::deep fluent-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+::deep fluent-text-field, 
+::deep fluent-number-field, 
+::deep fluent-date-picker, 
+::deep fluent-time-picker {
+    margin-bottom: 0.5rem;
+    --field-height: 44px;
+}
+
+::deep fluent-button {
+    --button-min-height: 44px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    ::deep .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    ::deep .button-group {
+        flex-direction: column;
+    }
+
+    ::deep .btn {
+        width: 100%;
+    }
+    
+    ::deep td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    ::deep .section {
+        padding: 1rem;
+    }
+    
+    ::deep fluent-card {
+        padding: 1rem;
+    }
+}
+
+/* Table styles for better touch and modern appearance */
+::deep table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+::deep th {
+    padding: 1rem;
+    text-align: left;
+    background-color: #f0f0f0;
+    font-weight: 500;
+}
+
+::deep td {
+    padding: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Touch-friendly delete buttons and other interactive elements */
+::deep .action-button {
+    padding: 0.75rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+::deep .action-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* Button styles */
+::deep .button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+::deep .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.1s, box-shadow 0.2s;
+    min-height: 44px;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+::deep .btn:active {
+    transform: scale(0.98);
+}
+
 ::deep .btn-primary {
     background-color: #0078d4;
     border-color: #0078d4;
