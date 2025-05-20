@@ -8,125 +8,166 @@
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
-<EditForm Model="Item" OnValidSubmit="Save">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="form-container">
+    <FluentCard>
+        <EditForm Model="Item" OnValidSubmit="Save">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-    <FluentLabel>
-        Name:
-        <InputText @bind-Value="Item.Name" />
-    </FluentLabel>
+            <div class="form-group">
+                <FluentLabel For="name" class="input-group">
+                    <div>Name:</div>
+                    <FluentTextField Id="name" @bind-Value="Item.Name" Placeholder="Enter item name" />
+                </FluentLabel>
+            </div>
 
-    <FluentLabel>
-        Default Stock Usage:
-        <InputNumber @bind-Value="Item.DefaultStockUsage" />
-    </FluentLabel>
+            <div class="form-group">
+                <FluentLabel For="stockUsage" class="input-group">
+                    <div>Default Stock Usage:</div>
+                    <FluentNumberField Id="stockUsage" @bind-Value="Item.DefaultStockUsage" Placeholder="Enter default amount" />
+                </FluentLabel>
+            </div>
 
-    @if (Item.PastOccurrences.Any())
-    {
-        <h2>Past Occurrences:</h2>
+            @if (Item.PastOccurrences.Any())
+            {
+                <div class="section">
+                    <h2 class="section-title">Past Occurrences</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Stock Used</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+                                {
+                                    <tr>
+                                        <td>
+                                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                        </td>
+                                        <td>
+                                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                        </td>
+                                        <td>
+                                            <FluentNumberField @bind-Value="occurrence.StockUsed" />
+                                        </td>
+                                        <td>
+                                            <div class="action-button">
+                                                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Stock Used</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var occurrence in Item.PastOccurrences.OrderByDescending(a => a.ActualTimestamp).Take(showHistoryCount))
+                    <div class="button-group">
+                        <FluentButton Appearance="Appearance.Accent" @onclick="() => showHistoryCount += 5">Show More</FluentButton>
+                    </div>
+                </div>
+            }
+
+            <div class="section">
+                <h2 class="section-title">Limits</h2>
+                <p>
+                    What kind of limits do you want to set on this item.
+                    <FluentIcon Id="limitTooltip" Icon="Size24.Info" />
+                </p>
+
+                <FluentTooltip Anchor="limitTooltip">
+                    <strong>For example</strong>
+                    <p>if you are tracking Paracetamol then you want to add 2 limits:</p>
+                    <ul>
+                        <li>1 every 4 hours</li>
+                        <li>4 every 24 hours</li>
+                    </ul>
+                </FluentTooltip>
+
+                <div class="targets-container">
+                    @foreach (var target in Item.Targets)
+                    {
+                        <div class="target-item">
+                            <TargetEditor Target="target" />
+                            <div class="action-button">
+                                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="button-group">
+                    <FluentButton Appearance="Appearance.Accent" @onclick="() => Item.Targets.Add(new Target())">
+                        <FluentIcon Value="@(new Size24.Add())" Slot="start" />
+                        Add Target
+                    </FluentButton>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Stock Acquisitions</h2>
+                
+                @if (Item.StockAcquisitions.Any())
                 {
-                    <tr>
-                        <td>
-                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                        </td>
-                        <td>
-                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
-                        </td>
-                        <td>
-                            <InputNumber @bind-Value="occurrence.StockUsed" />
-                        </td>
-                        <td>
-                            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.PastOccurrences.Remove(occurrence)" />
-                        </td>
-                    </tr>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date Acquired</th>
+                                    <th>Quantity</th>
+                                    <th>Note</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var acquisition in Item.StockAcquisitions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+                                        </td>
+                                        <td>
+                                            <FluentNumberField @bind-Value="acquisition.Quantity" />
+                                        </td>
+                                        <td>
+                                            <FluentTextField @bind-Value="acquisition.Note" />
+                                        </td>
+                                        <td>
+                                            <div class="action-button">
+                                                <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
-            </tbody>
-        </table>
-
-        <button type="button" class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
-    }
-
-    <h2>Limits: </h2>
-    <p>What kind of limits do you want to set on this item. <FluentIcon Id="limitTooltip" Icon="Size24.Info" /> </p>
-
-    <FluentTooltip Anchor="limitTooltip">
-        <strong>For example</strong>
-        <p>if you are tracking Paracetamol then you want to add 2 limits:</p>
-        <ul>
-            <li>1 every 4 hours</li>
-            <li>4 every 24 hours</li>
-        </ul>
-    </FluentTooltip>
-
-    @foreach (var target in Item.Targets)
-    {
-        <p>
-            <TargetEditor Target="target" />
-            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.Targets.Remove(target)" />
-        </p>
-    }
-
-    <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
-
-    <h2>Stock Acquisitions:</h2>
-    @if (Item.StockAcquisitions.Any())
-    {
-        <table>
-            <thead>
-                <tr>
-                    <th>Date Acquired</th>
-                    <th>Quantity</th>
-                    <th>Note</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var acquisition in Item.StockAcquisitions)
+                else
                 {
-                    <tr>
-                        <td>
-                            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
-                        </td>
-                        <td>
-                            <InputNumber @bind-Value="acquisition.Quantity" />
-                        </td>
-                        <td>
-                            <InputText @bind-Value="acquisition.Note" />
-                        </td>
-                        <td>
-                            <FluentIcon Value="@(new Size24.Delete())" OnClick="() => Item.StockAcquisitions.Remove(acquisition)" />
-                        </td>
-                    </tr>
+                    <p>Items are not being tracked</p>
                 }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p>Items are not being tracked</p>
-    }
 
-    <button type="button" class="btn btn-primary" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">Add Stock Acquisition</button>
+                <div class="button-group">
+                    <FluentButton Appearance="Appearance.Accent" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">
+                        <FluentIcon Value="@(new Size24.Add())" Slot="start" />
+                        Add Stock Acquisition
+                    </FluentButton>
+                </div>
+            </div>
 
-    <p class="mt-5"> 
-        <button type="submit" class="btn btn-success">Save</button>
-        <button type="button" @onclick="Cancel" class="btn btn-secondary">Cancel</button>
-        <button type="button" @onclick="Delete" class="btn btn-danger">Delete</button>
-    </p>
-</EditForm>
+            <div class="button-group">
+                <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Save</FluentButton>
+                <FluentButton @onclick="Cancel" Appearance="Appearance.Neutral">Cancel</FluentButton>
+                <FluentButton @onclick="Delete" Appearance="Appearance.Danger">Delete</FluentButton>
+            </div>
+        </EditForm>
+    </FluentCard>
+</div>
 
 @code {
     [Parameter]
