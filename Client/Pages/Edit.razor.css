@@ -1,0 +1,172 @@
+/* Custom styles for the Edit page */
+
+/* General form layout improvements */
+::deep .validation-message {
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+::deep .form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+::deep .form-group {
+    margin-bottom: 1.5rem;
+}
+
+::deep .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+::deep .input-group label {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+::deep .input-control {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+::deep .targets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+::deep .target-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+}
+
+/* Table styles for better touch and modern appearance */
+::deep table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+::deep th {
+    padding: 1rem;
+    text-align: left;
+    background-color: #f0f0f0;
+    font-weight: 500;
+}
+
+::deep td {
+    padding: 1rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Touch-friendly delete buttons and other interactive elements */
+::deep .action-button {
+    padding: 0.75rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+::deep .action-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+/* Button styles */
+::deep .button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+::deep .btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 0.1s, box-shadow 0.2s;
+    min-height: 44px;
+    min-width: 120px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+::deep .btn:active {
+    transform: scale(0.98);
+}
+
+::deep .btn-primary {
+    background-color: #0078d4;
+    border-color: #0078d4;
+}
+
+::deep .btn-success {
+    background-color: #107C10;
+    border-color: #107C10;
+}
+
+::deep .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+::deep .btn-danger {
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+
+/* Section styling */
+::deep .section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+}
+
+::deep .section-title {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    ::deep .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    ::deep .button-group {
+        flex-direction: column;
+    }
+
+    ::deep .btn {
+        width: 100%;
+    }
+}
