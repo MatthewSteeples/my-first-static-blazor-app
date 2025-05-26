@@ -47,10 +47,10 @@
                                 {
                                     <tr>
                                         <td>
-                                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                            <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => UpdateDateTime(e, (dt) => occurrence.ActualTimestamp = dt))" />
                                         </td>
                                         <td>
-                                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                            <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => UpdateDateTime(e, (dt) => occurrence.ActualTimestamp = dt))" />
                                         </td>
                                         <td>
                                             <FluentNumberField @bind-Value="occurrence.StockUsed" />
@@ -128,7 +128,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+                                            <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => UpdateDateTime(e, (dt) => acquisition.DateAcquired = dt))" />
                                         </td>
                                         <td>
                                             <FluentNumberField @bind-Value="acquisition.Quantity" />
@@ -163,7 +163,7 @@
             <div class="button-group">
                 <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Save</FluentButton>
                 <FluentButton @onclick="Cancel" Appearance="Appearance.Neutral">Cancel</FluentButton>
-                <FluentButton @onclick="Delete" Appearance="Appearance.Danger">Delete</FluentButton>
+                <FluentButton @onclick="Delete" Appearance="Appearance.Accent" class="delete-button">Delete</FluentButton>
             </div>
         </EditForm>
     </FluentCard>
@@ -177,6 +177,14 @@
     public TrackedItem Item { get; set; } = new TrackedItem(); //Needs to be "new" otherwise the form complains as it loads before the data is loaded
 
     private int showHistoryCount = 5;
+
+    private void UpdateDateTime(DateTime? value, Action<DateTime> updateAction)
+    {
+        if (value.HasValue)
+        {
+            updateAction(value.Value.ToUniversalTime());
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
