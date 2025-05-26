@@ -45,13 +45,10 @@ namespace BlazorApp.Client.Services
         public async Task<bool> RegisterPeriodicSync(TrackedItem item)
         {
             // Check if the item has any scheduled targets
-            var futureOccurrences = item.GetFutureOccurrences(DateTime.UtcNow, 1).ToList();
+            var nextOccurrence = item.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault();
             
-            if (!futureOccurrences.Any())
+            if (nextOccurrence == default)
                 return false;
-            
-            // Get the next occurrence time
-            var nextOccurrence = futureOccurrences.First();
             
             // Calculate hours until next occurrence
             double intervalHours = (nextOccurrence - DateTime.UtcNow).TotalHours;
