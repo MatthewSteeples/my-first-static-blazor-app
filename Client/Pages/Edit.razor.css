@@ -298,6 +298,15 @@
     background-color: #b71c1c !important;
 }
 
+::deep .save-button {
+    background-color: #107C10 !important;
+    color: white !important;
+}
+
+::deep .save-button:hover {
+    background-color: #0b5e0b !important;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     ::deep .table-responsive {
