@@ -45,13 +45,20 @@ namespace BlazorApp.Client.Services
         public async Task<bool> RegisterPeriodicSync(TrackedItem item)
         {
             // Check if the item has any scheduled targets
-            var eligibleTargets = item.Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero).ToList();
+            var futureOccurrences = item.GetFutureOccurrences(DateTime.UtcNow, 1).ToList();
             
-            if (!eligibleTargets.Any())
+            if (!futureOccurrences.Any())
                 return false;
             
-            // Get the interval in hours from the first eligible target
-            double intervalHours = eligibleTargets.First().Frequency.TotalHours;
+            // Get the next occurrence time
+            var nextOccurrence = futureOccurrences.First();
+            
+            // Calculate hours until next occurrence
+            double intervalHours = (nextOccurrence - DateTime.UtcNow).TotalHours;
+            
+            // Make sure we have at least a small interval (10 minutes minimum)
+            if (intervalHours <= 0)
+                intervalHours = 0.17; // About 10 minutes
             
             return await _jsRuntime.InvokeAsync<bool>(
                 "notifications.registerPeriodicSync", 
