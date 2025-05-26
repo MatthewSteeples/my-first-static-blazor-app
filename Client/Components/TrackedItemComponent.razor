@@ -1,11 +1,13 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 
 <h3>
     @ItemToTrack.Name
@@ -41,12 +43,35 @@
 
 <p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
 <p>Last Tracked: @LastTracked</p>
-@if (ItemToTrack.Targets.Any())
+@if (ItemToTrack.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
 {
     <p>
         Next Due: @NextDue @if (!string.IsNullOrEmpty(NextSpaced))
         {
             <span> (@NextSpaced)</span>
+        }
+        
+        @if (showNotificationStatus && notificationPermission != "unsupported")
+        {
+            <span class="notification-status">
+                @if (notificationPermission == "granted")
+                {
+                    <FluentIcon Value="@(new Regular.Size24.CheckmarkCircle())" Color="@Color.Success" />
+                    <span>Notifications enabled</span>
+                }
+                else if (notificationPermission == "denied")
+                {
+                    <FluentIcon Value="@(new Regular.Size24.AlertOff())" Color="@Color.Warning" />
+                    <span>Notifications denied. Check browser settings to enable.</span>
+                }
+                else
+                {
+                    <FluentButton Appearance="Appearance.Outline" OnClick="@(async () => await RequestNotificationPermission())">
+                        <FluentIcon Value="@(new Regular.Size24.Alert())" />
+                        Enable notifications
+                    </FluentButton>
+                }
+            </span>
         }
     </p>
 }
@@ -104,6 +129,26 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
+        // Schedule notification if the item has intervals set
+        if (ItemToTrack.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
+        {
+            // Check permission status
+            var permissionStatus = await NotificationService.GetPermissionStatus();
+            
+            // Request permission if not already granted
+            if (permissionStatus != "granted")
+            {
+                permissionStatus = await NotificationService.RequestPermission();
+            }
+            
+            // Schedule notification if permission granted
+            if (permissionStatus == "granted")
+            {
+                await NotificationService.RegisterPeriodicSync(ItemToTrack);
+                await NotificationService.RecordTracking(ItemToTrack);
+            }
+        }
+
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
     }
 
@@ -120,6 +165,10 @@
 
     private int showHistoryCount = 5;
     private int showFutureCount = 5;
+    
+    // Notification-related properties
+    private bool showNotificationStatus = false;
+    private string notificationPermission = "default";
 
     [Parameter]
     public TrackedItem ItemToTrack { get; set; }
@@ -176,5 +225,43 @@
 
             return nextSpaced;
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // On first render, check if notifications are supported and permission is granted
+            if (await NotificationService.IsNotificationSupported())
+            {
+                notificationPermission = await NotificationService.GetPermissionStatus();
+                showNotificationStatus = true;
+
+                // If we already have permission and the item has intervals, register it for notifications
+                if (notificationPermission == "granted" && 
+                    ItemToTrack.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
+                {
+                    await NotificationService.RegisterPeriodicSync(ItemToTrack);
+                }
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    
+    // Request notification permission when user clicks the button
+    private async Task RequestNotificationPermission()
+    {
+        notificationPermission = await NotificationService.RequestPermission();
+        
+        // If permission granted, register for notifications
+        if (notificationPermission == "granted" && 
+            ItemToTrack.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
+        {
+            await NotificationService.RegisterPeriodicSync(ItemToTrack);
+        }
+        
+        // Force re-render to update UI
+        StateHasChanged();
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazorApp.Client;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
+using BlazorApp.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,5 +13,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
+
+builder.Services.AddHttpClient();
+
+// Register our notification service
+builder.Services.AddScoped<NotificationService>();
 
 await builder.Build().RunAsync();
