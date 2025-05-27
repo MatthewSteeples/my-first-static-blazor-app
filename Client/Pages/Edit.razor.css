@@ -289,40 +289,26 @@
 }
 
 /* Custom button styling */
-::deep .delete-button::part(control),
-::deep .delete-button::part(content),
-::deep .delete-button::part(start),
-::deep .delete-button::part(end),
-::deep .delete-button::part(root) {
-    background-color: #d32f2f !important;
-    color: white !important;
-    border-color: #d32f2f !important;
-    fill: white !important;
+.save-button-container ::deep fluent-button {
+    --accent-fill-rest: #107C10 !important;
+    --accent-fill-hover: #0b5e0b !important;
+    --accent-fill-active: #0b5e0b !important;
+    --accent-fill-focus: #107C10 !important;
+    --accent-foreground-rest: white !important;
+    --accent-foreground-hover: white !important;
+    --accent-foreground-active: white !important;
+    --accent-foreground-focus: white !important;
 }
 
-::deep .delete-button:hover::part(control),
-::deep .delete-button:hover::part(content),
-::deep .delete-button:hover::part(root) {
-    background-color: #b71c1c !important;
-    border-color: #b71c1c !important;
-}
-
-::deep .save-button::part(control),
-::deep .save-button::part(content),
-::deep .save-button::part(start),
-::deep .save-button::part(end),
-::deep .save-button::part(root) {
-    background-color: #107C10 !important;
-    color: white !important;
-    border-color: #107C10 !important;
-    fill: white !important;
-}
-
-::deep .save-button:hover::part(control),
-::deep .save-button:hover::part(content),
-::deep .save-button:hover::part(root) {
-    background-color: #0b5e0b !important;
-    border-color: #0b5e0b !important;
+.delete-button-container ::deep fluent-button {
+    --accent-fill-rest: #d32f2f !important;
+    --accent-fill-hover: #b71c1c !important;
+    --accent-fill-active: #b71c1c !important;
+    --accent-fill-focus: #d32f2f !important;
+    --accent-foreground-rest: white !important;
+    --accent-foreground-hover: white !important;
+    --accent-foreground-active: white !important;
+    --accent-foreground-focus: white !important;
 }
 
 /* Responsive design */

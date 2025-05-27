@@ -161,9 +161,13 @@
             </div>
 
             <div class="button-group">
-                <FluentButton Type="ButtonType.Submit" style="background-color: #107C10; color: white; border-color: #107C10;">Save</FluentButton>
+                <div class="save-button-container">
+                    <FluentButton Type="ButtonType.Submit" Appearance="Appearance.Accent">Save</FluentButton>
+                </div>
                 <FluentButton @onclick="Cancel" Appearance="Appearance.Neutral">Cancel</FluentButton>
-                <FluentButton @onclick="Delete" style="background-color: #d32f2f; color: white; border-color: #d32f2f;">Delete</FluentButton>
+                <div class="delete-button-container">
+                    <FluentButton @onclick="Delete" Appearance="Appearance.Accent">Delete</FluentButton>
+                </div>
             </div>
         </EditForm>
     </FluentCard>
