@@ -40,6 +40,32 @@ namespace BlazorApp.Client.Services
         }
 
         /// <summary>
+        /// Checks if periodic background sync is supported
+        /// </summary>
+        public async Task<bool> IsPeriodicBackgroundSyncSupported()
+        {
+            return await _jsRuntime.InvokeAsync<bool>("notifications.isPBSSupported");
+        }
+
+        /// <summary>
+        /// Gets the current periodic background sync permission status
+        /// </summary>
+        /// <returns>Permission status: "granted", "denied", "prompt", "unknown", or "unsupported"</returns>
+        public async Task<string> GetPBSPermissionStatus()
+        {
+            return await _jsRuntime.InvokeAsync<string>("notifications.getPBSPermissionStatus");
+        }
+
+        /// <summary>
+        /// Requests periodic background sync permission
+        /// </summary>
+        /// <returns>Permission status: "granted", "denied", "prompt", "unknown", or "unsupported"</returns>
+        public async Task<string> RequestPBSPermission()
+        {
+            return await _jsRuntime.InvokeAsync<string>("notifications.requestPBSPermission");
+        }
+
+        /// <summary>
         /// Registers a periodic background sync for medication reminders
         /// </summary>
         public async Task<bool> RegisterPeriodicSync(TrackedItem item)
