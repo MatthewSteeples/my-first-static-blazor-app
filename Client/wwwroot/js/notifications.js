@@ -32,7 +32,7 @@ window.notifications = {
             const permission = await Notification.requestPermission();
             return permission;
         } catch (e) {
-            console.error('Error requesting notification permission:', e);
+            alert('Error requesting notification permission: ' + e.message);
             return "error";
         }
     },
@@ -61,7 +61,7 @@ window.notifications = {
                 
                 return true;
             } catch (e) {
-                console.error('Error registering periodic sync:', e);
+                alert('Error registering periodic sync: ' + e.message);
                 // Fall through to the fallback
             }
         }
@@ -105,7 +105,7 @@ window.notifications = {
     // Show a notification directly
     showNotification: async function(title, message) {
         if (Notification.permission !== 'granted') {
-            console.warn('Notification permission not granted');
+            alert('Notification permission not granted');
             return false;
         }
         
@@ -119,7 +119,7 @@ window.notifications = {
             });
             return true;
         } catch (e) {
-            console.error('Error showing notification:', e);
+            alert('Error showing notification: ' + e.message);
             return false;
         }
     },

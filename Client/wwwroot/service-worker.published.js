@@ -85,7 +85,11 @@ async function onPeriodicSync(event) {
                 }
             });
         } catch (error) {
-            console.error('Error in periodic sync:', error);
+            // Can't use alert in service worker context, but we can show a notification instead
+            self.registration.showNotification('Error', {
+                body: 'Error in periodic sync: ' + error.message,
+                icon: '/icon-192.png'
+            });
         }
     }
 }
