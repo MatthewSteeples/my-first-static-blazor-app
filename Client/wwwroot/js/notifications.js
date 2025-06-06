@@ -14,6 +14,45 @@ window.notifications = {
                'periodicSync' in ServiceWorkerRegistration.prototype;
     },
     
+    // Check if periodic background sync permission is granted
+    getPBSPermissionStatus: async function() {
+        if (!this.isPBSSupported() || !('permissions' in navigator)) {
+            return "unsupported";
+        }
+        
+        try {
+            const permissionStatus = await navigator.permissions.query({ name: 'periodic-background-sync' });
+            return permissionStatus.state;
+        } catch (e) {
+            // Some browsers might not support the permission query for PBS
+            return "unknown";
+        }
+    },
+    
+    // Request periodic background sync permission
+    requestPBSPermission: async function() {
+        if (!this.isPBSSupported()) {
+            return "unsupported";
+        }
+        
+        // Note: Periodic Background Sync permission is typically granted implicitly
+        // when the user adds the app to their home screen or when they use the app frequently.
+        // There's no explicit permission request API for PBS like there is for notifications.
+        // We'll check the current status and inform the user accordingly.
+        
+        const status = await this.getPBSPermissionStatus();
+        if (status === "denied") {
+            alert("Background sync permission is denied. Please enable it in your browser settings or add this app to your home screen.");
+            return "denied";
+        } else if (status === "prompt" || status === "unknown") {
+            // For PBS, we can't explicitly request permission, but we can try to register
+            // and see if it succeeds. The browser will handle the permission automatically.
+            return "prompt";
+        }
+        
+        return status;
+    },
+    
     // Get current notification permission status
     getPermissionStatus: function() {
         if (!this.isSupported()) {
@@ -50,19 +89,29 @@ window.notifications = {
         // Always store the item info, used by both PBS and fallback timer
         localStorage.setItem(tagName, JSON.stringify(itemInfo));
         
-        // If PBS is supported, register it
+        // If PBS is supported, check permission and register it
         if (this.isPBSSupported()) {
-            try {
-                const registration = await navigator.serviceWorker.ready;
-                
-                await registration.periodicSync.register(tagName, {
-                    minInterval: intervalHours * 60 * 60 * 1000 // Convert hours to milliseconds
-                });
-                
-                return true;
-            } catch (e) {
-                alert('Error registering periodic sync: ' + e.message);
-                // Fall through to the fallback
+            // First check if we have permission for periodic background sync
+            const pbsPermission = await this.requestPBSPermission();
+            
+            if (pbsPermission === "denied") {
+                alert('Background sync permission denied. Using fallback timer instead.');
+            } else if (pbsPermission === "unsupported") {
+                alert('Background sync not supported on this browser. Using fallback timer instead.');
+            } else {
+                // Permission is granted, prompt, or unknown - try to register
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    
+                    await registration.periodicSync.register(tagName, {
+                        minInterval: intervalHours * 60 * 60 * 1000 // Convert hours to milliseconds
+                    });
+                    
+                    return true;
+                } catch (e) {
+                    alert('Error registering periodic sync: ' + e.message + '. Using fallback timer instead.');
+                    // Fall through to the fallback
+                }
             }
         }
         
