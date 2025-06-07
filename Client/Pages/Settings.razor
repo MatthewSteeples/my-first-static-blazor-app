@@ -21,6 +21,17 @@
     <button class="btn btn-primary" @onclick="InstallPWA" style="@installButtonStyle">Install App</button>
 </p>
 
+<div class="alert alert-info">
+    <p><strong>Install Button Not Showing?</strong></p>
+    <ul>
+        <li>Make sure you're accessing the site over HTTPS (not HTTP)</li>
+        <li>Check if the app is already installed</li>
+        <li>Some browsers don't support PWA installation</li>
+        <li>The browser may need time to recognize the app as installable</li>
+    </ul>
+    <button class="btn btn-secondary btn-sm" @onclick="CheckPWAStatus">Check PWA Status</button>
+</div>
+
 @code {
     private string installButtonStyle = "display: none;";
 
@@ -51,61 +62,13 @@
         await JS.InvokeVoidAsync("installPWA");
     }
 
+    private async Task CheckPWAStatus()
+    {
+        await JS.InvokeVoidAsync("checkPWAInstallCriteria");
+    }
+
     public void Dispose()
     {
         // Clean up if needed
     }
 }
-
-<script>
-    let deferredPrompt;
-    let settingsPageRef;
-
-    window.setupPWAInstall = (pageRef) => {
-        settingsPageRef = pageRef;
-        
-        // Check if app is already installed or running in standalone mode
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            return; // Keep button hidden if already installed
-        }
-
-        // Listen for the beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later
-            deferredPrompt = e;
-            
-            // Show the install button
-            if (settingsPageRef) {
-                settingsPageRef.invokeMethodAsync('ShowInstallButton');
-            }
-        });
-
-        // Listen for the appinstalled event
-        window.addEventListener('appinstalled', (evt) => {
-            console.log('PWA was installed');
-            if (settingsPageRef) {
-                settingsPageRef.invokeMethodAsync('HideInstallButton');
-            }
-        });
-    };
-
-    window.installPWA = async () => {
-        if (deferredPrompt) {
-            // Show the prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
-            // We no longer need the prompt. Clear it up.
-            deferredPrompt = null;
-            
-            if (settingsPageRef) {
-                settingsPageRef.invokeMethodAsync('HideInstallButton');
-            }
-        } else {
-            alert('This app is already installed or cannot be installed on this device.');
-        }
-    };
-</script>
