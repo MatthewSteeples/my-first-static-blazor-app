@@ -1,11 +1,13 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 
 <h3>
     @ItemToTrack.Name
@@ -104,6 +106,26 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
+        // Schedule notification if the item has intervals set
+        if (ItemToTrack.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
+        {
+            // Check permission status
+            var permissionStatus = await NotificationService.GetPermissionStatus();
+            
+            // Request permission if not already granted
+            if (permissionStatus != "granted")
+            {
+                permissionStatus = await NotificationService.RequestPermission();
+            }
+            
+            // Schedule notification if permission granted
+            if (permissionStatus == "granted")
+            {
+                await NotificationService.RegisterPeriodicSync(ItemToTrack);
+                await NotificationService.RecordTracking(ItemToTrack);
+            }
+        }
+
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
     }
 
@@ -176,5 +198,10 @@
 
             return nextSpaced;
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
     }
 }
