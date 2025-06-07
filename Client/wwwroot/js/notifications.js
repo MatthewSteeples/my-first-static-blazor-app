@@ -16,15 +16,51 @@ window.notifications = {
     
     // Check if periodic background sync permission is granted
     getPBSPermissionStatus: async function() {
-        if (!this.isPBSSupported() || !('permissions' in navigator)) {
+        if (!this.isPBSSupported()) {
             return "unsupported";
         }
         
+        // Note: There's no standard way to check PBS permission directly.
+        // PBS permission is usually granted automatically based on user engagement
+        // or when the app is installed as a PWA. We'll try to determine status
+        // by attempting registration in a safe way.
+        
         try {
-            const permissionStatus = await navigator.permissions.query({ name: 'periodic-background-sync' });
-            return permissionStatus.state;
+            // Check if we have a service worker
+            if (!('serviceWorker' in navigator)) {
+                return "unsupported";
+            }
+            
+            // Try to get service worker registration
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (!registration) {
+                // No service worker registered yet, need to register first
+                return "prompt";
+            }
+            
+            // Check if periodicSync is available on the registration
+            if (!('periodicSync' in registration)) {
+                return "unsupported";
+            }
+            
+            // Try to get existing periodic sync registrations
+            // This might indicate if PBS is working
+            try {
+                const tags = await registration.periodicSync.getTags();
+                // If we can get tags without error, PBS is likely supported
+                return "granted";
+            } catch (e) {
+                // If getting tags fails, it might be due to permission issues
+                if (e.name === 'NotAllowedError') {
+                    return "denied";
+                } else {
+                    // Other errors might indicate unsupported or unknown state
+                    return "unknown";
+                }
+            }
+            
         } catch (e) {
-            // Some browsers might not support the permission query for PBS
+            alert('Error checking PBS permission: ' + e.message);
             return "unknown";
         }
     },
@@ -35,19 +71,25 @@ window.notifications = {
             return "unsupported";
         }
         
-        // Note: Periodic Background Sync permission is typically granted implicitly
-        // when the user adds the app to their home screen or when they use the app frequently.
-        // There's no explicit permission request API for PBS like there is for notifications.
-        // We'll check the current status and inform the user accordingly.
-        
         const status = await this.getPBSPermissionStatus();
+        
         if (status === "denied") {
-            alert("Background sync permission is denied. Please enable it in your browser settings or add this app to your home screen.");
+            alert("Background sync appears to be denied. For reliable medication reminders:\n\n" +
+                  "1. Add this app to your home screen (install as PWA)\n" +
+                  "2. Use the app regularly to increase engagement score\n" +
+                  "3. Check browser settings for background sync permissions\n\n" +
+                  "We'll use a fallback timer system for now.");
             return "denied";
         } else if (status === "prompt" || status === "unknown") {
-            // For PBS, we can't explicitly request permission, but we can try to register
-            // and see if it succeeds. The browser will handle the permission automatically.
+            alert("To enable background medication reminders:\n\n" +
+                  "1. Install this app by clicking 'Add to Home Screen' or the install button\n" +
+                  "2. Use the app regularly\n" +
+                  "3. Keep the app open or check it frequently\n\n" +
+                  "For now, we'll try to register and fall back to timers if needed.");
             return "prompt";
+        } else if (status === "unsupported") {
+            alert("Your browser doesn't fully support background sync. We'll use timer-based notifications instead.");
+            return "unsupported";
         }
         
         return status;
@@ -95,21 +137,31 @@ window.notifications = {
             const pbsPermission = await this.requestPBSPermission();
             
             if (pbsPermission === "denied") {
-                alert('Background sync permission denied. Using fallback timer instead.');
+                alert('Background sync denied. Using timer-based notifications instead.');
             } else if (pbsPermission === "unsupported") {
-                alert('Background sync not supported on this browser. Using fallback timer instead.');
+                alert('Background sync not supported. Using timer-based notifications instead.');
             } else {
                 // Permission is granted, prompt, or unknown - try to register
                 try {
                     const registration = await navigator.serviceWorker.ready;
                     
+                    // Try to register the periodic sync
                     await registration.periodicSync.register(tagName, {
-                        minInterval: intervalHours * 60 * 60 * 1000 // Convert hours to milliseconds
+                        minInterval: Math.max(intervalHours * 60 * 60 * 1000, 60000) // At least 1 minute
                     });
                     
+                    alert(`Background notifications enabled for ${itemName}! You'll receive reminders every ${intervalHours} hours even when the app is closed.`);
                     return true;
                 } catch (e) {
-                    alert('Error registering periodic sync: ' + e.message + '. Using fallback timer instead.');
+                    if (e.name === 'NotAllowedError') {
+                        alert(`Background sync permission denied for ${itemName}. To enable:\n\n` +
+                              `1. Install this app (Add to Home Screen)\n` +
+                              `2. Use the app regularly\n` +
+                              `3. Check browser permissions\n\n` +
+                              `Using timer-based notifications instead.`);
+                    } else {
+                        alert(`Background sync registration failed: ${e.message}. Using timer-based notifications instead.`);
+                    }
                     // Fall through to the fallback
                 }
             }
@@ -117,7 +169,7 @@ window.notifications = {
         
         // Fallback mechanism using a basic timer
         // This will only work while the tab is open
-        console.log(`Periodic background sync not supported or failed. Using fallback timer for ${itemName}`);
+        alert(`Setting up timer-based notifications for ${itemName}. Keep this tab open for notifications to work.`);
         this.setupFallbackTimer(itemId, itemName, intervalHours);
         
         return true;
