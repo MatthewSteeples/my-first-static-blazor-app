@@ -1,7 +1,9 @@
 @page "/settings"
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 
 <PageTitle>Settings</PageTitle>
 
@@ -24,6 +26,64 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Notification Status</h5>
+            </div>
+            <div class="card-body">
+                <p>Check your notification and background sync capabilities.</p>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Notifications</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Support:</span>
+                        <span class="badge @GetStatusBadgeClass(NotificationSupported, "supported")">
+                            @(NotificationSupported ? "Supported" : "Not Supported")
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span>Permission:</span>
+                        <span class="badge @GetPermissionBadgeClass(NotificationPermission)">
+                            @GetPermissionDisplayText(NotificationPermission)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="fw-bold">Background Sync</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span>Support:</span>
+                        <span class="badge @GetStatusBadgeClass(BackgroundSyncSupported, "supported")">
+                            @(BackgroundSyncSupported ? "Supported" : "Not Supported")
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <span>Permission:</span>
+                        <span class="badge @GetPermissionBadgeClass(BackgroundSyncPermission)">
+                            @GetPermissionDisplayText(BackgroundSyncPermission)
+                        </span>
+                    </div>
+                </div>
+
+                @if (IsLoading)
+                {
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Checking status...</span>
+                    </div>
+                }
+                else
+                {
+                    <button class="btn btn-primary btn-sm" @onclick="RefreshStatus">
+                        <span class="bi bi-arrow-clockwise" aria-hidden="true"></span> Refresh Status
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="mt-4">
@@ -31,3 +91,75 @@
         <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
     </a>
 </div>
+
+@code {
+    private bool NotificationSupported = false;
+    private string NotificationPermission = "unknown";
+    private bool BackgroundSyncSupported = false;
+    private string BackgroundSyncPermission = "unknown";
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatus();
+    }
+
+    private async Task LoadStatus()
+    {
+        IsLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            NotificationSupported = await NotificationService.IsNotificationSupported();
+            NotificationPermission = await NotificationService.GetPermissionStatus();
+            BackgroundSyncSupported = await NotificationService.IsPeriodicBackgroundSyncSupported();
+            BackgroundSyncPermission = await NotificationService.GetPBSPermissionStatus();
+        }
+        catch (Exception)
+        {
+            // Handle errors gracefully - keep default values
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RefreshStatus()
+    {
+        await LoadStatus();
+    }
+
+    private string GetStatusBadgeClass(bool isSupported, string feature)
+    {
+        return isSupported ? "bg-success" : "bg-danger";
+    }
+
+    private string GetPermissionBadgeClass(string permission)
+    {
+        return permission.ToLower() switch
+        {
+            "granted" => "bg-success",
+            "denied" => "bg-danger",
+            "default" or "prompt" => "bg-warning",
+            "unsupported" => "bg-secondary",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetPermissionDisplayText(string permission)
+    {
+        return permission.ToLower() switch
+        {
+            "granted" => "Granted",
+            "denied" => "Denied",
+            "default" => "Default",
+            "prompt" => "Prompt",
+            "unsupported" => "Unsupported",
+            "unknown" => "Unknown",
+            _ => permission
+        };
+    }
+}
