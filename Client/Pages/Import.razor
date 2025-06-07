@@ -1,3 +1,4 @@
+@page "/import"
 @using System.IO
 @using BlazorApp.Shared
 @using System.Text
@@ -7,6 +8,12 @@
 @inject IJSRuntime JS
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+
+<PageTitle>Import Data</PageTitle>
+
+<h1>Import TrackedItems</h1>
+
+<p>Select a JSON file containing TrackedItem data to import into the application.</p>
 
 <script>
     window.readUploadedFileAsText = async (inputElement) => {
@@ -24,16 +31,60 @@
     };
 </script>
 
-<div>
-    <input type="file" accept=".json" @ref="fileInput" />
-    <button class="btn btn-success" @onclick="ImportFileAsync">Import</button>
-    
-    @if (!string.IsNullOrEmpty(statusMessage))
-    {
-        <div class="alert @alertClass mt-2" role="alert">
-            @statusMessage
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Select File to Import</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Choose JSON file:</label>
+                    <input type="file" class="form-control" id="fileInput" accept=".json" @ref="fileInput" />
+                </div>
+                <button class="btn btn-success" @onclick="ImportFileAsync">
+                    <span class="bi bi-upload" aria-hidden="true"></span> Import Data
+                </button>
+                
+                @if (!string.IsNullOrEmpty(statusMessage))
+                {
+                    <div class="alert @alertClass mt-3" role="alert">
+                        @statusMessage
+                    </div>
+                }
+            </div>
         </div>
-    }
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Import Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Select a JSON file exported from this application</li>
+                    <li>The file should contain an array of TrackedItem objects</li>
+                    <li>All valid items will be imported into your local storage</li>
+                    <li>You will be redirected to the home page after successful import</li>
+                </ul>
+                <p class="text-muted">
+                    <small>
+                        <strong>Note:</strong> This will add items to your existing data. 
+                        Items with the same ID will be overwritten.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="/" class="btn btn-secondary">
+        <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
+    </a>
+    <a href="/Grid" class="btn btn-secondary">
+        <span class="bi bi-grid" aria-hidden="true"></span> View Grid
+    </a>
 </div>
 
 @code {
@@ -80,8 +131,9 @@
             
             ShowSuccess($"Successfully imported {importedCount} tracked item(s).");
             
-            // Refresh the page to show the imported items
-            Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            // Redirect to home page after a short delay
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/", forceLoad: true);
         }
         catch (JsonException ex)
         {
