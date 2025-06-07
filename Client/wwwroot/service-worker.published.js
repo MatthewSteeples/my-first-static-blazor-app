@@ -5,6 +5,8 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+self.addEventListener('periodicsync', event => event.waitUntil(onPeriodicSync(event)));
+self.addEventListener('notificationclick', event => event.waitUntil(onNotificationClick(event)));
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
@@ -54,4 +56,56 @@ async function onFetch(event) {
     }
 
     return cachedResponse || fetch(event.request);
+}
+
+async function onPeriodicSync(event) {
+    // Check if the tag is for a medication reminder
+    if (event.tag.startsWith('medication-reminder-')) {
+        try {
+            const itemId = event.tag.split('medication-reminder-')[1];
+            
+            // Show a notification with generic information
+            // We can't access localStorage, but the item ID is in the tag
+            await self.registration.showNotification('Medication Reminder', {
+                body: `It's time for your medication`,
+                icon: '/icon-192.png',
+                badge: '/icon-192.png',
+                vibrate: [200, 100, 200],
+                data: {
+                    itemId: itemId,
+                }
+            });
+            
+            // Unregister the periodic sync so it doesn't fire again
+            // User needs to track the item again to re-enable notifications
+            await self.registration.periodicSync.unregister(event.tag);
+        } catch (error) {
+            // Can't use alert in service worker context, but we can show a notification instead
+            self.registration.showNotification('Error', {
+                body: 'Error in periodic sync: ' + error.message,
+                icon: '/icon-192.png'
+            });
+        }
+    }
+}
+
+async function onNotificationClick(event) {
+    // Close the notification
+    event.notification.close();
+
+    // Open the app if the user clicks on the notification
+    const itemId = event.notification.data?.itemId;
+    const url = itemId ? `/view/${itemId}` : '/';
+    
+    // Open or focus the client
+    const clientList = await clients.matchAll({ type: 'window' });
+    for (const client of clientList) {
+        if (client.url === url && 'focus' in client) {
+            return client.focus();
+        }
+    }
+    
+    if (clients.openWindow) {
+        return clients.openWindow(url);
+    }
 }

@@ -1,12 +1,15 @@
 @page "/edit/{id:guid}"
 @using BlazorApp.Client.Components
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @inject NavigationManager Navigation
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NotificationService NotificationService
 
 <EditForm Model="Item" OnValidSubmit="Save">
     <DataAnnotationsValidator />
@@ -80,6 +83,8 @@
     }
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
+
+
 
     <h2>Stock Acquisitions:</h2>
     @if (Item.StockAcquisitions.Any())
