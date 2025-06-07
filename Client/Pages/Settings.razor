@@ -1,0 +1,33 @@
+@page "/settings"
+@using BlazorApp.Shared
+
+@inject NavigationManager Navigation
+
+<PageTitle>Settings</PageTitle>
+
+<h1>Settings</h1>
+
+<p>Manage your application settings and data import/export options.</p>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Data Management</h5>
+            </div>
+            <div class="card-body">
+                <p>Export your tracked items or import data from a file.</p>
+                <div class="d-flex gap-2">
+                    <BlazorApp.Client.Components.Export />
+                    <a href="/import" class="btn btn-success">Import Data</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="/" class="btn btn-secondary">
+        <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
+    </a>
+</div>
