@@ -84,6 +84,10 @@ async function onPeriodicSync(event) {
                     itemId: itemId,
                 }
             });
+            
+            // Unregister the periodic sync so it doesn't fire again
+            // User needs to track the item again to re-enable notifications
+            await self.registration.periodicSync.unregister(event.tag);
         } catch (error) {
             // Can't use alert in service worker context, but we can show a notification instead
             self.registration.showNotification('Error', {
