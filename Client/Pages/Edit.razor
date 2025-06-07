@@ -84,33 +84,7 @@
 
     <button type="button" class="btn btn-primary" @onclick="() => Item.Targets.Add(new Target())">Add Target</button>
 
-    @if (Item.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
-    {
-        <h2>Notifications:</h2>
-        <div class="notification-status">
-            @if (notificationPermission == "granted")
-            {
-                <p>
-                    <FluentIcon Value="@(new Regular.Size24.CheckmarkCircle())" Color="@Color.Success" />
-                    <span>Notifications enabled</span>
-                </p>
-            }
-            else if (notificationPermission == "denied")
-            {
-                <p>
-                    <FluentIcon Value="@(new Regular.Size24.AlertOff())" Color="@Color.Warning" />
-                    <span>Notifications denied. Check browser settings to enable.</span>
-                </p>
-            }
-            else if (notificationPermission != "unsupported")
-            {
-                <FluentButton Appearance="Appearance.Outline" OnClick="@(async () => await RequestNotificationPermission())">
-                    <FluentIcon Value="@(new Regular.Size24.Alert())" />
-                    Enable notifications
-                </FluentButton>
-            }
-        </div>
-    }
+
 
     <h2>Stock Acquisitions:</h2>
     @if (Item.StockAcquisitions.Any())
@@ -167,7 +141,6 @@
     public TrackedItem Item { get; set; } = new TrackedItem(); //Needs to be "new" otherwise the form complains as it loads before the data is loaded
 
     private int showHistoryCount = 5;
-    private string notificationPermission = "default";
 
     protected override async Task OnInitializedAsync()
     {
@@ -180,13 +153,6 @@
         else
         {
             Item.Id = Id;
-        }
-        
-        // Check notification permission if the item has intervals
-        if (Item.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero) 
-            && await NotificationService.IsNotificationSupported())
-        {
-            notificationPermission = await NotificationService.GetPermissionStatus();
         }
     }
 
@@ -214,20 +180,5 @@
     {
         await localStorage.RemoveItemAsync(nameof(TrackedItem) + Item.Id);
         Navigation.NavigateTo("/");
-    }
-    
-    // Request notification permission when user clicks the button
-    private async Task RequestNotificationPermission()
-    {
-        notificationPermission = await NotificationService.RequestPermission();
-        
-        // If permission granted, register for notifications
-        if (notificationPermission == "granted" && 
-            Item.Targets.Any(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero))
-        {
-            await NotificationService.RegisterPeriodicSync(Item);
-        }
-        
-        StateHasChanged();
     }
 }
