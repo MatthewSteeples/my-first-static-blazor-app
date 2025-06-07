@@ -1,6 +1,9 @@
 @page "/settings"
 @using BlazorApp.Shared
 @using BlazorApp.Client.Services
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
+@using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @inject NavigationManager Navigation
 @inject NotificationService NotificationService
@@ -27,6 +30,57 @@
         </div>
     </div>
     <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Notification Configuration</h5>
+            </div>
+            <div class="card-body">
+                <p>Configure notification settings for your tracked items.</p>
+                
+                @if (NotificationSupported)
+                {
+                    <div class="notification-status mb-3">
+                        @if (NotificationPermission == "granted")
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <FluentIcon Value="@(new Regular.Size24.CheckmarkCircle())" Color="@Color.Success" />
+                                <span class="ms-2">Notifications enabled</span>
+                            </div>
+                            <p class="text-muted small">You will receive reminders when it's time to take your medication.</p>
+                        }
+                        else if (NotificationPermission == "denied")
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <FluentIcon Value="@(new Regular.Size24.AlertOff())" Color="@Color.Warning" />
+                                <span class="ms-2">Notifications denied</span>
+                            </div>
+                            <p class="text-muted small">Check browser settings to enable notifications for this site.</p>
+                        }
+                        else if (NotificationPermission != "unsupported")
+                        {
+                            <FluentButton Appearance="Appearance.Outline" OnClick="@(async () => await RequestNotificationPermission())">
+                                <FluentIcon Value="@(new Regular.Size24.Alert())" />
+                                Enable notifications
+                            </FluentButton>
+                            <p class="text-muted small mt-2">Enable notifications to receive reminders for your tracked items with intervals.</p>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex align-items-center mb-2">
+                        <FluentIcon Value="@(new Regular.Size24.Warning())" Color="@Color.Error" />
+                        <span class="ms-2">Notifications not supported</span>
+                    </div>
+                    <p class="text-muted small">Your browser doesn't support notifications.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
                 <h5>Notification Status</h5>
@@ -130,6 +184,13 @@
     private async Task RefreshStatus()
     {
         await LoadStatus();
+    }
+    
+    // Request notification permission when user clicks the button
+    private async Task RequestNotificationPermission()
+    {
+        NotificationPermission = await NotificationService.RequestPermission();
+        StateHasChanged();
     }
 
     private string GetStatusBadgeClass(bool isSupported, string feature)
