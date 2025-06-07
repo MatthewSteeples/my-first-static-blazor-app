@@ -1,7 +1,6 @@
-﻿using BlazorApp.Shared;
 using System.Text.Json.Serialization;
 
-namespace BlazorApp.Client
+namespace BlazorApp.Shared
 {
     [JsonSourceGenerationOptions(WriteIndented = false)]
 
@@ -9,6 +8,7 @@ namespace BlazorApp.Client
     [JsonSerializable(typeof(TrackedItem[]))]
     [JsonSerializable(typeof(Target))]
     [JsonSerializable(typeof(Occurrence))]
+    [JsonSerializable(typeof(StockAcquisition))]
     
     public partial class SerializationContext : JsonSerializerContext
     {
