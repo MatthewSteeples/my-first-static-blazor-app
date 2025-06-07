@@ -229,5 +229,25 @@ window.notifications = {
     recordTracking: function(itemId) {
         const lastTrackedKey = `last-tracked-${itemId}`;
         localStorage.setItem(lastTrackedKey, new Date().toISOString());
+    },
+    
+    // Get list of registered periodic sync tags
+    getRegisteredTags: async function() {
+        if (!this.isPBSSupported()) {
+            return [];
+        }
+        
+        try {
+            const registration = await navigator.serviceWorker.getRegistration();
+            if (!registration || !('periodicSync' in registration)) {
+                return [];
+            }
+            
+            const tags = await registration.periodicSync.getTags();
+            return Array.from(tags);
+        } catch (e) {
+            alert('Error getting registered sync tags: ' + e.message);
+            return [];
+        }
     }
 };

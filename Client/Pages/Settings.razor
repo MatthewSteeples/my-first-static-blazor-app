@@ -7,6 +7,7 @@
 
 @inject NavigationManager Navigation
 @inject NotificationService NotificationService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 <PageTitle>Settings</PageTitle>
 
@@ -140,6 +141,86 @@
     </div>
 </div>
 
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Active Notification Registrations</h5>
+            </div>
+            <div class="card-body">
+                <p>Currently registered background sync notifications for your tracked items.</p>
+                
+                @if (IsLoadingRegistrations)
+                {
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="ms-2">Loading registrations...</span>
+                    </div>
+                }
+                else if (RegisteredItems.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Registration Tag</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var registration in RegisteredItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (registration.Item != null)
+                                            {
+                                                <strong>@registration.Item.Name</strong>
+                                            }
+                                            else
+                                            {
+                                                <em class="text-muted">Unknown Item (ID: @registration.ItemId)</em>
+                                            }
+                                        </td>
+                                        <td>
+                                            <code>@registration.Tag</code>
+                                        </td>
+                                        <td>
+                                            @if (registration.Item != null)
+                                            {
+                                                <a href="/edit/@registration.Item.Id" class="btn btn-sm btn-outline-primary">
+                                                    <span class="bi bi-pencil" aria-hidden="true"></span> Edit
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Item not found</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        <span class="bi bi-info-circle" aria-hidden="true"></span>
+                        No active notification registrations found. Create tracked items with intervals and enable notifications to see them here.
+                    </div>
+                }
+                
+                <button class="btn btn-secondary btn-sm mt-2" @onclick="RefreshRegistrations">
+                    <span class="bi bi-arrow-clockwise" aria-hidden="true"></span> Refresh Registrations
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="mt-4">
     <a href="/" class="btn btn-secondary">
         <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
@@ -152,10 +233,20 @@
     private bool BackgroundSyncSupported = false;
     private string BackgroundSyncPermission = "unknown";
     private bool IsLoading = true;
+    private bool IsLoadingRegistrations = false;
+    private List<NotificationRegistration> RegisteredItems = new();
+
+    public class NotificationRegistration
+    {
+        public string Tag { get; set; } = "";
+        public string ItemId { get; set; } = "";
+        public TrackedItem? Item { get; set; }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await LoadStatus();
+        await LoadRegistrations();
     }
 
     private async Task LoadStatus()
@@ -181,9 +272,65 @@
         }
     }
 
+    private async Task LoadRegistrations()
+    {
+        IsLoadingRegistrations = true;
+        StateHasChanged();
+
+        try
+        {
+            // Get all registered sync tags
+            var tags = await NotificationService.GetRegisteredTags();
+            
+            // Load all tracked items
+            var allItems = new List<TrackedItem>();
+            var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
+            foreach (var key in keys)
+            {
+                var item = await localStorage.GetItemAsync<TrackedItem>(key);
+                if (item != null)
+                    allItems.Add(item);
+            }
+
+            // Parse medication reminder tags and match with items
+            RegisteredItems.Clear();
+            foreach (var tag in tags)
+            {
+                if (tag.StartsWith("medication-reminder-"))
+                {
+                    var itemIdString = tag.Substring("medication-reminder-".Length);
+                    if (Guid.TryParse(itemIdString, out var itemId))
+                    {
+                        var item = allItems.FirstOrDefault(i => i.Id == itemId);
+                        RegisteredItems.Add(new NotificationRegistration
+                        {
+                            Tag = tag,
+                            ItemId = itemIdString,
+                            Item = item
+                        });
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // Handle errors gracefully - keep empty list
+        }
+        finally
+        {
+            IsLoadingRegistrations = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task RefreshStatus()
     {
         await LoadStatus();
+    }
+
+    private async Task RefreshRegistrations()
+    {
+        await LoadRegistrations();
     }
     
     // Request notification permission when user clicks the button

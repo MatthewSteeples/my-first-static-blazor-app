@@ -105,5 +105,14 @@ namespace BlazorApp.Client.Services
         {
             await _jsRuntime.InvokeVoidAsync("notifications.recordTracking", item.Id);
         }
+
+        /// <summary>
+        /// Gets the list of registered periodic sync tags
+        /// </summary>
+        /// <returns>Array of registered sync tag names</returns>
+        public async Task<string[]> GetRegisteredTags()
+        {
+            return await _jsRuntime.InvokeAsync<string[]>("notifications.getRegisteredTags");
+        }
     }
 }
