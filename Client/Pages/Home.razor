@@ -76,10 +76,6 @@ else
     <a href="/settings">Settings</a>
 </p>
 
-<p>
-    <button class="btn btn-primary" @onclick="SendTrackedItems">Send Tracked Items</button>
-</p>
-
 @code {
     private void searchChange(ChangeEventArgs e)
     {
@@ -117,20 +113,5 @@ else
     private void AddItem()
     {
         Navigation.NavigateTo("/edit/" + Guid.NewGuid());
-    }
-
-    private async Task SendTrackedItems()
-    {
-        var trackedItems = new List<TrackedItem>(); // Get your tracked items here
-        var response = await Http.PostAsJsonAsync("api/SaveTrackedItems", trackedItems);
-
-        if (response.IsSuccessStatusCode)
-        {
-            // Handle success
-        }
-        else
-        {
-            // Handle failure
-        }
     }
 }
