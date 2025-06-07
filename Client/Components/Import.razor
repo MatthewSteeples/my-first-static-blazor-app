@@ -1,0 +1,102 @@
+@using System.IO
+@using BlazorApp.Shared
+@using System.Text
+@using System.Text.Json
+
+@inject IJSRuntime JS
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<script>
+    window.readUploadedFileAsText = async (inputElement) => {
+        const file = inputElement.files[0];
+        if (!file) {
+            return null;
+        }
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(e);
+            reader.readAsText(file);
+        });
+    };
+</script>
+
+<div>
+    <input type="file" accept=".json" @ref="fileInput" />
+    <button class="btn btn-success" @onclick="ImportFileAsync">Import</button>
+    
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="alert @alertClass mt-2" role="alert">
+            @statusMessage
+        </div>
+    }
+</div>
+
+@code {
+    private ElementReference fileInput;
+    private string statusMessage = "";
+    private string alertClass = "";
+    
+    private async Task ImportFileAsync()
+    {
+        try
+        {
+            statusMessage = "";
+            alertClass = "";
+            
+            // Read the file content
+            var fileContent = await JS.InvokeAsync<string>("readUploadedFileAsText", fileInput);
+            
+            if (string.IsNullOrEmpty(fileContent))
+            {
+                ShowError("Please select a file to import.");
+                return;
+            }
+            
+            // Parse JSON array of TrackedItem objects
+            var trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray);
+            
+            if (trackedItems == null || trackedItems.Length == 0)
+            {
+                ShowError("No tracked items found in the selected file.");
+                return;
+            }
+            
+            // Import each item into localStorage
+            int importedCount = 0;
+            foreach (var item in trackedItems)
+            {
+                if (item != null && item.Id != Guid.Empty)
+                {
+                    var key = $"{nameof(TrackedItem)}{item.Id}";
+                    await localStorage.SetItemAsync(key, item);
+                    importedCount++;
+                }
+            }
+            
+            ShowSuccess($"Successfully imported {importedCount} tracked item(s).");
+        }
+        catch (JsonException ex)
+        {
+            ShowError($"Invalid JSON format: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Import failed: {ex.Message}");
+        }
+    }
+    
+    private void ShowSuccess(string message)
+    {
+        statusMessage = message;
+        alertClass = "alert-success";
+    }
+    
+    private void ShowError(string message)
+    {
+        statusMessage = message;
+        alertClass = "alert-danger";
+    }
+}
