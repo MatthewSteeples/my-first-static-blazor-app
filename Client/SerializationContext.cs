@@ -6,6 +6,7 @@ namespace BlazorApp.Client
     [JsonSourceGenerationOptions(WriteIndented = false)]
 
     [JsonSerializable(typeof(TrackedItem))]
+    [JsonSerializable(typeof(TrackedItem[]))]
     [JsonSerializable(typeof(Target))]
     [JsonSerializable(typeof(Occurrence))]
     
