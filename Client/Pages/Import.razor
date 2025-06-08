@@ -108,28 +108,70 @@
                 return;
             }
             
-            // Parse JSON array of TrackedItem objects
-            var trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray);
+            // Parse JSON as a generic array first to identify item types
+            using var doc = JsonDocument.Parse(fileContent);
+            var root = doc.RootElement;
             
-            if (trackedItems == null || trackedItems.Length == 0)
+            if (root.ValueKind != JsonValueKind.Array)
             {
-                ShowError("No tracked items found in the selected file.");
+                ShowError("Invalid file format. Expected an array of items.");
                 return;
             }
             
-            // Import each item into localStorage
-            int importedCount = 0;
-            foreach (var item in trackedItems)
+            int importedTrackedItems = 0;
+            int importedArchives = 0;
+            
+            foreach (var element in root.EnumerateArray())
             {
-                if (item != null && item.Id != Guid.Empty)
+                try
                 {
-                    var key = $"{nameof(TrackedItem)}{item.Id}";
-                    await localStorage.SetItemAsync(key, item);
-                    importedCount++;
+                    // Try to determine if this is a TrackedItem or TrackedItemArchive
+                    if (element.TryGetProperty("ArchivedOccurrences", out _) || 
+                        element.TryGetProperty("TrackedItemId", out _) ||
+                        element.TryGetProperty("ArchiveNumber", out _))
+                    {
+                        // This is a TrackedItemArchive
+                        var archive = JsonSerializer.Deserialize<TrackedItemArchive>(element.GetRawText(), SerializationContext.Default.TrackedItemArchive);
+                        if (archive != null && archive.TrackedItemId != Guid.Empty)
+                        {
+                            var archiveKey = $"TrackedItemArchive{archive.TrackedItemId}-{archive.ArchiveNumber}";
+                            await localStorage.SetItemAsync(archiveKey, archive);
+                            importedArchives++;
+                        }
+                    }
+                    else
+                    {
+                        // This is a TrackedItem
+                        var item = JsonSerializer.Deserialize<TrackedItem>(element.GetRawText(), SerializationContext.Default.TrackedItem);
+                        if (item != null && item.Id != Guid.Empty)
+                        {
+                            var key = $"{nameof(TrackedItem)}{item.Id}";
+                            await localStorage.SetItemAsync(key, item);
+                            importedTrackedItems++;
+                        }
+                    }
+                }
+                catch (JsonException)
+                {
+                    // Skip invalid items
+                    continue;
                 }
             }
             
-            ShowSuccess($"Successfully imported {importedCount} tracked item(s).");
+            if (importedTrackedItems == 0 && importedArchives == 0)
+            {
+                ShowError("No valid items found in the selected file.");
+                return;
+            }
+            
+            var message = $"Successfully imported {importedTrackedItems} tracked item(s)";
+            if (importedArchives > 0)
+            {
+                message += $" and {importedArchives} archive(s)";
+            }
+            message += ".";
+            
+            ShowSuccess(message);
             
             // Redirect to home page after a short delay
             await Task.Delay(2000);

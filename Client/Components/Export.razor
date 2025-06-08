@@ -28,7 +28,7 @@
     {
         var items = new List<string>();
 
-        var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
+        var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)) || a.StartsWith("TrackedItemArchive"));
 
         foreach (var key in keys)
         {
