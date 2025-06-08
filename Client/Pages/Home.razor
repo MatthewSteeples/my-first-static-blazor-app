@@ -19,6 +19,7 @@
 {
     <div class="welcome-message mb-3">
         <h3>Welcome, @(currentUser.FirstName ?? currentUser.Name ?? "User")!</h3>
+        <p><a href="/.auth/logout">Log out</a></p>
     </div>
 }
 else if (hasCheckedAuth && currentUser == null)
