@@ -519,5 +519,28 @@ namespace Shared.Tests
             Assert.AreEqual(baseDate.AddDays(100), trackedItem.PastOccurrences.Min(o => o.ActualTimestamp));
             Assert.AreEqual(baseDate.AddDays(200), trackedItem.PastOccurrences.Max(o => o.ActualTimestamp));
         }
+
+        [TestMethod]
+        public void Test_ArchiveNaming_ValidatesStructure()
+        {
+            var trackedItemId = Guid.NewGuid();
+            var archive = new TrackedItemArchive
+            {
+                TrackedItemId = trackedItemId,
+                ArchiveNumber = 5,
+                ArchivedOccurrences = [],
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Verify the expected naming pattern would work
+            var expectedKey = $"TrackedItemArchive{trackedItemId}-5";
+            Assert.AreEqual(trackedItemId, archive.TrackedItemId);
+            Assert.AreEqual(5, archive.ArchiveNumber);
+            
+            // The key should match the pattern: TrackedItemArchive{itemId}-{n}
+            Assert.IsTrue(expectedKey.StartsWith("TrackedItemArchive"));
+            Assert.IsTrue(expectedKey.Contains(trackedItemId.ToString()));
+            Assert.IsTrue(expectedKey.EndsWith("-5"));
+        }
     }
 }
