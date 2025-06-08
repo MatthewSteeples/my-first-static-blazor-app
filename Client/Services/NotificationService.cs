@@ -76,8 +76,11 @@ namespace BlazorApp.Client.Services
             if (nextOccurrence == default)
                 return false;
             
-            // Calculate hours until next occurrence
-            double intervalHours = (nextOccurrence - DateTime.UtcNow).TotalHours;
+            // Add 10 minutes to the notification time before scheduling
+            var notificationTime = nextOccurrence.AddMinutes(10);
+            
+            // Calculate hours until notification time (next occurrence + 10 minutes)
+            double intervalHours = (notificationTime - DateTime.UtcNow).TotalHours;
             
             // Make sure we have at least a small interval (10 minutes minimum)
             if (intervalHours <= 0)
