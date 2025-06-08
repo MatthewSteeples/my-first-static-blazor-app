@@ -18,7 +18,7 @@
 @if (currentUser != null)
 {
     <div class="welcome-message mb-3">
-        <h3>Welcome, @(currentUser.FirstName ?? currentUser.Name ?? "User")!</h3>
+        <h3>Welcome, @GetDisplayName()!</h3>
         <p><a href="/.auth/logout">Log out</a></p>
     </div>
 }
@@ -65,6 +65,27 @@ else if (hasCheckedAuth && currentUser == null)
         allItems.Sort(new TrackedItemComparerDescending());
 
         items = allItems;
+    }
+
+    private string GetDisplayName()
+    {
+        if (currentUser == null)
+            return "User";
+
+        // Check FirstName first
+        if (!string.IsNullOrEmpty(currentUser.FirstName))
+            return currentUser.FirstName;
+
+        // Then check Name
+        if (!string.IsNullOrEmpty(currentUser.Name))
+            return currentUser.Name;
+
+        // Then check UserDetails (email)
+        if (!string.IsNullOrEmpty(currentUser.UserDetails))
+            return currentUser.UserDetails;
+
+        // Fallback to "User"
+        return "User";
     }
 }
 
