@@ -110,6 +110,30 @@ namespace BlazorApp.Shared
             }
         }
 
+        public TrackedItemArchive CheckForArchiving()
+        {
+            if (PastOccurrences.Count <= 200)
+                return null;
+
+            // Sort by ActualTimestamp to get the oldest occurrences
+            var sortedOccurrences = PastOccurrences.OrderBy(o => o.ActualTimestamp).ToList();
+            var toArchive = sortedOccurrences.Take(100).ToList();
+            var toKeep = sortedOccurrences.Skip(100).ToList();
+
+            // Create archive with the oldest 100 occurrences
+            var archive = new TrackedItemArchive
+            {
+                TrackedItemId = Id,
+                ArchivedOccurrences = toArchive,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Keep only the newest occurrences
+            PastOccurrences = toKeep;
+
+            return archive;
+        }
+
         public decimal CalculateCurrentStockLevel() // Paabd
         {
             var totalAcquired = StockAcquisitions.Sum(sa => sa.Quantity);

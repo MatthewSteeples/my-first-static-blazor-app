@@ -1,5 +1,6 @@
 @page "/edit/{id:guid}"
 @using BlazorApp.Client.Components
+@using BlazorApp.Client.Services
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
@@ -162,7 +163,7 @@
             Item.AddOccurrence(occurrence.ActualTimestamp, occurrence.StockUsed);
         }
 
-        await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
+        await TrackedItemStorageHelper.SaveTrackedItemWithArchivingAsync(localStorage, Item);
         Navigation.NavigateTo("/");
     }
 
