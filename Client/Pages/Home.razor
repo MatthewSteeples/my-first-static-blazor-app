@@ -24,9 +24,9 @@
 }
 else if (hasCheckedAuth && currentUser == null)
 {
-    <div class="login-prompt mb-3">
+    @* <div class="login-prompt mb-3">
         <p>Please <a href="/.auth/login/aad">log in</a> to access your personalized experience.</p>
-    </div>
+    </div> *@
 }
 
 @code {
@@ -40,7 +40,7 @@ else if (hasCheckedAuth && currentUser == null)
         // Check authentication first
         try
         {
-            currentUser = await AuthService.GetCurrentUserAsync();
+            // currentUser = await AuthService.GetCurrentUserAsync();
         }
         catch (Exception)
         {
