@@ -20,8 +20,10 @@
 @code {
     public string GetVersion()
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var version = assembly.GetName().Version!.ToString();
-        return version;
+        var informationalVersion = typeof(Program).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            .InformationalVersion;
+
+        return informationalVersion;;
     }
 }
