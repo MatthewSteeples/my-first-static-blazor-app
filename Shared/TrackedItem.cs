@@ -20,6 +20,7 @@ namespace BlazorApp.Shared
         public List<Target> Targets { get; set; } = [];
         public decimal? DefaultStockUsage { get; set; }
         public List<StockAcquisition> StockAcquisitions { get; set; } = [];
+        public List<TimeOnly> Schedule { get; set; } = [];
 
         public StatusEnum GetStatus(DateTime now)
         {
