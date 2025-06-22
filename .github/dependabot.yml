@@ -10,3 +10,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+  - package-ecosystem: "npm"
+    directory: "/weathered-base-bad8"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
