@@ -14,7 +14,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "22.13.0",
+    "@types/node": "24.0.10",
     "@types/service-worker-mock": "^2.0.4",
     "wrangler": "^4.20.5"
   }
