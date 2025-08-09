@@ -4,53 +4,18 @@
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Microsoft.AspNetCore.Components
-@using System.Net.Http
-@using System.Net.Http.Json
-@using BlazorApp.Client.Services
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
-@inject HttpClient Http
-@inject IAuthService AuthService
 
 <PageTitle>Home</PageTitle>
-
-@if (currentUser != null)
-{
-    <div class="welcome-message mb-3">
-        <h3>Welcome, @GetDisplayName()!</h3>
-        <p><a href="/.auth/logout">Log out</a></p>
-    </div>
-}
-else if (hasCheckedAuth && currentUser == null)
-{
-    @* <div class="login-prompt mb-3">
-        <p>Please <a href="/.auth/login/aad">log in</a> to access your personalized experience.</p>
-    </div> *@
-}
 
 @code {
     private List<TrackedItem> allItems = [];
     private List<TrackedItem> items = [];
-    private AuthUser? currentUser;
-    private bool hasCheckedAuth = false;
 
     protected override async Task OnInitializedAsync()
     {
-        // Check authentication first
-        try
-        {
-            // currentUser = await AuthService.GetCurrentUserAsync();
-        }
-        catch (Exception)
-        {
-            currentUser = null;
-        }
-        finally
-        {
-            hasCheckedAuth = true;
-        }
-
         // Load tracked items
         var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
 
@@ -65,27 +30,6 @@ else if (hasCheckedAuth && currentUser == null)
         allItems.Sort(new TrackedItemComparerDescending());
 
         items = allItems;
-    }
-
-    private string GetDisplayName()
-    {
-        if (currentUser == null)
-            return "User";
-
-        // Check FirstName first
-        if (!string.IsNullOrEmpty(currentUser.FirstName))
-            return currentUser.FirstName;
-
-        // Then check Name
-        if (!string.IsNullOrEmpty(currentUser.Name))
-            return currentUser.Name;
-
-        // Then check UserDetails (email)
-        if (!string.IsNullOrEmpty(currentUser.UserDetails))
-            return currentUser.UserDetails;
-
-        // Fallback to "User"
-        return "User";
     }
 }
 
