@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "chanfana": "^2.8.2",
-    "hono": "^4.6.20",
+    "hono": "^4.9.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {
