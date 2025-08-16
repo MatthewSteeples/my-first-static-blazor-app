@@ -1,10 +1,12 @@
 ﻿@page "/Grid"
 @using BlazorApp.Shared
 @using BlazorApp.Shared.Comparers
+@using BlazorApp.Client.Services
 @using Microsoft.FluentUI.AspNetCore.Components
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 
 <PageTitle>Grid</PageTitle>
 
@@ -70,6 +72,48 @@ else
     {
         trackedItem.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + trackedItem.Id, trackedItem);
+        
+        // Schedule notification for the next interval if the item has targets with intervals
+        await ScheduleNextNotification(trackedItem);
+    }
+
+    private async Task ScheduleNextNotification(TrackedItem item)
+    {
+        // Check if notifications are supported and we have permission
+        if (!await NotificationService.IsSupportedAsync())
+            return;
+
+        var permission = await NotificationService.GetPermissionAsync();
+        if (permission == "default")
+        {
+            // Request permission
+            permission = await NotificationService.RequestPermissionAsync();
+        }
+
+        if (permission != "granted")
+            return;
+
+        // Cancel any existing notification for this item
+        await NotificationService.CancelNotificationAsync(item.Name);
+
+        // Check if this item has intervals set
+        var eligibleTargets = item.Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero).ToList();
+        if (!eligibleTargets.Any())
+            return;
+
+        // Calculate the next occurrence time
+        var nextOccurrence = item.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault();
+        if (nextOccurrence == default(DateTime))
+            return;
+
+        // Calculate the interval in hours for the notification
+        var now = DateTime.UtcNow;
+        var interval = (nextOccurrence - now).TotalHours;
+
+        if (interval > 0)
+        {
+            await NotificationService.ScheduleNotificationAsync(item.Name, interval);
+        }
     }
 
     private void AddItem()

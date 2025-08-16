@@ -1,11 +1,13 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 
 <h3>
     @ItemToTrack.Name
@@ -104,7 +106,49 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
+        // Schedule notification for the next interval if the item has targets with intervals
+        await ScheduleNextNotification();
+
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
+    }
+
+    private async Task ScheduleNextNotification()
+    {
+        // Check if notifications are supported and we have permission
+        if (!await NotificationService.IsSupportedAsync())
+            return;
+
+        var permission = await NotificationService.GetPermissionAsync();
+        if (permission == "default")
+        {
+            // Request permission
+            permission = await NotificationService.RequestPermissionAsync();
+        }
+
+        if (permission != "granted")
+            return;
+
+        // Cancel any existing notification for this item
+        await NotificationService.CancelNotificationAsync(ItemToTrack.Name);
+
+        // Check if this item has intervals set
+        var eligibleTargets = ItemToTrack.Targets.Where(t => t.Qty > 0 && t.Frequency > TimeSpan.Zero).ToList();
+        if (!eligibleTargets.Any())
+            return;
+
+        // Calculate the next occurrence time
+        var nextOccurrence = ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).FirstOrDefault();
+        if (nextOccurrence == default(DateTime))
+            return;
+
+        // Calculate the interval in hours for the notification
+        var now = DateTime.UtcNow;
+        var interval = (nextOccurrence - now).TotalHours;
+
+        if (interval > 0)
+        {
+            await NotificationService.ScheduleNotificationAsync(ItemToTrack.Name, interval);
+        }
     }
 
     void edit()
