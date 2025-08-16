@@ -6,7 +6,7 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "weathered-base-bad8",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-06-20",
+	"compatibility_date": "2025-08-16",
 	"observability": {
 		"enabled": true
 	},
