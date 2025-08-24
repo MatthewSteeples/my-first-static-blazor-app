@@ -9,6 +9,7 @@ namespace BlazorApp.Client.Services
     {
         Task<BrowserIdentity> GetOrCreateIdentityAsync();
         Task<BrowserIdentity?> GetIdentityAsync();
+        Task UpdateIdentityKeysAsync(string publicKey, string privateKey);
     }
 
     public class BrowserIdentityService : IBrowserIdentityService
@@ -85,6 +86,15 @@ namespace BlazorApp.Client.Services
         {
             var identityJson = JsonSerializer.Serialize(identity);
             await _localStorage.SetItemAsStringAsync(IDENTITY_KEY, identityJson);
+        }
+
+        public async Task UpdateIdentityKeysAsync(string publicKey, string privateKey)
+        {
+            var identity = await GetOrCreateIdentityAsync();
+            identity.PublicKey = publicKey;
+            identity.PrivateKey = privateKey;
+            await SaveIdentityAsync(identity);
+            _cachedIdentity = identity;
         }
     }
 }
