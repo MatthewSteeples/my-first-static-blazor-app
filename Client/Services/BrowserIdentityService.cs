@@ -32,10 +32,9 @@ namespace BlazorApp.Client.Services
 
             try
             {
-                var identityJson = await _localStorage.GetItemAsStringAsync(IDENTITY_KEY);
-                if (!string.IsNullOrEmpty(identityJson))
+                _cachedIdentity = await _localStorage.GetItemAsync<BrowserIdentity>(IDENTITY_KEY);
+                if (_cachedIdentity != null)
                 {
-                    _cachedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityJson);
                     return _cachedIdentity;
                 }
             }
@@ -84,8 +83,7 @@ namespace BlazorApp.Client.Services
 
         private async Task SaveIdentityAsync(BrowserIdentity identity)
         {
-            var identityJson = JsonSerializer.Serialize(identity);
-            await _localStorage.SetItemAsStringAsync(IDENTITY_KEY, identityJson);
+            await _localStorage.SetItemAsync(IDENTITY_KEY, identity);
         }
 
         public async Task UpdateIdentityKeysAsync(string publicKey, string privateKey)
