@@ -131,8 +131,7 @@
                     var trackedItemsJson = trackedItemsElement.GetRawText();
                     trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson)?
                         .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
-                        .Where(item => item != null)
-                        .Cast<TrackedItem>()
+                        .OfType<TrackedItem>()
                         .ToArray() ?? Array.Empty<TrackedItem>();
                     
                     // Handle identity import
