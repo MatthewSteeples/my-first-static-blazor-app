@@ -24,3 +24,19 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
+
+      - name: Install .NET WASM workload
+        run: dotnet workload install wasm-tools
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Restore .NET packages
+        run: dotnet restore
+
+      - name: Install Cloudflare Worker dependencies
+        run: |
+          cd weathered-base-bad8
+          npm install

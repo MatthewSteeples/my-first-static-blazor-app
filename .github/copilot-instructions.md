@@ -6,14 +6,8 @@ Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medi
 
 ## Working Effectively
 
-### Bootstrap and Setup
-1. **CRITICAL**: Install .NET WASM workload first:
-   - `dotnet workload install wasm-tools` -- takes 30-60 seconds on first run. NEVER CANCEL. Set timeout to 90+ minutes.
-2. Bootstrap the .NET solution:
-   - `dotnet restore` -- takes 1-26 seconds (fast after first run). NEVER CANCEL. Set timeout to 45+ minutes.
-   - `dotnet build` -- takes 4-15 seconds (fast after first run). NEVER CANCEL. Set timeout to 30+ minutes.
-3. Setup Cloudflare Worker dependencies:
-   - `cd weathered-base-bad8 && npm install` -- takes 11 seconds. NEVER CANCEL. Set timeout to 30+ minutes.
+### Setup Notes
+**Prerequisites are handled automatically**: The .NET WASM workload, package restoration, and Cloudflare Worker dependencies are pre-installed via the GitHub Actions setup workflow (`copilot-setup-steps.yml`). You can start development immediately without manual setup steps.
 
 ### Build and Test
 - **Build solution**: `dotnet build`
@@ -123,18 +117,14 @@ BlazorStaticWebApps.sln     # Main solution file
 ## Troubleshooting
 
 ### Common Issues
-- **"WASM workload not installed"**: Run `dotnet workload install wasm-tools`
 - **Build timeout**: Builds can take 55+ seconds in Release mode - increase timeout
 - **Cloudflare API errors**: Expected in development without Cloudflare credentials
 - **Nullable reference warnings**: Expected - not blocking issues
 
 ### Performance Notes
-- **Initial setup (first time)**:
-  - WASM workload install: 30-60 seconds
-  - Package restore: 26 seconds (downloads packages)
-  - Initial build: 15 seconds
+- **Environment setup**: .NET WASM workload, package restoration, and npm dependencies are pre-installed via setup workflow
 - **Incremental development**: 
-  - Package restore: 1-3 seconds (cached)
+  - Package restore: 1-3 seconds (cached, already restored)
   - Incremental builds: 4-8 seconds
   - Test execution: 3-5 seconds for all 23 tests
 - **Release builds**: 4-55 seconds (faster on incremental, slower on clean)
@@ -144,13 +134,11 @@ BlazorStaticWebApps.sln     # Main solution file
 Always validate your changes with these commands:
 ```bash
 # Quick validation (run all in sequence)
-dotnet restore                                             # 1-26s, timeout: 45min
 dotnet build                                               # 4-15s, timeout: 30min  
 dotnet test                                                # 3-5s, timeout: 15min
 
 # Full production validation
 dotnet publish Client/Client.csproj -c Release -o publish  # 4-55s, timeout: 90min
-cd weathered-base-bad8 && npm install                      # 11s, timeout: 30min
 cd weathered-base-bad8 && npx wrangler dev                 # 10s, timeout: 30min
 
 # Development server testing
