@@ -1,7 +1,9 @@
 @page "/settings"
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 
 @inject NavigationManager Navigation
+@inject IBrowserIdentityService identityService
 
 <PageTitle>Settings</PageTitle>
 
@@ -24,6 +26,41 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Browser Identity</h5>
+            </div>
+            <div class="card-body">
+                @if (identity != null)
+                {
+                    <p>Your local browser identity has been created for this offline application.</p>
+                    <dl class="row">
+                        <dt class="col-sm-4">Identity ID:</dt>
+                        <dd class="col-sm-8"><code class="small">@identity.Id</code></dd>
+                        
+                        <dt class="col-sm-4">Created:</dt>
+                        <dd class="col-sm-8">@identity.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss UTC")</dd>
+                        
+                        <dt class="col-sm-4">Algorithm:</dt>
+                        <dd class="col-sm-8">@identity.Algorithm (@identity.Curve)</dd>
+                        
+                        <dt class="col-sm-4">Public Key:</dt>
+                        <dd class="col-sm-8">
+                            <div class="text-truncate" style="max-width: 200px;" title="@identity.PublicKey">
+                                <code class="small">@identity.PublicKey</code>
+                            </div>
+                        </dd>
+                    </dl>
+                    <small class="text-muted">This identity is included in your data exports and stored locally in your browser.</small>
+                }
+                else
+                {
+                    <p class="text-muted">Loading identity...</p>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="mt-4">
@@ -31,3 +68,12 @@
         <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
     </a>
 </div>
+
+@code {
+    private BrowserIdentity? identity;
+
+    protected override async Task OnInitializedAsync()
+    {
+        identity = await identityService.GetOrCreateIdentityAsync();
+    }
+}
