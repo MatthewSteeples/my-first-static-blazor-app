@@ -1,9 +1,12 @@
 ﻿@using System.IO
 @using BlazorApp.Shared
 @using System.Text
+@using BlazorApp.Client.Services
+@using System.Text.Json
 
 @inject IJSRuntime JS
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject IBrowserIdentityService identityService
 
 @*Taken from https://learn.microsoft.com/en-us/aspnet/core/blazor/file-downloads?view=aspnetcore-8.0#download-from-a-stream*@
 
@@ -38,9 +41,16 @@
                 items.Add(item);
         }
 
-        var bigString = "[" + string.Join(", ", items) + "]";
+        // Get browser identity and include it in export
+        var identity = await identityService.GetOrCreateIdentityAsync();
+        var exportData = new
+        {
+            identity = identity,
+            trackedItems = items
+        };
 
-        byte[] byteArray = Encoding.UTF8.GetBytes(bigString);
+        var exportJson = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
+        byte[] byteArray = Encoding.UTF8.GetBytes(exportJson);
         return new MemoryStream(byteArray);
     }
 

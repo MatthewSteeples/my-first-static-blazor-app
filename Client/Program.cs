@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazorApp.Client;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
+using BlazorApp.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,4 +14,13 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
 
-await builder.Build().RunAsync();
+// Add browser identity service
+builder.Services.AddScoped<IBrowserIdentityService, BrowserIdentityService>();
+
+var app = builder.Build();
+
+// Initialize browser identity on startup
+var identityService = app.Services.GetRequiredService<IBrowserIdentityService>();
+await identityService.GetOrCreateIdentityAsync();
+
+await app.RunAsync();
