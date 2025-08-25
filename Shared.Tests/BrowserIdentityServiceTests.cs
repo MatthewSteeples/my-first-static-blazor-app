@@ -75,7 +75,7 @@ namespace BlazorApp.Shared.Tests
             Assert.IsTrue(root.TryGetProperty("identity", out var identityElement));
             Assert.IsTrue(root.TryGetProperty("trackedItems", out var trackedItemsElement));
             
-            var parsedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText());
+            var parsedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText(), SerializationContext.Default.BrowserIdentity);
             Assert.IsNotNull(parsedIdentity);
             Assert.AreEqual("test-id-123", parsedIdentity.Id);
             Assert.AreEqual("test-public-key", parsedIdentity.PublicKey);
