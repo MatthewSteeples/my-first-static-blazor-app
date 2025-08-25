@@ -32,8 +32,8 @@ namespace BlazorApp.Shared.Tests
             };
 
             // Act
-            var json = JsonSerializer.Serialize(identity);
-            var deserializedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(json);
+            var json = JsonSerializer.Serialize(identity, SerializationContext.Default.BrowserIdentity);
+            var deserializedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(json, SerializationContext.Default.BrowserIdentity);
 
             // Assert
             Assert.IsNotNull(deserializedIdentity);

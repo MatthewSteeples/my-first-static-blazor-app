@@ -270,19 +270,30 @@
             TrackedItem[] trackedItems;
             BrowserIdentity? importedIdentity = null;
             
-            if (root.ValueKind == JsonValueKind.Object && 
+            // First try to deserialize as new ExportData format
+            var exportData = JsonSerializer.Deserialize<ExportData>(fileContent, SerializationContext.Default.ExportData);
+            if (exportData != null)
+            {
+                // New format with ExportData
+                importedIdentity = exportData.Identity;
+                trackedItems = exportData.TrackedItems
+                    .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
+                    .OfType<TrackedItem>()
+                    .ToArray();
+            }
+            else if (root.ValueKind == JsonValueKind.Object && 
                 root.TryGetProperty("trackedItems", out var trackedItemsElement) && 
                 root.TryGetProperty("identity", out var identityElement))
             {
-                // New format with identity and trackedItems
+                // Legacy object format with identity and trackedItems
                 var trackedItemsJson = trackedItemsElement.GetRawText();
-                trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson)?
+                trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson, SerializationContext.Default.StringArray)?
                     .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
                     .OfType<TrackedItem>()
                     .ToArray() ?? Array.Empty<TrackedItem>();
                 
                 // Parse identity
-                importedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText());
+                importedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText(), SerializationContext.Default.BrowserIdentity);
             }
             else if (root.ValueKind == JsonValueKind.Array)
             {
