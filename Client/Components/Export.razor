@@ -43,13 +43,13 @@
 
         // Get browser identity and include it in export
         var identity = await identityService.GetOrCreateIdentityAsync();
-        var exportData = new
+        var exportData = new ExportData
         {
-            identity = identity,
-            trackedItems = items
+            Identity = identity,
+            TrackedItems = items
         };
 
-        var exportJson = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
+        var exportJson = JsonSerializer.Serialize(exportData, SerializationContext.Default.ExportData);
         byte[] byteArray = Encoding.UTF8.GetBytes(exportJson);
         return new MemoryStream(byteArray);
     }
