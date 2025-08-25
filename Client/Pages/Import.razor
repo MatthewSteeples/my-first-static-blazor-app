@@ -45,7 +45,7 @@
                     <label for="fileInput" class="form-label">Choose JSON file:</label>
                     <input type="file" class="form-control" id="fileInput" accept=".json" @ref="fileInput" />
                 </div>
-                <button class="btn btn-success" @onclick="ImportFileAsync">
+                <button class="btn btn-success" @onclick="ImportFileAsync" disabled="@showConfirmation">
                     <span class="bi bi-upload" aria-hidden="true"></span> Import Data
                 </button>
                 
@@ -53,6 +53,23 @@
                 {
                     <div class="alert @alertClass mt-3" role="alert">
                         @statusMessage
+                    </div>
+                }
+                
+                @if (showConfirmation)
+                {
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <h6 class="alert-heading">Identity Confirmation Required</h6>
+                        <p>@confirmationMessage</p>
+                        <hr>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-warning" @onclick="ConfirmImportAsync">
+                                <span class="bi bi-check-circle" aria-hidden="true"></span> Continue Import
+                            </button>
+                            <button class="btn btn-secondary" @onclick="CancelImport">
+                                <span class="bi bi-x-circle" aria-hidden="true"></span> Cancel
+                            </button>
+                        </div>
                     </div>
                 }
             </div>
@@ -95,6 +112,11 @@
     private ElementReference fileInput;
     private string statusMessage = "";
     private string alertClass = "";
+    private bool showConfirmation = false;
+    private string confirmationMessage = "";
+    private string fileContentToImport = "";
+    private BrowserIdentity? importedIdentity = null;
+    private TrackedItem[]? trackedItemsToImport = null;
     
     private async Task ImportFileAsync()
     {
@@ -102,6 +124,7 @@
         {
             statusMessage = "";
             alertClass = "";
+            showConfirmation = false;
             
             // Read the file content
             var fileContent = await JS.InvokeAsync<string>("readUploadedFileAsText", fileInput);
@@ -112,69 +135,102 @@
                 return;
             }
             
-            // Try to parse as the new export format with identity and trackedItems
-            var importedItemsCount = 0;
-            var identityWarning = "";
+            fileContentToImport = fileContent;
             
-            try
+            // Parse and analyze the file
+            var analysisResult = await AnalyzeImportFileAsync(fileContent);
+            
+            if (!analysisResult.IsValid)
             {
-                // First try parsing as new format
-                var document = JsonDocument.Parse(fileContent);
-                var root = document.RootElement;
-                
-                TrackedItem[] trackedItems;
-                
-                if (root.TryGetProperty("trackedItems", out var trackedItemsElement) && 
-                    root.TryGetProperty("identity", out var identityElement))
+                ShowError(analysisResult.ErrorMessage ?? "Invalid file format.");
+                return;
+            }
+            
+            trackedItemsToImport = analysisResult.TrackedItems;
+            importedIdentity = analysisResult.ImportedIdentity;
+            
+            // Check if we need to show confirmation for identity differences
+            if (importedIdentity != null)
+            {
+                var currentIdentity = await identityService.GetIdentityAsync();
+                if (currentIdentity != null)
                 {
-                    // New format with identity and trackedItems
-                    var trackedItemsJson = trackedItemsElement.GetRawText();
-                    trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson)?
-                        .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
-                        .OfType<TrackedItem>()
-                        .ToArray() ?? Array.Empty<TrackedItem>();
+                    var keysDifferent = currentIdentity.PublicKey != importedIdentity.PublicKey || 
+                                       currentIdentity.PrivateKey != importedIdentity.PrivateKey;
                     
-                    // Handle identity import
-                    var importedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText());
-                    if (importedIdentity != null)
+                    if (keysDifferent)
                     {
-                        identityWarning = await HandleIdentityImport(importedIdentity);
-                    }
-                }
-                else if (root.ValueKind == JsonValueKind.Array)
-                {
-                    // Legacy format - array of TrackedItems
-                    trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray) ?? Array.Empty<TrackedItem>();
-                }
-                else
-                {
-                    ShowError("Invalid file format. Expected array of TrackedItems or object with identity and trackedItems.");
-                    return;
-                }
-                
-                // Import tracked items
-                foreach (var item in trackedItems)
-                {
-                    if (item != null && item.Id != Guid.Empty)
-                    {
-                        var key = $"{nameof(TrackedItem)}{item.Id}";
-                        await localStorage.SetItemAsync(key, item);
-                        importedItemsCount++;
+                        confirmationMessage = $"Warning: The imported file contains a different identity keypair than your current browser identity. " +
+                                            $"Proceeding will update your browser's cryptographic keys while preserving your browser ID ({currentIdentity.Id}). " +
+                                            $"Do you want to continue with the import?";
+                        showConfirmation = true;
+                        return;
                     }
                 }
             }
-            catch (JsonException)
+            
+            // No confirmation needed, proceed with import
+            await PerformImportAsync();
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Import failed: {ex.Message}");
+        }
+    }
+    
+    private async Task ConfirmImportAsync()
+    {
+        showConfirmation = false;
+        await PerformImportAsync();
+    }
+    
+    private void CancelImport()
+    {
+        showConfirmation = false;
+        fileContentToImport = "";
+        trackedItemsToImport = null;
+        importedIdentity = null;
+        statusMessage = "Import cancelled.";
+        alertClass = "alert-warning";
+    }
+    
+    private async Task PerformImportAsync()
+    {
+        try
+        {
+            var importedItemsCount = 0;
+            var identityMessage = "";
+            
+            // Import identity if present
+            if (importedIdentity != null)
             {
-                // Fallback: try parsing as legacy array format
-                var trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray);
-                
-                if (trackedItems == null || trackedItems.Length == 0)
+                var currentIdentity = await identityService.GetIdentityAsync();
+                if (currentIdentity != null)
                 {
-                    ShowError("No tracked items found in the selected file.");
-                    return;
+                    var keysDifferent = currentIdentity.PublicKey != importedIdentity.PublicKey || 
+                                       currentIdentity.PrivateKey != importedIdentity.PrivateKey;
+                    
+                    if (keysDifferent)
+                    {
+                        await identityService.UpdateIdentityKeysAsync(importedIdentity.PublicKey, importedIdentity.PrivateKey);
+                        identityMessage = "Identity keypair updated.";
+                    }
+                    else
+                    {
+                        identityMessage = "Identity keypair matches current identity.";
+                    }
                 }
-                
-                foreach (var item in trackedItems)
+                else
+                {
+                    await identityService.UpdateIdentityKeysAsync(importedIdentity.PublicKey, importedIdentity.PrivateKey);
+                    identityMessage = "Identity imported successfully.";
+                }
+            }
+            
+            // Import tracked items
+            if (trackedItemsToImport != null)
+            {
+                foreach (var item in trackedItemsToImport)
                 {
                     if (item != null && item.Id != Guid.Empty)
                     {
@@ -186,21 +242,81 @@
             }
             
             var successMessage = $"Successfully imported {importedItemsCount} tracked item(s).";
-            if (!string.IsNullOrEmpty(identityWarning))
+            if (!string.IsNullOrEmpty(identityMessage))
             {
-                successMessage += $" {identityWarning}";
+                successMessage += $" {identityMessage}";
             }
             
             ShowSuccess(successMessage);
             
             // Redirect to home page after a short delay
-            await Task.Delay(3000); // Extended delay for warning message
+            await Task.Delay(3000);
             Navigation.NavigateTo("/", forceLoad: true);
         }
         catch (Exception ex)
         {
             ShowError($"Import failed: {ex.Message}");
         }
+    }
+    
+    private async Task<ImportAnalysisResult> AnalyzeImportFileAsync(string fileContent)
+    {
+        try
+        {
+            // First try parsing as new format
+            var document = JsonDocument.Parse(fileContent);
+            var root = document.RootElement;
+            
+            TrackedItem[] trackedItems;
+            BrowserIdentity? importedIdentity = null;
+            
+            if (root.ValueKind == JsonValueKind.Object && 
+                root.TryGetProperty("trackedItems", out var trackedItemsElement) && 
+                root.TryGetProperty("identity", out var identityElement))
+            {
+                // New format with identity and trackedItems
+                var trackedItemsJson = trackedItemsElement.GetRawText();
+                trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson)?
+                    .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
+                    .OfType<TrackedItem>()
+                    .ToArray() ?? Array.Empty<TrackedItem>();
+                
+                // Parse identity
+                importedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText());
+            }
+            else if (root.ValueKind == JsonValueKind.Array)
+            {
+                // Legacy format - array of TrackedItems
+                trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray) ?? Array.Empty<TrackedItem>();
+            }
+            else
+            {
+                return new ImportAnalysisResult { IsValid = false, ErrorMessage = "Invalid file format. Expected array of TrackedItems or object with identity and trackedItems." };
+            }
+            
+            return new ImportAnalysisResult 
+            { 
+                IsValid = true, 
+                TrackedItems = trackedItems,
+                ImportedIdentity = importedIdentity
+            };
+        }
+        catch (JsonException ex)
+        {
+            return new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to parse file: {ex.Message}" };
+        }
+        catch (Exception ex)
+        {
+            return new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to analyze file: {ex.Message}" };
+        }
+    }
+    
+    private class ImportAnalysisResult
+    {
+        public bool IsValid { get; set; }
+        public string? ErrorMessage { get; set; }
+        public TrackedItem[]? TrackedItems { get; set; }
+        public BrowserIdentity? ImportedIdentity { get; set; }
     }
     
     private void ShowSuccess(string message)
@@ -214,33 +330,5 @@
         statusMessage = message;
         alertClass = "alert-danger";
     }
-    
-    private async Task<string> HandleIdentityImport(BrowserIdentity importedIdentity)
-    {
-        var currentIdentity = await identityService.GetIdentityAsync();
-        
-        if (currentIdentity != null)
-        {
-            // Check if the keys are different
-            var keysDifferent = currentIdentity.PublicKey != importedIdentity.PublicKey || 
-                               currentIdentity.PrivateKey != importedIdentity.PrivateKey;
-            
-            if (keysDifferent)
-            {
-                // Update the keys while preserving the current ID
-                await identityService.UpdateIdentityKeysAsync(importedIdentity.PublicKey, importedIdentity.PrivateKey);
-                return "Warning: Identity keypair was different and has been updated.";
-            }
-            else
-            {
-                return "Identity keypair matches current identity.";
-            }
-        }
-        else
-        {
-            // No current identity, create one with imported keys but new ID
-            await identityService.UpdateIdentityKeysAsync(importedIdentity.PublicKey, importedIdentity.PrivateKey);
-            return "Identity imported successfully.";
-        }
-    }
+}
 }
