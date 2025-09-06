@@ -53,7 +53,15 @@
 
 @if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
 {
-    <p>Current Stock Level: @ItemToTrack.CalculateCurrentStockLevel()</p>
+    var currentStock = ItemToTrack.CalculateCurrentStockLevel();
+    if (currentStock < -100)
+    {
+
+    }
+    else
+    {
+        <p>Current Stock Level: @ItemToTrack.CalculateCurrentStockLevel()</p>
+    }
 }
 
 <p>
