@@ -6,6 +6,8 @@ namespace BlazorApp.Shared
 
     [JsonSerializable(typeof(TrackedItem))]
     [JsonSerializable(typeof(TrackedItem[]))]
+    [JsonSerializable(typeof(TrackedItemArchive))]
+    [JsonSerializable(typeof(TrackedItemArchive[]))]
     [JsonSerializable(typeof(Target))]
     [JsonSerializable(typeof(Occurrence))]
     [JsonSerializable(typeof(StockAcquisition))]

@@ -357,5 +357,190 @@ namespace Shared.Tests
 
             Assert.AreEqual(4, trackedItem.PastOccurrences.Count);
         }
+
+        [TestMethod]
+        public void Test_CheckForArchiving_ReturnsNullWhenUnder200()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Item",
+                PastOccurrences = []
+            };
+
+            // Add 199 occurrences
+            for (int i = 0; i < 199; i++)
+            {
+                trackedItem.PastOccurrences.Add(new Occurrence 
+                { 
+                    ActualTimestamp = DateTime.UtcNow.AddDays(-i), 
+                    SafetyTimestamp = DateTime.UtcNow.AddDays(-i) 
+                });
+            }
+
+            var archive = trackedItem.CheckForArchiving();
+            Assert.IsNull(archive);
+            Assert.AreEqual(199, trackedItem.PastOccurrences.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckForArchiving_ArchivesOldest100WhenOver200()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Item",
+                PastOccurrences = []
+            };
+
+            // Add 250 occurrences (oldest first)
+            var baseDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 250; i++)
+            {
+                trackedItem.PastOccurrences.Add(new Occurrence 
+                { 
+                    ActualTimestamp = baseDate.AddDays(i), 
+                    SafetyTimestamp = baseDate.AddDays(i) 
+                });
+            }
+
+            var archive = trackedItem.CheckForArchiving();
+            
+            // Should return an archive with the oldest 100 occurrences
+            Assert.IsNotNull(archive);
+            Assert.AreEqual(trackedItem.Id, archive.TrackedItemId);
+            Assert.AreEqual(100, archive.ArchivedOccurrences.Count);
+            
+            // Archived occurrences should be the oldest ones (first 100)
+            Assert.AreEqual(baseDate, archive.ArchivedOccurrences[0].ActualTimestamp);
+            Assert.AreEqual(baseDate.AddDays(99), archive.ArchivedOccurrences[99].ActualTimestamp);
+            
+            // TrackedItem should have the newest 150 occurrences
+            Assert.AreEqual(150, trackedItem.PastOccurrences.Count);
+            Assert.AreEqual(baseDate.AddDays(100), trackedItem.PastOccurrences.Min(o => o.ActualTimestamp));
+            Assert.AreEqual(baseDate.AddDays(249), trackedItem.PastOccurrences.Max(o => o.ActualTimestamp));
+        }
+
+        [TestMethod]
+        public void Test_CheckForArchiving_ExactlyAt200()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Item",
+                PastOccurrences = []
+            };
+
+            // Add exactly 200 occurrences
+            var baseDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 200; i++)
+            {
+                trackedItem.PastOccurrences.Add(new Occurrence 
+                { 
+                    ActualTimestamp = baseDate.AddDays(i), 
+                    SafetyTimestamp = baseDate.AddDays(i) 
+                });
+            }
+
+            var archive = trackedItem.CheckForArchiving();
+            Assert.IsNull(archive);
+            Assert.AreEqual(200, trackedItem.PastOccurrences.Count);
+        }
+
+        [TestMethod]
+        public void Test_CheckForArchiving_ExactlyAt201()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Item",
+                PastOccurrences = []
+            };
+
+            // Add exactly 201 occurrences
+            var baseDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 201; i++)
+            {
+                trackedItem.PastOccurrences.Add(new Occurrence 
+                { 
+                    ActualTimestamp = baseDate.AddDays(i), 
+                    SafetyTimestamp = baseDate.AddDays(i) 
+                });
+            }
+
+            var archive = trackedItem.CheckForArchiving();
+            
+            // Should return an archive with the oldest 100 occurrences
+            Assert.IsNotNull(archive);
+            Assert.AreEqual(100, archive.ArchivedOccurrences.Count);
+            Assert.AreEqual(101, trackedItem.PastOccurrences.Count);
+        }
+
+        [TestMethod]
+        public void Test_ArchiveIntegration_AddOccurrenceTriggersArchiving()
+        {
+            var trackedItem = new TrackedItem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Integration Test Item",
+                PastOccurrences = []
+            };
+
+            // Add 200 occurrences to get to the threshold
+            var baseDate = new DateTime(2024, 1, 1);
+            for (int i = 0; i < 200; i++)
+            {
+                trackedItem.PastOccurrences.Add(new Occurrence 
+                { 
+                    ActualTimestamp = baseDate.AddDays(i), 
+                    SafetyTimestamp = baseDate.AddDays(i) 
+                });
+            }
+
+            // Verify we're at exactly 200 and no archiving happens yet
+            var archiveBefore = trackedItem.CheckForArchiving();
+            Assert.IsNull(archiveBefore);
+            Assert.AreEqual(200, trackedItem.PastOccurrences.Count);
+
+            // Add one more occurrence to trigger archiving
+            trackedItem.AddOccurrence(baseDate.AddDays(200));
+
+            // Now archiving should be needed
+            var archiveAfter = trackedItem.CheckForArchiving();
+            Assert.IsNotNull(archiveAfter);
+            Assert.AreEqual(100, archiveAfter.ArchivedOccurrences.Count);
+            Assert.AreEqual(101, trackedItem.PastOccurrences.Count);
+
+            // Verify the archived occurrences are the oldest ones
+            Assert.AreEqual(baseDate, archiveAfter.ArchivedOccurrences[0].ActualTimestamp);
+            Assert.AreEqual(baseDate.AddDays(99), archiveAfter.ArchivedOccurrences[99].ActualTimestamp);
+
+            // Verify the remaining occurrences are the newest ones
+            Assert.AreEqual(baseDate.AddDays(100), trackedItem.PastOccurrences.Min(o => o.ActualTimestamp));
+            Assert.AreEqual(baseDate.AddDays(200), trackedItem.PastOccurrences.Max(o => o.ActualTimestamp));
+        }
+
+        [TestMethod]
+        public void Test_ArchiveNaming_ValidatesStructure()
+        {
+            var trackedItemId = Guid.NewGuid();
+            var archive = new TrackedItemArchive
+            {
+                TrackedItemId = trackedItemId,
+                ArchiveNumber = 5,
+                ArchivedOccurrences = [],
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Verify the expected naming pattern would work
+            var expectedKey = $"TrackedItemArchive{trackedItemId}-5";
+            Assert.AreEqual(trackedItemId, archive.TrackedItemId);
+            Assert.AreEqual(5, archive.ArchiveNumber);
+            
+            // The key should match the pattern: TrackedItemArchive{itemId}-{n}
+            Assert.IsTrue(expectedKey.StartsWith("TrackedItemArchive"));
+            Assert.IsTrue(expectedKey.Contains(trackedItemId.ToString()));
+            Assert.IsTrue(expectedKey.EndsWith("-5"));
+        }
     }
 }

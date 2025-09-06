@@ -1,5 +1,6 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Shared
+@using BlazorApp.Client.Services
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
@@ -110,7 +111,7 @@
     async void OnClick()
     {
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
-        await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
+        await TrackedItemStorageHelper.SaveTrackedItemWithArchivingAsync(localStorage, ItemToTrack);
 
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
     }
@@ -123,7 +124,7 @@
     async void toggleFavourite()
     {
         ItemToTrack.Favourite = !ItemToTrack.Favourite;
-        await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
+        await TrackedItemStorageHelper.SaveTrackedItemWithArchivingAsync(localStorage, ItemToTrack);
     }
 
     private int showHistoryCount = 5;

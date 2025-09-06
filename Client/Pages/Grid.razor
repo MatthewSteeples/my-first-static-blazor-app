@@ -1,6 +1,7 @@
 ﻿@page "/Grid"
 @using BlazorApp.Shared
 @using BlazorApp.Shared.Comparers
+@using BlazorApp.Client.Services
 @using Microsoft.FluentUI.AspNetCore.Components
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
@@ -69,7 +70,7 @@ else
     async void OnClickTrack(TrackedItem trackedItem)
     {
         trackedItem.AddOccurrence(DateTime.UtcNow);
-        await localStorage.SetItemAsync(nameof(TrackedItem) + trackedItem.Id, trackedItem);
+        await TrackedItemStorageHelper.SaveTrackedItemWithArchivingAsync(localStorage, trackedItem);
     }
 
     private void AddItem()
