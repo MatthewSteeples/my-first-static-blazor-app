@@ -11,24 +11,24 @@ Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medi
 
 ### Build and Test
 - **Build solution**: `dotnet build`
-  - Takes 4-15 seconds (faster on incremental builds). NEVER CANCEL. Set timeout to 30+ minutes.
+  - Takes 12-15 seconds (faster on incremental builds). NEVER CANCEL. Set timeout to 30+ minutes.
 - **Run tests**: `dotnet test`
-  - Takes 3-5 seconds normally. NEVER CANCEL. Set timeout to 15+ minutes.
-  - All 23 tests should pass
+  - Takes 2-3 seconds normally. NEVER CANCEL. Set timeout to 15+ minutes.
+  - All 23 tests should pass consistently
 - **Publish for production**: `dotnet publish Client/Client.csproj -c Release -o publish`
-  - Takes 4-55 seconds (faster on incremental builds). NEVER CANCEL. Set timeout to 90+ minutes.
-  - Includes IL linking and WASM optimization
+  - Takes 47-55 seconds (includes IL linking and WASM optimization). NEVER CANCEL. Set timeout to 90+ minutes.
+  - Produces optimized WebAssembly output with compression
 
 ### Development Servers
 - **Blazor development server**:
   - `cd Client && dotnet run --launch-profile http`
   - Starts on http://localhost:5000
-  - Takes ~3 seconds to start. NEVER CANCEL. Set timeout to 15+ minutes.
+  - Takes ~2 seconds to start. NEVER CANCEL. Set timeout to 15+ minutes.
 - **Cloudflare Worker development**:
   - `cd weathered-base-bad8 && npx wrangler dev`
   - Starts on http://localhost:8787
   - Network timeouts are expected (no Cloudflare API access)
-  - Takes ~10 seconds to start. NEVER CANCEL. Set timeout to 30+ minutes.
+  - Takes ~5-10 seconds to start. NEVER CANCEL. Set timeout to 30+ minutes.
 
 ### Watch Mode
 - **File watching during development**: `cd Client && dotnet watch`
@@ -43,8 +43,8 @@ Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medi
 1. **Basic Application Flow**:
    - Build and run the Blazor app: `cd Client && dotnet run --launch-profile http`
    - Access http://localhost:5000 in your thinking process
-   - Verify the application title: "Azure Static Web Apps Blazor Sample"
-   - Test medication tracking functionality if UI changes are made
+   - Verify the application title: "Azure Static Web Apps Blazor Sample" initially, then "Home" after loading
+   - Test medication tracking functionality: Click "Add New" to access the tracking interface with Name, Stock Usage, Limits, and Stock Acquisitions fields
 
 2. **Production Build Validation**:
    - Run: `dotnet publish Client/Client.csproj -c Release -o test-publish`
@@ -123,27 +123,30 @@ BlazorStaticWebApps.sln     # Main solution file
 
 ### Performance Notes
 - **Environment setup**: .NET WASM workload, package restoration, and npm dependencies are pre-installed via setup workflow
-- **Incremental development**: 
+- **Measured development timings**: 
   - Package restore: 1-3 seconds (cached, already restored)
+  - Clean builds: 12-15 seconds
   - Incremental builds: 4-8 seconds
-  - Test execution: 3-5 seconds for all 23 tests
-- **Release builds**: 4-55 seconds (faster on incremental, slower on clean)
+  - Test execution: 2-3 seconds for all 23 tests
+  - Blazor dev server startup: ~2 seconds
+  - Cloudflare Worker startup: 5-10 seconds
+- **Production builds**: 47-55 seconds (includes IL linking and WASM optimization)
 
 ## Validation Commands Summary
 
 Always validate your changes with these commands:
 ```bash
 # Quick validation (run all in sequence)
-dotnet build                                               # 4-15s, timeout: 30min  
-dotnet test                                                # 3-5s, timeout: 15min
+dotnet build                                               # 12-15s, timeout: 30min  
+dotnet test                                                # 2-3s, timeout: 15min
 
 # Full production validation
-dotnet publish Client/Client.csproj -c Release -o publish  # 4-55s, timeout: 90min
-cd weathered-base-bad8 && npx wrangler dev                 # 10s, timeout: 30min
+dotnet publish Client/Client.csproj -c Release -o publish  # 47-55s, timeout: 90min
+cd weathered-base-bad8 && npx wrangler dev                 # 5-10s startup, timeout: 30min
 
 # Development server testing
-cd Client && dotnet run --launch-profile http             # 3s startup, timeout: 15min
-cd Client && dotnet watch                                  # 3s startup, timeout: 60min
+cd Client && dotnet run --launch-profile http             # 2s startup, timeout: 15min
+cd Client && dotnet watch                                  # 2s startup, timeout: 60min
 ```
 
 **NEVER CANCEL** any of these operations. Wait for completion or the specified timeout.
