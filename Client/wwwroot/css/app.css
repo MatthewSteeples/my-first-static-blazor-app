@@ -101,3 +101,42 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+/* PWA Update Notification Styles */
+.update-notification {
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.update-notification p {
+    margin: 0;
+    color: #1976d2;
+}
+
+.update-icon {
+    margin-right: 6px;
+    animation: spin 2s linear infinite;
+}
+
+.update-link {
+    color: #1976d2;
+    text-decoration: underline;
+    font-weight: 500;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.update-link:hover {
+    color: #0d47a1;
+    text-decoration: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
