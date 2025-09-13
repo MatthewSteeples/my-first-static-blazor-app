@@ -1,0 +1,43 @@
+@using BlazorApp.Client.Services
+@inject PwaUpdateService PwaUpdateService
+@implements IDisposable
+
+@if (showUpdateNotification)
+{
+    <div class="update-notification">
+        <p>
+            <span class="update-icon">🔄</span>
+            A new version is available!
+            <a href="#" @onclick="ReloadApp" @onclick:preventDefault="true" class="update-link">
+                Reload to update
+            </a>
+        </p>
+    </div>
+}
+
+@code {
+    private bool showUpdateNotification = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PwaUpdateService.UpdateAvailable += OnUpdateAvailable;
+        showUpdateNotification = PwaUpdateService.IsUpdateAvailable;
+        await PwaUpdateService.InitializeAsync();
+    }
+
+    private void OnUpdateAvailable()
+    {
+        showUpdateNotification = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ReloadApp()
+    {
+        await PwaUpdateService.ReloadApplicationAsync();
+    }
+
+    public void Dispose()
+    {
+        PwaUpdateService.UpdateAvailable -= OnUpdateAvailable;
+    }
+}

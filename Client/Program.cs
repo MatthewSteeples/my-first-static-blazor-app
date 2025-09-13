@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BlazorApp.Client;
+using BlazorApp.Client.Services;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
 
@@ -12,5 +13,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
+builder.Services.AddSingleton<PwaUpdateService>();
 
 await builder.Build().RunAsync();
