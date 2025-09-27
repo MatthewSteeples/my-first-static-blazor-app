@@ -2,7 +2,7 @@
 
 **ALWAYS** reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
-Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medication doses throughout the day ensuring that limits are not breached. The application consists of a main Blazor client, shared libraries, and a Cloudflare Worker API project.
+Blazor Tracker is a .NET 10 Blazor WebAssembly application designed to track medication doses throughout the day ensuring that limits are not breached. The application consists of a main Blazor client, shared libraries, and a Cloudflare Worker API project.
 
 ## Working Effectively
 
@@ -67,12 +67,12 @@ Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medi
 ```
 BlazorStaticWebApps.sln     # Main solution file
 ├── Client/                 # Blazor WebAssembly app
-│   ├── Client.csproj      # Main project file (.NET 9, browser-wasm runtime)
+│   ├── Client.csproj      # Main project file (.NET 10, browser-wasm runtime)
 │   ├── Program.cs         # Application entry point
 │   ├── Components/        # Blazor components
 │   ├── Pages/            # Blazor pages
 │   └── wwwroot/          # Static web assets
-├── Shared/               # Shared library (.NET 9)
+├── Shared/               # Shared library (.NET 10)
 │   └── Shared.csproj    # Business logic and models
 ├── Shared.Tests/        # Unit tests (MSTest framework)
 │   └── Target.tests.cs  # Core business logic tests
@@ -83,7 +83,7 @@ BlazorStaticWebApps.sln     # Main solution file
 ```
 
 ### Key Technologies
-- **.NET 9** with Blazor WebAssembly
+- **.NET 10** with Blazor WebAssembly
 - **FluentUI Components** for UI
 - **Blazored.LocalStorage** for client-side storage
 - **MSTest** framework for unit testing
