@@ -11,7 +11,7 @@
   "dependencies": {
     "chanfana": "^2.8.2",
     "hono": "^4.9.8",
-    "zod": "^4.1.8"
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@types/node": "24.5.2",
