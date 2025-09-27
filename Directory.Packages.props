@@ -24,9 +24,10 @@
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0" />
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
-    <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="9.0.9" />
-    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="9.0.9" />
+    <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.0-rc.1.25451.107" />
     <PackageVersion Include="MSTest" Version="3.10.4" />
+    <PackageVersion Include="System.Net.Http.Json" Version="10.0.0-rc.1.25451.107" />
     <PackageVersion Include="WebPush" Version="1.0.12" />
   </ItemGroup>
 </Project>
