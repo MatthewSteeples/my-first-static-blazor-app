@@ -7,7 +7,14 @@ Blazor Tracker is a .NET 10 Blazor WebAssembly application designed to track med
 ## Working Effectively
 
 ### Setup Notes
-**Prerequisites are handled automatically**: The .NET WASM workload, package restoration, and Cloudflare Worker dependencies are pre-installed via the GitHub Actions setup workflow (`copilot-setup-steps.yml`). You can start development immediately without manual setup steps.
+**Prerequisites are handled automatically**: The .NET 10 SDK, .NET WASM workload, package restoration, and Cloudflare Worker dependencies are pre-installed via the GitHub Actions setup workflow (`copilot-setup-steps.yml`). 
+
+**Note**: .NET 10 RC installation uses a multi-step approach:
+1. First tries `setup-dotnet@v5` with preview quality
+2. Falls back to manual installation using Microsoft's dotnet-install.sh script if needed
+3. Verifies .NET 10 is available before proceeding
+
+You can start development immediately without manual setup steps.
 
 ### Build and Test
 - **Build solution**: `dotnet build`
