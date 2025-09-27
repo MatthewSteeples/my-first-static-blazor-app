@@ -30,29 +30,8 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: |
-            9.x
-            10.0.100-rc.1.25451.107
+          dotnet-version: 10.x
           dotnet-quality: 'preview'
-
-      - name: Verify .NET 10 installation or install manually
-        run: |
-          echo "Checking installed .NET versions:"
-          dotnet --list-sdks
-          
-          # Check if .NET 10 is installed
-          if ! dotnet --list-sdks | grep -q "10\.0\."; then
-            echo ".NET 10 not found via setup-dotnet, installing manually..."
-            curl -sSL https://dot.net/v1/dotnet-install.sh > dotnet-install.sh
-            chmod +x dotnet-install.sh
-            ./dotnet-install.sh --channel 10.0 --quality preview --install-dir ~/.dotnet
-            echo "~/.dotnet" >> $GITHUB_PATH
-            export PATH="$HOME/.dotnet:$PATH"
-            echo "After manual installation:"
-            dotnet --list-sdks
-          else
-            echo ".NET 10 is already installed"
-          fi
 
       - name: Install .NET WASM workload
         run: dotnet workload install wasm-tools
