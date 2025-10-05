@@ -16,6 +16,6 @@
   "devDependencies": {
     "@types/node": "24.5.2",
     "@types/service-worker-mock": "^2.0.4",
-    "wrangler": "^4.40.2"
+    "wrangler": "^4.42.0"
   }
 }
