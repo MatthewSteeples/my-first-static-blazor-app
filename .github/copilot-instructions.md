@@ -2,12 +2,19 @@
 
 **ALWAYS** reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
-Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medication doses throughout the day ensuring that limits are not breached. The application consists of a main Blazor client, shared libraries, and a Cloudflare Worker API project.
+Blazor Tracker is a .NET 10 Blazor WebAssembly application designed to track medication doses throughout the day ensuring that limits are not breached. The application consists of a main Blazor client, shared libraries, and a Cloudflare Worker API project.
 
 ## Working Effectively
 
 ### Setup Notes
-**Prerequisites are handled automatically**: The .NET WASM workload, package restoration, and Cloudflare Worker dependencies are pre-installed via the GitHub Actions setup workflow (`copilot-setup-steps.yml`). You can start development immediately without manual setup steps.
+**Prerequisites are handled automatically**: The .NET 10 SDK, .NET WASM workload, package restoration, and Cloudflare Worker dependencies are pre-installed via the GitHub Actions setup workflow (`copilot-setup-steps.yml`). 
+
+**Note**: .NET 10 RC installation uses a multi-step approach:
+1. First tries `setup-dotnet@v5` with preview quality
+2. Falls back to manual installation using Microsoft's dotnet-install.sh script if needed
+3. Verifies .NET 10 is available before proceeding
+
+You can start development immediately without manual setup steps.
 
 ### Build and Test
 - **Build solution**: `dotnet build`
@@ -67,12 +74,12 @@ Blazor Tracker is a .NET 9 Blazor WebAssembly application designed to track medi
 ```
 BlazorStaticWebApps.sln     # Main solution file
 ├── Client/                 # Blazor WebAssembly app
-│   ├── Client.csproj      # Main project file (.NET 9, browser-wasm runtime)
+│   ├── Client.csproj      # Main project file (.NET 10, browser-wasm runtime)
 │   ├── Program.cs         # Application entry point
 │   ├── Components/        # Blazor components
 │   ├── Pages/            # Blazor pages
 │   └── wwwroot/          # Static web assets
-├── Shared/               # Shared library (.NET 9)
+├── Shared/               # Shared library (.NET 10)
 │   └── Shared.csproj    # Business logic and models
 ├── Shared.Tests/        # Unit tests (MSTest framework)
 │   └── Target.tests.cs  # Core business logic tests
@@ -83,7 +90,7 @@ BlazorStaticWebApps.sln     # Main solution file
 ```
 
 ### Key Technologies
-- **.NET 9** with Blazor WebAssembly
+- **.NET 10** with Blazor WebAssembly
 - **FluentUI Components** for UI
 - **Blazored.LocalStorage** for client-side storage
 - **MSTest** framework for unit testing
