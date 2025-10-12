@@ -22,8 +22,8 @@
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.2" />
     <PackageVersion Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.5" />
     <PackageVersion Include="Microsoft.Extensions.TimeProvider.Testing" Version="9.9.0" />
-    <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
-    <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
+    <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.0" />
+    <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.13.0" />
     <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="9.0.9" />
     <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="9.0.9" />
     <PackageVersion Include="MSTest" Version="3.10.4" />
