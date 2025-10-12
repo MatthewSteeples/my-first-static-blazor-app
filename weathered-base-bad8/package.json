@@ -9,7 +9,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "chanfana": "^2.8.2",
+    "chanfana": "^2.8.3",
     "hono": "^4.9.9",
     "zod": "^4.1.11"
   },
