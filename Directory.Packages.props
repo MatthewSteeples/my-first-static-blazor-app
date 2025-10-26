@@ -26,7 +26,7 @@
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.13.0" />
     <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="9.0.10" />
     <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="9.0.10" />
-    <PackageVersion Include="MSTest" Version="3.10.4" />
+    <PackageVersion Include="MSTest" Version="4.0.1" />
     <PackageVersion Include="System.Net.Http.Json" Version="9.0.10" />
     <PackageVersion Include="WebPush" Version="1.0.12" />
   </ItemGroup>
