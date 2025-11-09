@@ -259,7 +259,7 @@
         }
     }
     
-    private async Task<ImportAnalysisResult> AnalyzeImportFileAsync(string fileContent)
+    private Task<ImportAnalysisResult> AnalyzeImportFileAsync(string fileContent)
     {
         try
         {
@@ -302,23 +302,23 @@
             }
             else
             {
-                return new ImportAnalysisResult { IsValid = false, ErrorMessage = "Invalid file format. Expected array of TrackedItems or object with identity and trackedItems." };
+                return Task.FromResult(new ImportAnalysisResult { IsValid = false, ErrorMessage = "Invalid file format. Expected array of TrackedItems or object with identity and trackedItems." });
             }
             
-            return new ImportAnalysisResult 
+            return Task.FromResult(new ImportAnalysisResult 
             { 
                 IsValid = true, 
                 TrackedItems = trackedItems,
                 ImportedIdentity = importedIdentity
-            };
+            });
         }
         catch (JsonException ex)
         {
-            return new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to parse file: {ex.Message}" };
+            return Task.FromResult(new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to parse file: {ex.Message}" });
         }
         catch (Exception ex)
         {
-            return new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to analyze file: {ex.Message}" };
+            return Task.FromResult(new ImportAnalysisResult { IsValid = false, ErrorMessage = $"Failed to analyze file: {ex.Message}" });
         }
     }
     

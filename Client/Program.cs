@@ -4,7 +4,6 @@ using BlazorApp.Client;
 using BlazorApp.Client.Services;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
-using BlazorApp.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
