@@ -25,7 +25,6 @@
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.13.2" />
     <PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.13.2" />
     <PackageVersion Include="MSTest" Version="4.0.2" />
-    <PackageVersion Include="System.Net.Http.Json" Version="10.0.2" />
     <PackageVersion Include="WebPush" Version="1.0.12" />
   </ItemGroup>
 </Project>
