@@ -1,0 +1,57 @@
+@page "/test"
+@using System.Net.Http
+
+@inject HttpClient Http
+
+<PageTitle>Test</PageTitle>
+
+<h1>Test</h1>
+
+<p>This page calls <code>/api/hello</code> and shows the response.</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="LoadHello" disabled="@_loading">
+        @(_loading ? "Loading..." : "Call /api/hello")
+    </button>
+</p>
+
+@if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger" role="alert">@_error</div>
+}
+
+@if (_result is not null)
+{
+    <p><strong>Result:</strong> @_result</p>
+}
+
+@code {
+    private string? _result;
+    private string? _error;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadHello();
+    }
+
+    private async Task LoadHello()
+    {
+        _loading = true;
+        _error = null;
+
+        try
+        {
+            _result = await Http.GetStringAsync("/api/hello");
+        }
+        catch (Exception ex)
+        {
+            _result = null;
+            _error = $"Request to /api/hello failed: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

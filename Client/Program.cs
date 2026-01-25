@@ -4,6 +4,7 @@ using BlazorApp.Client;
 using BlazorApp.Client.Services;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
+using System.Net.Http;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -14,6 +15,11 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<PwaUpdateService>();
+
+builder.Services.AddScoped(sp => new HttpClient
+{
+	BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+});
 
 // Add browser identity service
 builder.Services.AddScoped<IBrowserIdentityService, BrowserIdentityService>();
