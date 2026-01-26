@@ -5,6 +5,10 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+// Periodic Background Sync (https://web.dev/periodic-background-sync/)
+// Note: This only handles the service worker side. The page must request permission and
+// register a periodic sync via registration.periodicSync.register(...).
+self.addEventListener('periodicsync', event => event.waitUntil(onPeriodicSync(event)));
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest.version}`;
@@ -15,6 +19,39 @@ const offlineAssetsExclude = [/^service-worker\.js$/];
 const base = "/";
 const baseUrl = new URL(base, self.origin);
 const manifestUrlList = self.assetsManifest.assets.map(asset => new URL(asset.url, baseUrl).href);
+
+const authDbName = 'BlazorTracker';
+const authDbVersion = 1;
+const authStoreName = 'auth';
+const authJwtKey = 'jwt';
+
+function openAuthDb() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(authDbName, authDbVersion);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(authStoreName)) {
+                db.createObjectStore(authStoreName);
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function getStoredJwt() {
+    try {
+        const db = await openAuthDb();
+        return await new Promise((resolve, reject) => {
+            const tx = db.transaction(authStoreName, 'readonly');
+            const req = tx.objectStore(authStoreName).get(authJwtKey);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    } catch {
+        return null;
+    }
+}
 
 async function onInstall(event) {
     console.info('Service worker: Install');
@@ -63,4 +100,39 @@ async function onFetch(event) {
     }
 
     return cachedResponse || fetch(event.request);
+}
+
+async function onPeriodicSync(event) {
+    // Not all browsers support this, and the event will only fire when the user
+    // has granted permission and the UA decides conditions are appropriate.
+    const tag = event?.tag ?? '(unknown)';
+    console.info(`Service worker: Periodic Background Sync (${tag})`);
+
+    // Use tags to scope work. Keep work small and resilient.
+    // - sync: call the API using a JWT created by the app
+    if (event?.tag === 'sync') {
+        try {
+            const token = await getStoredJwt();
+            if (!token) {
+                console.warn('Service worker: No stored JWT; skipping /api/sync');
+                return;
+            }
+
+            const response = await fetch('/api/sync', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: '{}',
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                console.warn('Service worker: /api/sync failed', response.status);
+            }
+        } catch (error) {
+            console.warn('Service worker: /api/sync threw', error);
+        }
+    }
 }

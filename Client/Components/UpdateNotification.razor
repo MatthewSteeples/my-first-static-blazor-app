@@ -1,5 +1,6 @@
 @using BlazorApp.Client.Services
 @inject PwaUpdateService PwaUpdateService
+@inject PeriodicSyncService PeriodicSyncService
 @implements IDisposable
 
 @if (showUpdateNotification)
@@ -23,6 +24,9 @@
         PwaUpdateService.UpdateAvailable += OnUpdateAvailable;
         showUpdateNotification = PwaUpdateService.IsUpdateAvailable;
         await PwaUpdateService.InitializeAsync();
+
+		// This runs in the browser and can safely use JS interop.
+		await PeriodicSyncService.InitializeAsync();
     }
 
     private void OnUpdateAvailable()

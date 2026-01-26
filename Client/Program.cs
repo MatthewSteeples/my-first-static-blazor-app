@@ -15,6 +15,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<PwaUpdateService>();
+builder.Services.AddSingleton<PeriodicSyncService>();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
