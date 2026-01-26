@@ -110,8 +110,7 @@ async function verifyEs256JwtSignature(token: string, jwk: any): Promise<boolean
 
 	const signingInput = new TextEncoder().encode(`${encodedHeader}.${encodedPayload}`);
 	const rawSig = base64UrlToUint8Array(encodedSignature);
-	const derSig = rawEcdsaSigToDer(rawSig);
-
+    
 	const key = await crypto.subtle.importKey(
 		"jwk",
 		jwk,
@@ -120,6 +119,13 @@ async function verifyEs256JwtSignature(token: string, jwk: any): Promise<boolean
 		["verify"]
 	);
 
+	// WebCrypto (including Node's and Cloudflare Workers') expects the ECDSA signature in "raw" form (R||S).
+	// Some environments/libraries may use DER; for resilience try raw first, then DER.
+	const okRaw = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, rawSig, signingInput);
+	if (okRaw)
+        return true;
+    
+    const derSig = rawEcdsaSigToDer(rawSig);
 	return crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, derSig, signingInput);
 }
 
