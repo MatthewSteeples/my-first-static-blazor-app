@@ -122,6 +122,19 @@
 	}
 
 	window.periodicSyncSetup = {
+		// Returns a freshly generated ES256 JWT using the browser identity keys.
+		// Useful for manual testing (e.g., Test.razor) without relying on the SW/IDB flow.
+		getJwt: async function () {
+			try {
+				const token = await createEs256JwtFromBrowserIdentity();
+				if (!token) return null;
+				await idbSet(JWT_KEY, token);
+				return token;
+			} catch {
+				return null;
+			}
+		},
+
 		// Registers periodic background sync and prepares an auth token for the service worker.
 		initialize: async function () {
 			try {

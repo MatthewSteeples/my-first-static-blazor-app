@@ -1,7 +1,10 @@
 @page "/test"
 @using System.Net.Http
+@using System.Net.Http.Headers
+@using System.Text
 
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <PageTitle>Test</PageTitle>
 
@@ -14,6 +17,41 @@
         @(_loading ? "Loading..." : "Call /api/hello")
     </button>
 </p>
+
+<hr />
+
+<h2>/api/sync</h2>
+
+<p>
+    This calls <code>/api/sync</code> with <code>Authorization: Bearer &lt;jwt&gt;</code>.
+    Use the buttons below to send a valid JWT (signed with your browser identity keys) or a tampered JWT.
+</p>
+
+<p>
+    <button class="btn btn-success me-2" @onclick="CallSyncWithValidJwt" disabled="@_syncLoading">
+        @(_syncLoading ? "Calling..." : "Call /api/sync (valid JWT)")
+    </button>
+    <button class="btn btn-danger" @onclick="CallSyncWithInvalidJwt" disabled="@_syncLoading">
+        @(_syncLoading ? "Calling..." : "Call /api/sync (invalid JWT)")
+    </button>
+</p>
+
+@if (!string.IsNullOrWhiteSpace(_syncError))
+{
+    <div class="alert alert-danger" role="alert">@_syncError</div>
+}
+
+@if (_syncStatusCode is not null)
+{
+    <div class="alert alert-secondary" role="alert">
+        <div><strong>Status:</strong> @_syncStatusCode</div>
+        @if (!string.IsNullOrWhiteSpace(_syncResponseBody))
+        {
+            <div class="mt-2"><strong>Response:</strong></div>
+            <pre style="white-space: pre-wrap;">@_syncResponseBody</pre>
+        }
+    </div>
+}
 
 @if (!string.IsNullOrWhiteSpace(_error))
 {
@@ -29,6 +67,11 @@
     private string? _result;
     private string? _error;
     private bool _loading;
+
+    private bool _syncLoading;
+    private int? _syncStatusCode;
+    private string? _syncResponseBody;
+    private string? _syncError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -52,6 +95,89 @@
         finally
         {
             _loading = false;
+        }
+    }
+
+    private static string MakeInvalidJwt(string jwt)
+    {
+        var parts = jwt.Split('.');
+        if (parts.Length != 3)
+        {
+            return jwt + "x";
+        }
+
+        var signature = parts[2];
+        if (string.IsNullOrEmpty(signature))
+        {
+            signature = "a";
+        }
+        else
+        {
+            var replacement = signature[0] == 'a' ? 'b' : 'a';
+            signature = replacement + signature[1..];
+        }
+
+        return $"{parts[0]}.{parts[1]}.{signature}";
+    }
+
+    private async Task<string?> GetValidJwtAsync()
+    {
+        try
+        {
+            return await JS.InvokeAsync<string?>("periodicSyncSetup.getJwt");
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task CallSyncWithValidJwt()
+    {
+        await CallSyncInternalAsync(useInvalidJwt: false);
+    }
+
+    private async Task CallSyncWithInvalidJwt()
+    {
+        await CallSyncInternalAsync(useInvalidJwt: true);
+    }
+
+    private async Task CallSyncInternalAsync(bool useInvalidJwt)
+    {
+        _syncLoading = true;
+        _syncError = null;
+        _syncStatusCode = null;
+        _syncResponseBody = null;
+
+        try
+        {
+            var token = await GetValidJwtAsync();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _syncError = "Could not generate a JWT from browser identity keys. (If WebCrypto key generation fell back, there may be no JWK keys to sign with.)";
+                return;
+            }
+
+            if (useInvalidJwt)
+            {
+                token = MakeInvalidJwt(token);
+            }
+
+            using var request = new HttpRequestMessage(HttpMethod.Post, "/api/sync");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+            using var response = await Http.SendAsync(request);
+            _syncStatusCode = (int)response.StatusCode;
+            _syncResponseBody = await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            _syncError = $"Request to /api/sync failed: {ex.Message}";
+        }
+        finally
+        {
+            _syncLoading = false;
         }
     }
 }
