@@ -54,6 +54,30 @@
 		}
 	}
 
+	async function sha256Base64Url(inputBytes) {
+		const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', inputBytes));
+		return base64UrlEncodeBytes(digest);
+	}
+
+	async function getEs256PublicJwkThumbprint(publicKeyJwk) {
+		// RFC 7638 JWK Thumbprint, specialized for EC P-256 public keys.
+		if (!publicKeyJwk || typeof publicKeyJwk !== 'object') return undefined;
+		if (publicKeyJwk.kty !== 'EC' || publicKeyJwk.crv !== 'P-256') return undefined;
+		if (typeof publicKeyJwk.x !== 'string' || typeof publicKeyJwk.y !== 'string') return undefined;
+
+		// Canonical JSON members in lexicographic order: crv, kty, x, y
+		const canonical = {
+			crv: publicKeyJwk.crv,
+			kty: publicKeyJwk.kty,
+			x: publicKeyJwk.x,
+			y: publicKeyJwk.y
+		};
+
+		const json = JSON.stringify(canonical);
+		const bytes = new TextEncoder().encode(json);
+		return sha256Base64Url(bytes);
+	}
+
 	async function createEs256JwtFromBrowserIdentity() {
 		const identityRaw = window.localStorage?.getItem(IDENTITY_STORAGE_KEY);
 		if (!identityRaw) return undefined;
@@ -68,16 +92,19 @@
 			return undefined;
 		}
 
+		const publicKeyThumbprint = await getEs256PublicJwkThumbprint(publicKeyJwk);
+		if (!publicKeyThumbprint) return undefined;
+
 		const header = {
 			alg: 'ES256',
 			typ: 'JWT',
-			kid: identity.Id,
+			kid: publicKeyThumbprint,
 			jwk: publicKeyJwk
 		};
 
 		const nowSeconds = Math.floor(Date.now() / 1000);
 		const payload = {
-			sub: identity.Id,
+			sub: publicKeyThumbprint,
 			iat: nowSeconds,
 			// Server currently validates signature only, but we include an exp for future-proofing.
 			exp: nowSeconds + 60 * 60 * 24 * 30
