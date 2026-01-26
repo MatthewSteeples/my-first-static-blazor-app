@@ -6,6 +6,7 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@types/node": "25.0.10",
     "@types/service-worker-mock": "^2.0.4",
+    "typescript": "^5.6.3",
     "wrangler": "^4.60.0"
   }
 }
