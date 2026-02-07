@@ -136,3 +136,63 @@ async function onPeriodicSync(event) {
         }
     }
 }
+
+// Handle push notifications
+self.addEventListener('push', event => event.waitUntil(onPushNotification(event)));
+
+async function onPushNotification(event) {
+    try {
+        let notificationData;
+
+        if (event.data) {
+            notificationData = event.data.json();
+        } else {
+            // Fallback notification if no data provided
+            notificationData = {
+                title: 'Medication Reminder',
+                body: 'Time to check your medication tracker',
+                icon: '/icon-192.png',
+                badge: '/badge-72.png',
+                data: {
+                    url: '/'
+                }
+            };
+        }
+
+        const { title, body, icon, badge, data } = notificationData;
+
+        await self.registration.showNotification(title, {
+            body,
+            icon: icon || '/icon-192.png',
+            badge: badge || '/badge-72.png',
+            data: data || {},
+            requireInteraction: true,
+            tag: data?.trackedItemId || 'medication-reminder'
+        });
+    } catch (error) {
+        console.error('Service worker: Push notification error', error);
+    }
+}
+
+// Handle notification clicks
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true })
+            .then(clientList => {
+                // Check if there's already an open window/tab
+                for (const client of clientList) {
+                    if (client.url === event.notification.data?.url && 'focus' in client) {
+                        return client.focus();
+                    }
+                }
+
+                // Open a new window/tab if none exists
+                if (clients.openWindow) {
+                    return clients.openWindow(event.notification.data?.url || '/');
+                }
+            })
+    );
+});
+
