@@ -56,7 +56,14 @@ export class ScheduleNotification extends OpenAPIRoute {
 	};
 
 	async handle(c: AppContext) {
-		const data = await this.getValidatedData<typeof ScheduleNotificationRequestSchema>();
+		const body = await c.req.json();
+		const result = ScheduleNotificationRequestSchema.safeParse(body);
+		
+		if (!result.success) {
+			return c.json({ error: "Invalid request body" }, 400);
+		}
+		
+		const data = result.data;
 
 		// Get the Durable Object namespace
 		const notificationNamespace = c.env.NOTIFICATION_ALARM;
@@ -76,7 +83,7 @@ export class ScheduleNotification extends OpenAPIRoute {
 			body: JSON.stringify(data),
 		}));
 
-		const result = await response.json();
-		return c.json(result, response.status);
+		const responseData = await response.json();
+		return c.json(responseData, response.status as any);
 	}
 }

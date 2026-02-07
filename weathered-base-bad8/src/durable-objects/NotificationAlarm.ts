@@ -1,10 +1,18 @@
 import { DurableObject } from "cloudflare:workers";
 
+export interface PushSubscriptionData {
+	endpoint: string;
+	keys: {
+		p256dh: string;
+		auth: string;
+	};
+}
+
 export interface AlarmData {
 	trackedItemId: string;
 	trackedItemName: string;
 	nextOccurrenceTime: number; // Unix timestamp in milliseconds
-	subscription?: PushSubscription;
+	subscription?: PushSubscriptionData;
 }
 
 export class NotificationAlarm extends DurableObject {
