@@ -125,8 +125,9 @@ export class NotificationAlarm extends DurableObject {
 	}
 
 	private async sendPushNotification(data: AlarmData): Promise<void> {
-		// TODO: Implement Web Push protocol
+		// TODO: Implement Web Push protocol when VAPID keys are configured
 		// For now, just log the notification
+		// Track implementation: https://github.com/MatthewSteeples/my-first-static-blazor-app/issues/TBD
 		console.log(`Would send push notification for: ${data.trackedItemName}`);
 
 		// In production, you would:

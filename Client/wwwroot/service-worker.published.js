@@ -181,16 +181,20 @@ self.addEventListener('notificationclick', event => {
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true })
             .then(clientList => {
-                // Check if there's already an open window/tab
+                const targetUrl = event.notification.data?.url || '/';
+                const targetPath = new URL(targetUrl, self.location.origin).pathname;
+
+                // Check if there's already an open window/tab with the same path
                 for (const client of clientList) {
-                    if (client.url === event.notification.data?.url && 'focus' in client) {
+                    const clientPath = new URL(client.url).pathname;
+                    if (clientPath === targetPath && 'focus' in client) {
                         return client.focus();
                     }
                 }
 
                 // Open a new window/tab if none exists
                 if (clients.openWindow) {
-                    return clients.openWindow(event.notification.data?.url || '/');
+                    return clients.openWindow(targetUrl);
                 }
             })
     );

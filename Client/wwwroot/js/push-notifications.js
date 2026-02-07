@@ -20,7 +20,7 @@
 		return outputArray;
 	}
 
-	async function subscribeToPushNotifications() {
+	async subscribeToPushNotifications() {
 		if (!('serviceWorker' in navigator)) {
 			console.warn('Service Worker not supported');
 			return null;
@@ -38,13 +38,15 @@
 			let subscription = await registration.pushManager.getSubscription();
 
 			if (!subscription) {
-				// TODO: Replace with actual VAPID public key
-				// For now, using a placeholder - in production this would come from the server
+				// TODO: Fetch VAPID public key from server endpoint
+				// Example: const response = await fetch('/api/vapid-public-key');
+				// const { publicKey } = await response.json();
 				const vapidPublicKey = 'PLACEHOLDER_VAPID_PUBLIC_KEY';
 				
 				// Only try to subscribe if we have a valid VAPID key
 				if (vapidPublicKey === 'PLACEHOLDER_VAPID_PUBLIC_KEY') {
 					console.warn('VAPID public key not configured - skipping push subscription');
+					console.info('To enable push notifications, configure VAPID keys on the server');
 					return null;
 				}
 
