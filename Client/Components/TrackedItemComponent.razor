@@ -6,6 +6,7 @@
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject BlazorApp.Client.Services.PushNotificationService PushNotificationService
 
 <h3>
     @ItemToTrack.Name
@@ -112,7 +113,38 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
+        // Schedule notification for next occurrence
+        await ScheduleNextNotification();
+
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
+    }
+
+    async Task ScheduleNextNotification()
+    {
+        try
+        {
+            // Get the next occurrence time
+            var nextOccurrences = ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, 1).ToList();
+            if (nextOccurrences.Any())
+            {
+                var nextOccurrence = nextOccurrences.First();
+                
+                // Only schedule if it's in the future
+                if (nextOccurrence > DateTime.UtcNow)
+                {
+                    await PushNotificationService.ScheduleNotificationAsync(
+                        ItemToTrack.Id.ToString(),
+                        ItemToTrack.Name,
+                        nextOccurrence
+                    );
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Silently fail - notification scheduling is not critical
+            Console.WriteLine($"Failed to schedule notification: {ex.Message}");
+        }
     }
 
     void edit()

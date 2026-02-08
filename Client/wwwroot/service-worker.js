@@ -67,3 +67,67 @@ async function onPeriodicSync(event) {
 		console.warn('Service worker (dev): /api/sync threw', error);
 	}
 }
+
+// Handle push notifications
+self.addEventListener('push', event => event.waitUntil(onPushNotification(event)));
+
+async function onPushNotification(event) {
+	try {
+		let notificationData;
+
+		if (event.data) {
+			notificationData = event.data.json();
+		} else {
+			// Fallback notification if no data provided
+			notificationData = {
+				title: 'Medication Reminder',
+				body: 'Time to check your medication tracker',
+				icon: '/icon-192.png',
+				badge: '/badge-72.png',
+				data: {
+					url: '/'
+				}
+			};
+		}
+
+		const { title, body, icon, badge, data } = notificationData;
+
+		await self.registration.showNotification(title, {
+			body,
+			icon: icon || '/icon-192.png',
+			badge: badge || '/badge-72.png',
+			data: data || {},
+			requireInteraction: true,
+			tag: data?.trackedItemId || 'medication-reminder'
+		});
+	} catch (error) {
+		console.error('Service worker (dev): Push notification error', error);
+	}
+}
+
+// Handle notification clicks
+self.addEventListener('notificationclick', event => {
+	event.notification.close();
+
+	event.waitUntil(
+		clients.matchAll({ type: 'window', includeUncontrolled: true })
+			.then(clientList => {
+				const targetUrl = event.notification.data?.url || '/';
+				const targetPath = new URL(targetUrl, self.location.origin).pathname;
+
+				// Check if there's already an open window/tab with the same path
+				for (const client of clientList) {
+					const clientPath = new URL(client.url).pathname;
+					if (clientPath === targetPath && 'focus' in client) {
+						return client.focus();
+					}
+				}
+
+				// Open a new window/tab if none exists
+				if (clients.openWindow) {
+					return clients.openWindow(targetUrl);
+				}
+			})
+	);
+});
+
