@@ -6,6 +6,7 @@ import { TaskCreate } from "./endpoints/taskCreate";
 import { TaskDelete } from "./endpoints/taskDelete";
 import { TaskFetch } from "./endpoints/taskFetch";
 import { TaskList } from "./endpoints/taskList";
+import { ScheduleNotification } from "./endpoints/scheduleNotification";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
@@ -23,9 +24,13 @@ openapi.delete("/api/tasks/:taskSlug", TaskDelete);
 openapi.get("/api/hello", Hello);
 openapi.get("/api/sync", Sync);
 openapi.post("/api/sync", Sync);
+openapi.post("/api/notifications/schedule", ScheduleNotification);
 
 // You may also register routes for non OpenAPI directly on Hono
 // app.get('/test', (c) => c.text('Hono!'))
 
 // Export the Hono app
 export default app;
+
+// Export Durable Objects
+export { NotificationAlarm } from "./durable-objects/NotificationAlarm";
