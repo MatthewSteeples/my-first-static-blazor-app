@@ -13,7 +13,7 @@ export class SyncDurableObject extends DurableObject<Env> {
 		this.db = drizzle(ctx.storage);
 
 		ctx.blockConcurrencyWhile(async () => {
-			migrate(this.db, {
+			await migrate(this.db, {
 				journal,
 				migrations: {
 					"0000_lush_skreet": m0000,
