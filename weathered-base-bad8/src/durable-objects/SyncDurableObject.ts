@@ -16,7 +16,7 @@ export class SyncDurableObject extends DurableObject<Env> {
 			await migrate(this.db, {
 				journal,
 				migrations: {
-					"0000_lush_skreet": m0000,
+					m0000: m0000,
 				},
 			});
 		});
