@@ -5,8 +5,9 @@
 	const CONSENT_KEY = 'periodic-background-sync:consent:v1';
 	const IDENTITY_STORAGE_KEY = 'BrowserIdentity';
 	const DB_NAME = 'BlazorTracker';
-	const DB_VERSION = 1;
+	const DB_VERSION = 2;
 	const STORE_NAME = 'auth';
+	const SYNC_STORE = 'syncQueue';
 	const JWT_KEY = 'jwt';
 
 	function base64UrlEncodeBytes(bytes) {
@@ -29,6 +30,9 @@
 				const db = request.result;
 				if (!db.objectStoreNames.contains(STORE_NAME)) {
 					db.createObjectStore(STORE_NAME);
+				}
+				if (!db.objectStoreNames.contains(SYNC_STORE)) {
+					db.createObjectStore(SYNC_STORE, { keyPath: 'id' });
 				}
 			};
 			request.onsuccess = () => resolve(request.result);

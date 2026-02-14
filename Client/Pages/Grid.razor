@@ -1,10 +1,12 @@
 ﻿@page "/Grid"
+@using BlazorApp.Client.Services
 @using BlazorApp.Shared
 @using BlazorApp.Shared.Comparers
 @using Microsoft.FluentUI.AspNetCore.Components
 
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject ISyncEventService syncEventService
 
 <PageTitle>Grid</PageTitle>
 
@@ -70,6 +72,14 @@ else
     {
         trackedItem.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + trackedItem.Id, trackedItem);
+
+        var payload = System.Text.Json.JsonSerializer.Serialize(trackedItem, SerializationContext.Default.TrackedItem);
+        await syncEventService.EnqueueAsync(new SyncEvent
+        {
+            EventType = SyncEventType.Updated,
+            ItemId = trackedItem.Id,
+            Payload = payload
+        });
     }
 
     private void AddItem()

@@ -1,4 +1,5 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components
+@using BlazorApp.Client.Services
 @using BlazorApp.Shared
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
@@ -6,6 +7,7 @@
 @inject IToastService ToastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
+@inject ISyncEventService syncEventService
 
 <h3>
     @ItemToTrack.Name
@@ -112,6 +114,14 @@
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
 
+        var payload = System.Text.Json.JsonSerializer.Serialize(ItemToTrack, SerializationContext.Default.TrackedItem);
+        await syncEventService.EnqueueAsync(new SyncEvent
+        {
+            EventType = SyncEventType.Updated,
+            ItemId = ItemToTrack.Id,
+            Payload = payload
+        });
+
         ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
     }
 
@@ -124,6 +134,14 @@
     {
         ItemToTrack.Favourite = !ItemToTrack.Favourite;
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
+
+        var payload = System.Text.Json.JsonSerializer.Serialize(ItemToTrack, SerializationContext.Default.TrackedItem);
+        await syncEventService.EnqueueAsync(new SyncEvent
+        {
+            EventType = SyncEventType.Updated,
+            ItemId = ItemToTrack.Id,
+            Payload = payload
+        });
     }
 
     private int showHistoryCount = 5;

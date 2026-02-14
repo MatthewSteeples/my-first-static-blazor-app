@@ -38,7 +38,33 @@
 	 * Static Assets
 	 * https://developers.cloudflare.com/workers/static-assets/binding/
 	 */
-	"assets": { "directory": "./public/wwwroot", "binding": "ASSETS" }
+	"assets": { "directory": "./public/wwwroot", "binding": "ASSETS" },
+
+	/**
+	 * Durable Objects
+	 * https://developers.cloudflare.com/durable-objects/
+	 */
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SYNC_DO",
+				"class_name": "SyncDurableObject"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["SyncDurableObject"]
+		}
+	],
+	"rules": [
+		{
+			"type": "Text",
+			"globs": ["**/*.sql"],
+			"fallthrough": true
+		}
+	]
 
 	/**
 	 * Service Bindings (communicate between multiple Workers)

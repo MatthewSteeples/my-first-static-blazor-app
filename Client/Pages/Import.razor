@@ -11,6 +11,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
 @inject IBrowserIdentityService identityService
+@inject ISyncEventService syncEventService
 
 <PageTitle>Import Data</PageTitle>
 
@@ -237,6 +238,14 @@
                         var key = $"{nameof(TrackedItem)}{item.Id}";
                         await localStorage.SetItemAsync(key, item);
                         importedItemsCount++;
+
+                        var payload = JsonSerializer.Serialize(item, SerializationContext.Default.TrackedItem);
+                        await syncEventService.EnqueueAsync(new SyncEvent
+                        {
+                            EventType = SyncEventType.Created,
+                            ItemId = item.Id,
+                            Payload = payload
+                        });
                     }
                 }
             }

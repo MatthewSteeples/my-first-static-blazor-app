@@ -24,6 +24,7 @@ builder.Services.AddScoped(sp => new HttpClient
 
 // Add browser identity service
 builder.Services.AddScoped<IBrowserIdentityService, BrowserIdentityService>();
+builder.Services.AddScoped<ISyncEventService, SyncEventService>();
 
 var app = builder.Build();
 

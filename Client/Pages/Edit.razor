@@ -1,11 +1,13 @@
 @page "/edit/{id:guid}"
 @using BlazorApp.Client.Components
+@using BlazorApp.Client.Services
 @using BlazorApp.Shared
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject ISyncEventService syncEventService
 
 <style>
     /* Keep the "Stock Used" column as narrow as possible */
@@ -147,6 +149,7 @@
     public TrackedItem Item { get; set; } = new TrackedItem(); //Needs to be "new" otherwise the form complains as it loads before the data is loaded
 
     private int showHistoryCount = 5;
+    private bool _isNewItem;
 
     protected override async Task OnInitializedAsync()
     {
@@ -159,6 +162,7 @@
         else
         {
             Item.Id = Id;
+            _isNewItem = true;
         }
     }
 
@@ -174,6 +178,16 @@
         }
 
         await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
+
+        var payload = System.Text.Json.JsonSerializer.Serialize(Item, SerializationContext.Default.TrackedItem);
+        await syncEventService.EnqueueAsync(new SyncEvent
+        {
+            EventType = _isNewItem ? SyncEventType.Created : SyncEventType.Updated,
+            ItemId = Item.Id,
+            Payload = payload
+        });
+        _isNewItem = false;
+
         Navigation.NavigateTo("/");
     }
 
@@ -185,6 +199,11 @@
     async void Delete()
     {
         await localStorage.RemoveItemAsync(nameof(TrackedItem) + Item.Id);
+        await syncEventService.EnqueueAsync(new SyncEvent
+        {
+            EventType = SyncEventType.Deleted,
+            ItemId = Item.Id
+        });
         Navigation.NavigateTo("/");
     }
 }

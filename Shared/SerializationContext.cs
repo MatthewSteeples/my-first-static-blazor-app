@@ -11,6 +11,7 @@ namespace BlazorApp.Shared
     [JsonSerializable(typeof(StockAcquisition))]
     [JsonSerializable(typeof(BrowserIdentity))]
     [JsonSerializable(typeof(ExportData))]
+    [JsonSerializable(typeof(SyncEvent))]
     [JsonSerializable(typeof(string[]))]
     
     public partial class SerializationContext : JsonSerializerContext
