@@ -1,5 +1,6 @@
-import { OpenAPIRoute, Str } from "chanfana";
+import { OpenAPIRoute } from "chanfana";
 import { type AppContext } from "../types";
+import { z } from "zod";
 
 export class Hello extends OpenAPIRoute {
 	schema = {
@@ -10,7 +11,7 @@ export class Hello extends OpenAPIRoute {
 				description: "Returns a hello world greeting",
 				content: {
 					"text/plain": {
-						schema: Str({ example: "hello world" }),
+						schema: z.string().openapi({ example: "hello world" }),
 					},
 				},
 			},
