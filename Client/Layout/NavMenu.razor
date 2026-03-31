@@ -1,44 +1,54 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">P4nda Tracker</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
+<div class="nav-brand">
+    <a class="brand-link" href="">P4nda Tracker</a>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Grid">
-                <span class="bi bi-grid-nav-menu" aria-hidden="true"></span> Grid View
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="import">
-                <span class="bi bi-upload-nav-menu" aria-hidden="true"></span> Import Data
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="settings">
-                <span class="bi bi-gear-nav-menu" aria-hidden="true"></span> Settings
-            </NavLink>
-        </div>
-    </nav>
+<nav class="sidebar-nav">
+    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
+        <span class="nav-label">Home</span>
+    </NavLink>
+    <NavLink class="nav-link" href="Grid">
+        <span class="bi bi-grid-nav-menu" aria-hidden="true"></span>
+        <span class="nav-label">Grid View</span>
+    </NavLink>
+    <NavLink class="nav-link" href="import">
+        <span class="bi bi-upload-nav-menu" aria-hidden="true"></span>
+        <span class="nav-label">Import Data</span>
+    </NavLink>
+    <NavLink class="nav-link" href="settings">
+        <span class="bi bi-gear-nav-menu" aria-hidden="true"></span>
+        <span class="nav-label">Settings</span>
+    </NavLink>
+</nav>
+
+<div class="sidebar-footer">
+    <small>&copy; P4nda Tracker @DateTime.Today.Year</small>
+    @if (!string.IsNullOrEmpty(AppVersion))
+    {
+        <small class="version-text">v@(AppVersion)</small>
+    }
 </div>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+    <NavLink class="bottom-nav-item" href="" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span>
+        <span class="bottom-nav-label">Home</span>
+    </NavLink>
+    <NavLink class="bottom-nav-item" href="Grid">
+        <span class="bi bi-grid-nav-menu" aria-hidden="true"></span>
+        <span class="bottom-nav-label">Grid</span>
+    </NavLink>
+    <NavLink class="bottom-nav-item" href="import">
+        <span class="bi bi-upload-nav-menu" aria-hidden="true"></span>
+        <span class="bottom-nav-label">Import</span>
+    </NavLink>
+    <NavLink class="bottom-nav-item" href="settings">
+        <span class="bi bi-gear-nav-menu" aria-hidden="true"></span>
+        <span class="bottom-nav-label">Settings</span>
+    </NavLink>
+</nav>
 
 @code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
+    [Parameter]
+    public string AppVersion { get; set; } = string.Empty;
 }
