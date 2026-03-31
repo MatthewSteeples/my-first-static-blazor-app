@@ -1,0 +1,98 @@
+@using System.Globalization
+@using BlazorApp.Shared
+
+<div class="usage-chart-card">
+    <div class="usage-chart-meta">
+        <span class="usage-chart-label">@MetricLabel</span>
+        <strong>@($"30-day total: {FormatValue(TotalValue)}")</strong>
+    </div>
+
+    <div class="usage-chart-shell">
+        <div class="usage-chart-scale" aria-hidden="true">
+            <span>@FormatValue(MaxValue)</span>
+            <span>@FormatValue(MaxValue / 2)</span>
+            <span>0</span>
+        </div>
+
+        <div class="usage-chart-body">
+            <div class="usage-chart-plot">
+                <div class="usage-chart-grid-lines" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <div class="usage-chart-bars" role="img" aria-label="@AriaLabel">
+                    @foreach (var point in Points)
+                    {
+                        var value = GetValue(point);
+                        <div class="usage-chart-column" title="@BuildTooltip(point)" aria-label="@BuildTooltip(point)">
+                            <div class="usage-chart-bar @(value == 0 ? "is-zero" : string.Empty)" style="height: @(GetBarHeight(value))%;"></div>
+                        </div>
+                    }
+                </div>
+
+                @if (MaxValue == 0)
+                {
+                    <div class="usage-chart-empty">No @MetricLabel.ToLowerInvariant() recorded in the last 30 days.</div>
+                }
+            </div>
+
+            <div class="usage-chart-axis" aria-hidden="true">
+                @foreach (var label in AxisLabels)
+                {
+                    <span>@label</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IReadOnlyList<DailyUsagePoint> Points { get; set; } = Array.Empty<DailyUsagePoint>();
+
+    [Parameter]
+    public bool ShowStockUsage { get; set; }
+
+    private string MetricLabel => ShowStockUsage ? "Stock used" : "Incidents tracked";
+
+    private string AriaLabel => $"{MetricLabel} for the last 30 days.";
+
+    private decimal MaxValue => Points.Count == 0 ? 0 : Points.Max(point => GetValue(point));
+
+    private decimal TotalValue => Points.Sum(point => GetValue(point));
+
+    private IReadOnlyList<string> AxisLabels => Points.Count == 0
+        ? []
+        : [
+            Points[0].Date.ToString("MMM d"),
+            Points[Math.Min(7, Points.Count - 1)].Date.ToString("MMM d"),
+            Points[Math.Min(14, Points.Count - 1)].Date.ToString("MMM d"),
+            Points[Math.Min(21, Points.Count - 1)].Date.ToString("MMM d"),
+            Points[^1].Date.ToString("MMM d")
+        ];
+
+    private decimal GetValue(DailyUsagePoint point) => ShowStockUsage ? point.StockUsed : point.IncidentCount;
+
+    private string GetBarHeight(decimal value)
+    {
+        if (MaxValue <= 0 || value <= 0)
+            return "0";
+
+        return Math.Round((value / MaxValue) * 100m, 2).ToString(CultureInfo.InvariantCulture);
+    }
+
+    private string FormatValue(decimal value)
+    {
+        if (ShowStockUsage)
+            return value.ToString("0.##", CultureInfo.InvariantCulture);
+
+        return ((int)value).ToString(CultureInfo.InvariantCulture);
+    }
+
+    private string BuildTooltip(DailyUsagePoint point)
+    {
+        return $"{point.Date:ddd, MMM d}: {FormatValue(GetValue(point))} {MetricLabel.ToLowerInvariant()}";
+    }
+}

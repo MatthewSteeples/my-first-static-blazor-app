@@ -264,6 +264,9 @@ code {
 
 .tracked-footer {
     margin-bottom: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .occurrence-list {
@@ -340,6 +343,159 @@ code {
     flex-wrap: wrap;
 }
 
+.stats-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stats-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.stats-title {
+    margin: 0;
+}
+
+.metric-toggle {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.stats-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.stats-summary-card,
+.usage-chart-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.stats-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stats-summary-label,
+.stats-summary-note,
+.usage-chart-label {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.stats-summary-value {
+    font-size: 1.4rem;
+    line-height: 1.2;
+}
+
+.usage-chart-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.usage-chart-shell {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.usage-chart-scale {
+    width: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: right;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.usage-chart-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.usage-chart-plot {
+    position: relative;
+    height: 220px;
+}
+
+.usage-chart-grid-lines {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.usage-chart-grid-lines span {
+    border-top: 1px solid #e5e7eb;
+}
+
+.usage-chart-bars {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+}
+
+.usage-chart-column {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+}
+
+.usage-chart-bar {
+    width: 100%;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, #4f8cff 0%, #1b6ec2 100%);
+}
+
+.usage-chart-bar.is-zero {
+    background: #dbe6f4;
+}
+
+.usage-chart-axis {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+}
+
+.usage-chart-empty {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #666;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1rem;
+}
+
 @media (max-width: 640px) {
     .edit-section {
         max-width: 100%;
@@ -347,5 +503,16 @@ code {
 
     .table-responsive {
         font-size: 0.85rem;
+    }
+
+    .usage-chart-shell {
+        flex-direction: column;
+    }
+
+    .usage-chart-scale {
+        width: auto;
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
     }
 }

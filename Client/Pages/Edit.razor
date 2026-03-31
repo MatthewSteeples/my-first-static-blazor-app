@@ -134,6 +134,10 @@
     <button type="button" class="btn btn-outline-primary btn-sm" @onclick="() => Item.StockAcquisitions.Add(new StockAcquisition { DateAcquired = DateTime.UtcNow })">+ Add Stock Acquisition</button>
 
     <div class="form-actions">
+        @if (!_isNewItem)
+        {
+            <button type="button" @onclick="ViewStats" class="btn btn-outline-primary">View Stats</button>
+        }
         <button type="submit" class="btn btn-success">Save</button>
         <button type="button" @onclick="Cancel" class="btn btn-secondary">Cancel</button>
         <button type="button" @onclick="Delete" class="btn btn-danger">Delete</button>
@@ -193,6 +197,11 @@
     void Cancel()
     {
         Navigation.NavigateTo("/");
+    }
+
+    void ViewStats()
+    {
+        Navigation.NavigateTo("/stats/" + Item.Id);
     }
 
     async void Delete()

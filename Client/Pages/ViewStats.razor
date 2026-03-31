@@ -1,0 +1,158 @@
+@page "/stats/{id:guid}"
+@page "/viewstats/{id:guid}"
+@using BlazorApp.Client.Components
+@using BlazorApp.Shared
+
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<PageTitle>@PageTitle</PageTitle>
+
+@if (!_hasLoaded)
+{
+    <p class="text-muted">Loading stats...</p>
+}
+else if (Item is null)
+{
+    <div class="empty-state">
+        <p>That tracked item could not be found.</p>
+        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="GoHome">Back Home</button>
+    </div>
+}
+else
+{
+    <div class="page-toolbar">
+        <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="GoHome">Back</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" @onclick="EditItem">Edit Item</button>
+    </div>
+
+    <div class="stats-shell">
+        <div class="stats-heading">
+            <div>
+                <h3 class="stats-title">@Item.Name</h3>
+                <p class="section-hint">Review the last 30 days of tracked usage for this item.</p>
+            </div>
+
+            <div class="metric-toggle" role="group" aria-label="Usage metric">
+                <button type="button" class="@GetMetricButtonClass(false)" @onclick="() => SetMetric(false)">Incidents tracked</button>
+                @if (HasStockTracking)
+                {
+                    <button type="button" class="@GetMetricButtonClass(true)" @onclick="() => SetMetric(true)">Stock used</button>
+                }
+            </div>
+        </div>
+
+        <div class="stats-summary-grid">
+            <div class="stats-summary-card">
+                <span class="stats-summary-label">Tracked incidents</span>
+                <strong class="stats-summary-value">@TotalIncidents</strong>
+                <span class="stats-summary-note">Last 30 days</span>
+            </div>
+
+            <div class="stats-summary-card">
+                <span class="stats-summary-label">Most active day</span>
+                <strong class="stats-summary-value">@MostActiveDayValue</strong>
+                <span class="stats-summary-note">@MostActiveDayLabel</span>
+            </div>
+
+            @if (HasStockTracking)
+            {
+                <div class="stats-summary-card">
+                    <span class="stats-summary-label">Stock used</span>
+                    <strong class="stats-summary-value">@TotalStockUsed.ToString("0.##")</strong>
+                    <span class="stats-summary-note">Last 30 days</span>
+                </div>
+            }
+
+            @if (Item.StockAcquisitions.Any())
+            {
+                <div class="stats-summary-card">
+                    <span class="stats-summary-label">Current stock</span>
+                    <strong class="stats-summary-value">@Item.CalculateCurrentStockLevel().ToString("0.##")</strong>
+                    <span class="stats-summary-note">Acquisitions minus tracked usage</span>
+                </div>
+            }
+        </div>
+
+        <UsageHistoryChart Points="DailyUsagePoints" ShowStockUsage="_showStockUsage" />
+
+        @if (!HasStockTracking)
+        {
+            <p class="section-hint">Stock usage will appear here after you add default stock usage, stock acquisitions, or recorded stock values.</p>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private TrackedItem? Item { get; set; }
+    private List<DailyUsagePoint> DailyUsagePoints { get; set; } = [];
+    private bool _hasLoaded;
+    private bool _showStockUsage;
+
+    private string PageTitle => Item is null ? "View Stats" : $"{Item.Name} Stats";
+
+    private bool HasStockTracking => Item != null && TrackedItemStatistics.HasStockTracking(Item);
+
+    private int TotalIncidents => DailyUsagePoints.Sum(point => point.IncidentCount);
+
+    private decimal TotalStockUsed => DailyUsagePoints.Sum(point => point.StockUsed);
+
+    private DailyUsagePoint? MostActiveDay => DailyUsagePoints
+        .OrderByDescending(point => point.IncidentCount)
+        .ThenByDescending(point => point.Date)
+        .FirstOrDefault();
+
+    private string MostActiveDayValue => MostActiveDay is null || MostActiveDay.IncidentCount == 0
+        ? "No activity"
+        : MostActiveDay.IncidentCount.ToString();
+
+    private string MostActiveDayLabel => MostActiveDay is null || MostActiveDay.IncidentCount == 0
+        ? "No tracked incidents yet"
+        : MostActiveDay.Date.ToString("ddd, MMM d");
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _hasLoaded = false;
+
+        var loadedItem = await localStorage.GetItemAsync<TrackedItem>(nameof(TrackedItem) + Id);
+        Item = loadedItem;
+        DailyUsagePoints = loadedItem == null
+            ? []
+            : TrackedItemStatistics.GetDailyUsage(loadedItem, DateTime.UtcNow, 30, TimeZoneInfo.Local);
+
+        if (!HasStockTracking)
+        {
+            _showStockUsage = false;
+        }
+
+        _hasLoaded = true;
+    }
+
+    private void SetMetric(bool showStockUsage)
+    {
+        if (showStockUsage && !HasStockTracking)
+            return;
+
+        _showStockUsage = showStockUsage;
+    }
+
+    private string GetMetricButtonClass(bool showStockUsage)
+    {
+        return _showStockUsage == showStockUsage
+            ? "btn btn-primary btn-sm"
+            : "btn btn-outline-primary btn-sm";
+    }
+
+    private void EditItem()
+    {
+        Navigation.NavigateTo("/edit/" + Id);
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

@@ -78,6 +78,7 @@
 
     <div class="tracked-footer">
         <button class="btn btn-success btn-sm" @onclick="OnClick">Track Now</button>
+        <button class="btn btn-outline-secondary btn-sm" @onclick="viewStats">Stats</button>
     </div>
 
     <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
@@ -137,6 +138,11 @@
     void edit()
     {
         Navigation.NavigateTo("/edit/" + ItemToTrack.Id);
+    }
+
+    void viewStats()
+    {
+        Navigation.NavigateTo("/stats/" + ItemToTrack.Id);
     }
 
     async void toggleFavourite()
