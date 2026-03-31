@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="600" viewBox="0 0 220 600">
+  <!-- Blister pack — upper area, slightly tilted -->
+  <g opacity="0.10" fill="white" stroke="white" stroke-width="0.8">
+    <g transform="rotate(-14 60 130)">
+      <!-- Outer blister card border -->
+      <rect x="-15" y="50" width="135" height="155" rx="10" fill="none" stroke-width="2"/>
+      <!-- 3 × 4 pill bubbles -->
+      <ellipse cx="18"  cy="85"  rx="16" ry="11"/>
+      <ellipse cx="55"  cy="85"  rx="16" ry="11"/>
+      <ellipse cx="92"  cy="85"  rx="16" ry="11"/>
+      <ellipse cx="18"  cy="114" rx="16" ry="11"/>
+      <ellipse cx="55"  cy="114" rx="16" ry="11"/>
+      <ellipse cx="92"  cy="114" rx="16" ry="11"/>
+      <ellipse cx="18"  cy="143" rx="16" ry="11"/>
+      <ellipse cx="55"  cy="143" rx="16" ry="11"/>
+      <ellipse cx="92"  cy="143" rx="16" ry="11"/>
+      <ellipse cx="18"  cy="172" rx="16" ry="11"/>
+      <ellipse cx="55"  cy="172" rx="16" ry="11"/>
+      <ellipse cx="92"  cy="172" rx="16" ry="11"/>
+    </g>
+  </g>
+
+  <!-- Medicine box — upper-right, slightly rotated -->
+  <g opacity="0.09" stroke="white" fill="none" stroke-width="1.5">
+    <g transform="rotate(10 175 85)">
+      <rect x="132" y="18" width="78" height="108" rx="6"/>
+      <line x1="132" y1="50" x2="210" y2="50"/>
+      <rect x="142" y="58" width="58" height="10" rx="3" fill="white" stroke="none" opacity="0.55"/>
+      <rect x="142" y="74" width="42" height="7"  rx="2" fill="white" stroke="none" opacity="0.45"/>
+      <rect x="142" y="87" width="50" height="7"  rx="2" fill="white" stroke="none" opacity="0.45"/>
+      <rect x="142" y="100" width="36" height="7" rx="2" fill="white" stroke="none" opacity="0.45"/>
+    </g>
+  </g>
+
+  <!-- Wide blister pack — mid section, gently tilted -->
+  <g opacity="0.08" fill="white" stroke="white" stroke-width="0.8">
+    <g transform="rotate(7 110 340)">
+      <rect x="5" y="288" width="208" height="108" rx="10" fill="none" stroke-width="2"/>
+      <!-- 2 rows × 5 bubbles -->
+      <ellipse cx="35"  cy="316" rx="18" ry="12"/>
+      <ellipse cx="75"  cy="316" rx="18" ry="12"/>
+      <ellipse cx="115" cy="316" rx="18" ry="12"/>
+      <ellipse cx="155" cy="316" rx="18" ry="12"/>
+      <ellipse cx="195" cy="316" rx="18" ry="12"/>
+      <ellipse cx="35"  cy="348" rx="18" ry="12"/>
+      <ellipse cx="75"  cy="348" rx="18" ry="12"/>
+      <ellipse cx="115" cy="348" rx="18" ry="12"/>
+      <ellipse cx="155" cy="348" rx="18" ry="12"/>
+      <ellipse cx="195" cy="348" rx="18" ry="12"/>
+    </g>
+  </g>
+
+  <!-- Scattered loose tablets / capsules — lower area -->
+  <g opacity="0.08" fill="white">
+    <!-- Oval capsules at various angles -->
+    <ellipse cx="58"  cy="448" rx="22" ry="10" transform="rotate(38 58 448)"/>
+    <ellipse cx="165" cy="475" rx="22" ry="10" transform="rotate(-28 165 475)"/>
+    <circle  cx="188" cy="432" r="11"/>
+    <ellipse cx="28"  cy="518" rx="22" ry="10" transform="rotate(55 28 518)"/>
+    <ellipse cx="145" cy="548" rx="22" ry="10" transform="rotate(12 145 548)"/>
+    <circle  cx="198" cy="558" r="9"/>
+    <ellipse cx="88"  cy="502" rx="22" ry="10" transform="rotate(-45 88 502)"/>
+  </g>
+
+  <!-- Medicine box — lower-left, slightly rotated -->
+  <g opacity="0.07" stroke="white" fill="none" stroke-width="1.2">
+    <g transform="rotate(-9 55 498)">
+      <rect x="8"  y="455" width="88" height="116" rx="6"/>
+      <line x1="8" y1="486" x2="96" y2="486"/>
+      <rect x="16" y="494" width="66" height="10" rx="3" fill="white" stroke="none" opacity="0.5"/>
+      <rect x="16" y="510" width="50" height="7"  rx="2" fill="white" stroke="none" opacity="0.4"/>
+      <rect x="16" y="523" width="57" height="7"  rx="2" fill="white" stroke="none" opacity="0.4"/>
+    </g>
+  </g>
+</svg>
