@@ -18,7 +18,10 @@
                 <h5>Data Management</h5>
             </div>
             <div class="card-body">
-                <p>Export your tracked items or import data from a file.</p>
+                <p>Export downloads a <code>tracker.json</code> backup of your tracked items and browser identity to this device.</p>
+                <p class="text-muted">
+                    Use <strong>Export</strong> to save a copy before clearing browser data or moving devices, then use <strong>Import Data</strong> to load that exported file back into the app later.
+                </p>
                 <div class="d-flex gap-2">
                     <BlazorApp.Client.Components.Export />
                     <a href="/import" class="btn btn-success">Import Data</a>
