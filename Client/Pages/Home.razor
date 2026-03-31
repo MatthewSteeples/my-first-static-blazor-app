@@ -33,46 +33,41 @@
     }
 }
 
+<div class="page-toolbar">
+    @if (allItems.Any())
+    {
+        <FluentTextField @oninput=searchChange Placeholder="Search..." class="search-field">
+            <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="end" />
+        </FluentTextField>
+    }
+    <button class="btn btn-primary btn-sm" @onclick="AddItem">+ Add New</button>
+</div>
+
 @if (allItems.Any())
 {
-    <FluentTextField @oninput=searchChange Placeholder="Search...">
-        <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="end" />
-    </FluentTextField>
-
     if (items.Any())
     {
-        <FluentGrid Spacing="6">
-
+        <FluentGrid Spacing="4">
             @foreach (var item in items)
             {
-                <FluentGridItem Style="min-width: 250px">
+                <FluentGridItem Style="min-width: 260px">
                     <BlazorApp.Client.Components.TrackedItemComponent ItemToTrack="@item" />
                 </FluentGridItem>
             }
-
         </FluentGrid>
     }
     else
     {
-        <p>No items found.</p>
+        <p class="text-muted">No items match your search.</p>
     }
 }
 else
 {
-    <p>No items currently tracked. Click the button below to add a new item.</p>
+    <div class="empty-state">
+        <p>No items currently tracked.</p>
+        <p>Click <strong>+ Add New</strong> to start tracking an item.</p>
+    </div>
 }
-
-<p>
-    <button class="btn btn-primary" @onclick="AddItem">Add New</button>
-</p>
-
-<p>
-    <a href="/Grid">View Grid</a>
-</p>
-
-<p>
-    <a href="/settings">Settings</a>
-</p>
 
 @code {
     private void searchChange(ChangeEventArgs e)
