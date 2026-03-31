@@ -8,6 +8,7 @@ public class PwaUpdateService : IAsyncDisposable
     private readonly IJSRuntime _jsRuntime;
     private DotNetObjectReference<PwaUpdateService>? _dotNetReference;
     private bool _isUpdateAvailable = false;
+    private bool _isInitialized = false;
 
     public event Action? UpdateAvailable;
 
@@ -20,8 +21,14 @@ public class PwaUpdateService : IAsyncDisposable
 
     public async Task InitializeAsync()
     {
+        if (_isInitialized)
+        {
+            return;
+        }
+
         _dotNetReference = DotNetObjectReference.Create(this);
         await _jsRuntime.InvokeVoidAsync("pwaUpdate.initialize", _dotNetReference);
+        _isInitialized = true;
     }
 
     [JSInvokable]

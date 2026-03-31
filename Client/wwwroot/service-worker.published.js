@@ -5,6 +5,11 @@ self.importScripts('./service-worker-assets.js');
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
 self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+self.addEventListener('message', event => {
+    if (event.data?.type === 'SKIP_WAITING') {
+        event.waitUntil(self.skipWaiting());
+    }
+});
 // Periodic Background Sync (https://web.dev/periodic-background-sync/)
 // Note: This only handles the service worker side. The page must request permission and
 // register a periodic sync via registration.periodicSync.register(...).
@@ -76,6 +81,8 @@ async function onActivate(event) {
     await Promise.all(cacheKeys
         .filter(key => key.startsWith(cacheNamePrefix) && key !== cacheName)
         .map(key => caches.delete(key)));
+
+    await self.clients.claim();
 }
 
 async function onFetch(event) {
