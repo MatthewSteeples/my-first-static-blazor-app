@@ -38,7 +38,10 @@ main {
     }
 
     .sidebar {
-        /* On mobile, sidebar itself is hidden; NavMenu renders a bottom bar instead */
-        display: none;
+        /* On mobile the sidebar visual elements are hidden by NavMenu.razor.css.
+           Do not use display:none here — it would suppress the fixed bottom-nav
+           that NavMenu renders for mobile users. */
+        width: 0;
+        overflow: visible;
     }
 }
