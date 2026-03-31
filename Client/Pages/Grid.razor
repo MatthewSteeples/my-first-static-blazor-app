@@ -30,6 +30,12 @@
     }
 }
 
+<div class="page-toolbar">
+    <button class="btn btn-primary btn-sm" @onclick="AddItem">+ Add New</button>
+    <BlazorApp.Client.Components.Export />
+    <a href="/import" class="btn btn-outline-success btn-sm">Import Data</a>
+</div>
+
 @if (items.Any())
 {
     <FluentDataGrid Items="@items.AsQueryable()">
@@ -48,24 +54,17 @@
             }
         </TemplateColumn>
         <TemplateColumn>
-            <button class="btn btn-success" @onclick="@(() => OnClickTrack(context))">Track</button>
+            <button class="btn btn-success btn-sm" @onclick="@(() => OnClickTrack(context))">Track</button>
         </TemplateColumn>
     </FluentDataGrid>
 }
 else
 {
-    <p>No items currently tracked. Click the button below to add a new item.</p>
+    <div class="empty-state">
+        <p>No items currently tracked.</p>
+        <p>Click <strong>+ Add New</strong> to start tracking an item.</p>
+    </div>
 }
-
-<p>
-    <button class="btn btn-primary" @onclick="AddItem">Add New</button>
-    <BlazorApp.Client.Components.Export />
-    <a href="/import" class="btn btn-success">Import Data</a>
-</p>
-
-<p>
-    <a href="/">View Cards</a>
-</p>
 
 @code {
     async void OnClickTrack(TrackedItem trackedItem)

@@ -9,104 +9,113 @@
 @inject NavigationManager Navigation
 @inject ISyncEventService syncEventService
 
-<h3>
-    @ItemToTrack.Name
-    <FluentIcon Value="@(new Regular.Size24.Edit())" OnClick="edit" />
-
-    @switch (ItemToTrack.GetStatus(DateTime.UtcNow))
-    {
-        case StatusEnum.AtLimit:
-            <FluentIcon Value="@(new Filled.Size24.Warning())" Color="@Color.Warning" />
-            break;
-        case StatusEnum.OverLimit:
-            <FluentIcon Value="@(new Filled.Size24.ErrorCircle())" Color="@Color.Error" />
-            break;
-    }
-
-    @if (ItemToTrack.Favourite)
-    {
-        <FluentIcon Value="@(new Filled.Size24.Star())" OnClick="toggleFavourite" />
-    }
-    else
-    {
-        <FluentIcon Value="@(new Regular.Size24.StarOff())" OnClick="toggleFavourite" />
-    }
-
-    @if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
-    {
-        @if (ItemToTrack.CalculateCurrentStockLevel() <= 7 * (ItemToTrack.DefaultStockUsage ?? 1))
-        {
-            <FluentIcon Value="@(new Regular.Size24.BoxArrowUp())" Color="@Color.Warning" />
-        }
-    }
-</h3>
-
-<p>@ItemToTrack.PastOccurrences.Count instances tracked</p>
-<p>Last Tracked: @LastTracked</p>
-@if (ItemToTrack.Targets.Any())
-{
-    <p>
-        Next Due: @NextDue @if (!string.IsNullOrEmpty(NextSpaced))
-        {
-            <span> (@NextSpaced)</span>
-        }
-    </p>
-}
-
-@if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
-{
-    var currentStock = ItemToTrack.CalculateCurrentStockLevel();
-    if (currentStock < -100)
-    {
-
-    }
-    else
-    {
-        <p>Current Stock Level: @ItemToTrack.CalculateCurrentStockLevel()</p>
-    }
-}
-
-<p>
-    <button class="btn btn-success" @onclick="OnClick">Track</button>
-</p>
-
-<Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
-
-    @if (ItemToTrack.PastOccurrences.Any())
-    {
-        <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
-            <ul>
-                @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.ToLocalTime().Date).OrderByDescending(a => a.Key))
+<div class="tracked-card @StatusClass">
+    <div class="tracked-card-header">
+        <div class="tracked-title">
+            <span class="tracked-name">@ItemToTrack.Name</span>
+            <div class="tracked-badges">
+                @switch (ItemToTrack.GetStatus(DateTime.UtcNow))
                 {
-                    <li>
-                        <strong>@occurrences.Key.ToShortDateString()</strong>
-                        <ol>
-                            @foreach (var occurrence in occurrences.OrderByDescending(a => a.ActualTimestamp))
-                            {
-                                <li>@occurrence.ActualTimestamp.ToLocalTime().ToShortTimeString()</li>
-                            }
-                        </ol>
-                    </li>
+                    case StatusEnum.AtLimit:
+                        <FluentIcon Value="@(new Filled.Size20.Warning())" Color="@Color.Warning" Title="At limit" />
+                        break;
+                    case StatusEnum.OverLimit:
+                        <FluentIcon Value="@(new Filled.Size20.ErrorCircle())" Color="@Color.Error" Title="Over limit" />
+                        break;
                 }
-            </ul>
-            <button class="btn btn-primary" @onclick="() => showHistoryCount += 5">Show More</button>
-        </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
-    }
-
-    @if (ItemToTrack.Targets.Any())
-    {
-        <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
-            <ol>
-                @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
+                @if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
                 {
-                    <li>@occurrence.ToLocalTime().ToString("g")</li>
+                    @if (ItemToTrack.CalculateCurrentStockLevel() <= 7 * (ItemToTrack.DefaultStockUsage ?? 1))
+                    {
+                        <FluentIcon Value="@(new Regular.Size24.BoxArrowUp())" Color="@Color.Warning" Title="Stock running low" />
+                    }
                 }
-            </ol>
-            <button class="btn btn-primary" @onclick="() => showFutureCount += 5">Show More</button>
-        </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
-    }
+            </div>
+        </div>
+        <div class="tracked-controls">
+            @if (ItemToTrack.Favourite)
+            {
+                <FluentIcon Value="@(new Filled.Size20.Star())" OnClick="toggleFavourite" Title="Unfavourite" />
+            }
+            else
+            {
+                <FluentIcon Value="@(new Regular.Size20.StarOff())" OnClick="toggleFavourite" Title="Favourite" />
+            }
+            <FluentIcon Value="@(new Regular.Size20.Edit())" OnClick="edit" Title="Edit" />
+        </div>
+    </div>
 
-</Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
+    <div class="tracked-stats">
+        <div class="stat-item">
+            <span class="stat-label">Last tracked</span>
+            <span class="stat-value">@LastTracked</span>
+        </div>
+        @if (ItemToTrack.Targets.Any())
+        {
+            <div class="stat-item">
+                <span class="stat-label">Next due</span>
+                <span class="stat-value">
+                    @NextDue
+                    @if (!string.IsNullOrEmpty(NextSpaced))
+                    {
+                        <span class="stat-note"> (@NextSpaced)</span>
+                    }
+                </span>
+            </div>
+        }
+        @if (ItemToTrack.DefaultStockUsage.GetValueOrDefault() > 0 && ItemToTrack.StockAcquisitions.Any())
+        {
+            var currentStock = ItemToTrack.CalculateCurrentStockLevel();
+            if (currentStock >= -100)
+            {
+                <div class="stat-item">
+                    <span class="stat-label">Stock</span>
+                    <span class="stat-value">@currentStock</span>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="tracked-footer">
+        <button class="btn btn-success btn-sm" @onclick="OnClick">Track Now</button>
+    </div>
+
+    <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
+        @if (ItemToTrack.PastOccurrences.Any())
+        {
+            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
+                <ul class="occurrence-list">
+                    @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.ToLocalTime().Date).OrderByDescending(a => a.Key))
+                    {
+                        <li>
+                            <strong>@occurrences.Key.ToShortDateString()</strong>
+                            <ol>
+                                @foreach (var occurrence in occurrences.OrderByDescending(a => a.ActualTimestamp))
+                                {
+                                    <li>@occurrence.ActualTimestamp.ToLocalTime().ToShortTimeString()</li>
+                                }
+                            </ol>
+                        </li>
+                    }
+                </ul>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="() => showHistoryCount += 5">Show More</button>
+            </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
+        }
+
+        @if (ItemToTrack.Targets.Any())
+        {
+            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
+                <ol class="occurrence-list">
+                    @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
+                    {
+                        <li>@occurrence.ToLocalTime().ToString("g")</li>
+                    }
+                </ol>
+                <button class="btn btn-outline-secondary btn-sm" @onclick="() => showFutureCount += 5">Show More</button>
+            </Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem>
+        }
+    </Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
+</div>
 
 @code {
     async void OnClick()
@@ -149,6 +158,13 @@
 
     [Parameter]
     public TrackedItem ItemToTrack { get; set; }
+
+    private string StatusClass => ItemToTrack.GetStatus(DateTime.UtcNow) switch
+    {
+        StatusEnum.OverLimit => "status-over-limit",
+        StatusEnum.AtLimit => "status-at-limit",
+        _ => "status-ok"
+    };
 
     public string LastTracked
     {
