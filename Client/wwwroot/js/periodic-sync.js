@@ -4,6 +4,8 @@
 (function () {
 	const CONSENT_KEY = 'periodic-background-sync:consent:v1';
 	const IDENTITY_STORAGE_KEY = 'BrowserIdentity';
+	const APP_SETTINGS_KEY = 'app-settings:v1';
+	const APP_SETTINGS_DB_KEY = 'app-settings:v1';
 	const DB_NAME = 'BlazorTracker';
 	const DB_VERSION = 2;
 	const STORE_NAME = 'auth';
@@ -48,6 +50,43 @@
 			tx.onerror = () => reject(tx.error);
 			tx.objectStore(STORE_NAME).put(value, key);
 		});
+	}
+
+	function getStoredAppSettings() {
+		const raw = window.localStorage?.getItem(APP_SETTINGS_KEY);
+		if (!raw) return undefined;
+
+		const parsed = tryParseJson(raw);
+		return parsed && typeof parsed === 'object' ? parsed : undefined;
+	}
+
+	function setStoredAppSettings(settings) {
+		window.localStorage?.setItem(APP_SETTINGS_KEY, JSON.stringify(settings));
+	}
+
+	function isSyncPostingEnabledInLocalStorage() {
+		const settings = getStoredAppSettings();
+		return settings?.experimentalCloudflareApiPostingEnabled === true;
+	}
+
+	async function syncAppSettingsToIndexedDb() {
+		const settings = getStoredAppSettings() ?? {
+			experimentalCloudflareApiPostingEnabled: isSyncPostingEnabledInLocalStorage()
+		};
+
+		await idbSet(APP_SETTINGS_DB_KEY, settings);
+	}
+
+	async function unregisterPeriodicSync() {
+		try {
+			if (!('serviceWorker' in navigator)) return;
+			const registration = await navigator.serviceWorker.ready;
+			if (!registration || !('periodicSync' in registration)) return;
+
+			await registration.periodicSync.unregister('sync');
+		} catch {
+			// No-op
+		}
 	}
 
 	function tryParseJson(value) {
@@ -141,6 +180,8 @@
 	}
 
 	async function shouldEnablePeriodicSync() {
+		if (!isSyncPostingEnabledInLocalStorage()) return false;
+
 		const existing = window.localStorage?.getItem(CONSENT_KEY);
 		if (existing === 'allowed') return true;
 		if (existing === 'declined' || existing === 'denied' || existing === 'unsupported') return false;
@@ -151,6 +192,26 @@
 		window.localStorage?.setItem(CONSENT_KEY, allow ? 'allowed' : 'declined');
 		return allow;
 	}
+
+	window.syncPostingSettings = {
+		isEnabled: async function () {
+			return isSyncPostingEnabledInLocalStorage();
+		},
+
+		setEnabled: async function (enabled) {
+			const settings = getStoredAppSettings() ?? {};
+			settings.experimentalCloudflareApiPostingEnabled = enabled;
+			setStoredAppSettings(settings);
+			await syncAppSettingsToIndexedDb();
+
+			if (enabled) {
+				await window.periodicSyncSetup.initialize();
+				return;
+			}
+
+			await unregisterPeriodicSync();
+		}
+	};
 
 	window.periodicSyncSetup = {
 		// Returns a freshly generated ES256 JWT using the browser identity keys.
@@ -169,6 +230,9 @@
 		// Registers periodic background sync and prepares an auth token for the service worker.
 		initialize: async function () {
 			try {
+				await syncAppSettingsToIndexedDb();
+				if (!isSyncPostingEnabledInLocalStorage()) return;
+
 				if (!('serviceWorker' in navigator)) return;
 				const registration = await navigator.serviceWorker.ready;
 				if (!registration) return;

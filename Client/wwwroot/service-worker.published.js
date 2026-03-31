@@ -29,6 +29,7 @@ const authDbName = 'BlazorTracker';
 const authDbVersion = 2;
 const authStoreName = 'auth';
 const authJwtKey = 'jwt';
+const appSettingsKey = 'app-settings:v1';
 const syncStoreName = 'syncQueue';
 
 function openAuthDb() {
@@ -59,6 +60,20 @@ async function getStoredJwt() {
         });
     } catch {
         return null;
+    }
+}
+
+async function getSyncPostingEnabled() {
+    try {
+        const db = await openAuthDb();
+        return await new Promise((resolve, reject) => {
+            const tx = db.transaction(authStoreName, 'readonly');
+            const req = tx.objectStore(authStoreName).get(appSettingsKey);
+            req.onsuccess = () => resolve(req.result?.experimentalCloudflareApiPostingEnabled === true);
+            req.onerror = () => reject(req.error);
+        });
+    } catch {
+        return false;
     }
 }
 
@@ -123,6 +138,12 @@ async function onPeriodicSync(event) {
     // - sync: call the API using a JWT created by the app
     if (event?.tag === 'sync') {
         try {
+            const syncPostingEnabled = await getSyncPostingEnabled();
+            if (!syncPostingEnabled) {
+                console.info('Service worker: Experimental Cloudflare/API posting disabled; skipping /api/sync');
+                return;
+            }
+
             const token = await getStoredJwt();
             if (!token) {
                 console.warn('Service worker: No stored JWT; skipping /api/sync');
@@ -239,6 +260,12 @@ async function flushPendingSyncEvents(token) {
 
 async function onBackgroundSync() {
     try {
+        const syncPostingEnabled = await getSyncPostingEnabled();
+        if (!syncPostingEnabled) {
+            console.info('Service worker: Experimental Cloudflare/API posting disabled; skipping sync-event flush');
+            return;
+        }
+
         const token = await getStoredJwt();
         if (!token) {
             console.warn('Service worker: No stored JWT; skipping sync-event flush');

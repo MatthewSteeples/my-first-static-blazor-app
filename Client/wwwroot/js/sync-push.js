@@ -11,6 +11,15 @@
 		return null;
 	}
 
+	async function isSyncPostingEnabled() {
+		try {
+			if (!window.syncPostingSettings?.isEnabled) return false;
+			return await window.syncPostingSettings.isEnabled();
+		} catch {
+			return false;
+		}
+	}
+
 	async function pushSingleEvent(event, token) {
 		const response = await fetch('/api/sync/event', {
 			method: 'POST',
@@ -45,6 +54,10 @@
 	// Enqueue event in IndexedDB and attempt immediate push.
 	// Falls back to Background Sync API on network failure.
 	async function enqueueAndPushSyncEvent(eventJson) {
+		if (!await isSyncPostingEnabled()) {
+			return;
+		}
+
 		try {
 			const event = typeof eventJson === 'string' ? JSON.parse(eventJson) : eventJson;
 
