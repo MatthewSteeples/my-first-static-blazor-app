@@ -388,6 +388,35 @@ code {
     gap: 0.25rem;
 }
 
+.stats-table-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.stats-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.stats-table-title {
+    margin: 0;
+}
+
+.stats-table {
+    margin-bottom: 0;
+}
+
+.stats-table th[scope="row"] {
+    font-weight: 500;
+}
+
 .stats-summary-label,
 .stats-summary-note,
 .usage-chart-label {

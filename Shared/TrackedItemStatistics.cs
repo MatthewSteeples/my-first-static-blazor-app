@@ -41,6 +41,31 @@ namespace BlazorApp.Shared
                 .ToList();
         }
 
+        public static List<UsageSummaryPoint> GetUsageSummary(IEnumerable<DailyUsagePoint> points, UsageGroupingPeriod period, DayOfWeek firstDayOfWeek)
+        {
+            if (points == null)
+                throw new ArgumentNullException(nameof(points));
+
+            if (!Enum.IsDefined(period))
+                throw new ArgumentOutOfRangeException(nameof(period));
+
+            if (!Enum.IsDefined(firstDayOfWeek))
+                throw new ArgumentOutOfRangeException(nameof(firstDayOfWeek));
+
+            return points
+                .GroupBy(point => GetBucketStart(point.Date.Date, period, firstDayOfWeek))
+                .Select(group => new UsageSummaryPoint
+                {
+                    BucketStart = group.Key,
+                    PeriodStart = group.Min(point => point.Date.Date),
+                    PeriodEnd = group.Max(point => point.Date.Date),
+                    IncidentCount = group.Sum(point => point.IncidentCount),
+                    StockUsed = group.Sum(point => point.StockUsed)
+                })
+                .OrderBy(point => point.BucketStart)
+                .ToList();
+        }
+
         public static bool HasStockTracking(TrackedItem item)
         {
             if (item == null)
@@ -49,6 +74,17 @@ namespace BlazorApp.Shared
             return item.DefaultStockUsage.GetValueOrDefault() > 0
                 || (item.StockAcquisitions?.Any() ?? false)
                 || (item.PastOccurrences?.Any(occurrence => occurrence.StockUsed.HasValue) ?? false);
+        }
+
+        private static DateTime GetBucketStart(DateTime date, UsageGroupingPeriod period, DayOfWeek firstDayOfWeek)
+        {
+            return period switch
+            {
+                UsageGroupingPeriod.Day => date,
+                UsageGroupingPeriod.Week => date.AddDays(-((7 + (date.DayOfWeek - firstDayOfWeek)) % 7)),
+                UsageGroupingPeriod.Month => new DateTime(date.Year, date.Month, 1),
+                _ => throw new ArgumentOutOfRangeException(nameof(period))
+            };
         }
 
         private static DateTime ConvertFromUtc(DateTime value, TimeZoneInfo timeZone)
@@ -64,9 +100,25 @@ namespace BlazorApp.Shared
         }
     }
 
+    public enum UsageGroupingPeriod
+    {
+        Day,
+        Week,
+        Month
+    }
+
     public class DailyUsagePoint
     {
         public DateTime Date { get; set; }
+        public int IncidentCount { get; set; }
+        public decimal StockUsed { get; set; }
+    }
+
+    public class UsageSummaryPoint
+    {
+        public DateTime BucketStart { get; set; }
+        public DateTime PeriodStart { get; set; }
+        public DateTime PeriodEnd { get; set; }
         public int IncidentCount { get; set; }
         public decimal StockUsed { get; set; }
     }

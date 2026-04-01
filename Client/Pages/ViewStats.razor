@@ -1,5 +1,6 @@
 @page "/stats/{id:guid}"
 @page "/viewstats/{id:guid}"
+@using System.Globalization
 @using BlazorApp.Client.Components
 @using BlazorApp.Shared
 
@@ -76,6 +77,49 @@ else
 
         <UsageHistoryChart Points="DailyUsagePoints" ShowStockUsage="_showStockUsage" />
 
+        <div class="stats-table-card">
+            <div class="stats-table-header">
+                <div>
+                    <h4 class="stats-table-title">Usage breakdown</h4>
+                    <p class="section-hint">Grouped from the same last 30 days shown in the chart.</p>
+                </div>
+
+                <div class="metric-toggle" role="group" aria-label="Usage table period">
+                    <button type="button" class="@GetPeriodButtonClass(UsageGroupingPeriod.Day)" @onclick="() => SetSummaryPeriod(UsageGroupingPeriod.Day)">Per day</button>
+                    <button type="button" class="@GetPeriodButtonClass(UsageGroupingPeriod.Week)" @onclick="() => SetSummaryPeriod(UsageGroupingPeriod.Week)">Per week</button>
+                    <button type="button" class="@GetPeriodButtonClass(UsageGroupingPeriod.Month)" @onclick="() => SetSummaryPeriod(UsageGroupingPeriod.Month)">Per month</button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table stats-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Time period</th>
+                            <th scope="col" class="text-end">Incidents</th>
+                            @if (HasStockTracking)
+                            {
+                                <th scope="col" class="text-end">Stock used</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in UsageSummaryRows)
+                        {
+                            <tr>
+                                <th scope="row">@FormatSummaryPeriod(row)</th>
+                                <td class="text-end">@row.IncidentCount</td>
+                                @if (HasStockTracking)
+                                {
+                                    <td class="text-end">@row.StockUsed.ToString("0.##", CultureInfo.CurrentCulture)</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         @if (!HasStockTracking)
         {
             <p class="section-hint">Stock usage will appear here after you add default stock usage, stock acquisitions, or recorded stock values.</p>
@@ -91,6 +135,7 @@ else
     private List<DailyUsagePoint> DailyUsagePoints { get; set; } = [];
     private bool _hasLoaded;
     private bool _showStockUsage;
+    private UsageGroupingPeriod _summaryPeriod = UsageGroupingPeriod.Day;
 
     private string PageTitle => Item is null ? "View Stats" : $"{Item.Name} Stats";
 
@@ -113,6 +158,11 @@ else
         ? "No tracked incidents yet"
         : MostActiveDay.Date.ToString("ddd, MMM d");
 
+    private IReadOnlyList<UsageSummaryPoint> UsageSummaryRows => TrackedItemStatistics
+        .GetUsageSummary(DailyUsagePoints, _summaryPeriod, CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek)
+        .OrderByDescending(point => point.PeriodStart)
+        .ToList();
+
     protected override async Task OnParametersSetAsync()
     {
         _hasLoaded = false;
@@ -131,6 +181,11 @@ else
         _hasLoaded = true;
     }
 
+    private void SetSummaryPeriod(UsageGroupingPeriod period)
+    {
+        _summaryPeriod = period;
+    }
+
     private void SetMetric(bool showStockUsage)
     {
         if (showStockUsage && !HasStockTracking)
@@ -139,11 +194,31 @@ else
         _showStockUsage = showStockUsage;
     }
 
+    private string GetPeriodButtonClass(UsageGroupingPeriod period)
+    {
+        return _summaryPeriod == period
+            ? "btn btn-primary btn-sm"
+            : "btn btn-outline-primary btn-sm";
+    }
+
     private string GetMetricButtonClass(bool showStockUsage)
     {
         return _showStockUsage == showStockUsage
             ? "btn btn-primary btn-sm"
             : "btn btn-outline-primary btn-sm";
+    }
+
+    private string FormatSummaryPeriod(UsageSummaryPoint row)
+    {
+        var culture = CultureInfo.CurrentCulture;
+
+        return _summaryPeriod switch
+        {
+            UsageGroupingPeriod.Day => row.PeriodStart.ToString("ddd, MMM d", culture),
+            UsageGroupingPeriod.Week => $"{row.PeriodStart.ToString("MMM d", culture)} - {row.PeriodEnd.ToString("MMM d", culture)}",
+            UsageGroupingPeriod.Month => row.PeriodStart.ToString("MMM yyyy", culture),
+            _ => row.PeriodStart.ToString("d", culture)
+        };
     }
 
     private void EditItem()
