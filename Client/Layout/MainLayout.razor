@@ -1,15 +1,15 @@
-﻿@using System.Reflection
-@using Microsoft.FluentUI.AspNetCore.Components
+﻿@using Microsoft.FluentUI.AspNetCore.Components
+@inject BlazorApp.Client.Services.PwaUpdateService PwaUpdateService
+@inject BlazorApp.Client.Services.PeriodicSyncService PeriodicSyncService
 
 @inherits LayoutComponentBase
 <div class="page">
     <div class="sidebar">
-        <NavMenu AppVersion="@GetVersion()" />
+        <NavMenu />
     </div>
 
     <main>
         <article class="content px-3 px-md-4">
-            <BlazorApp.Client.Components.UpdateNotification />
             @Body
         </article>
     </main>
@@ -19,12 +19,12 @@
 </div>
 
 @code {
-    private string GetVersion()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var informationalVersion = typeof(Program).Assembly
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
-
-        return informationalVersion;
+        if (firstRender)
+        {
+            await PwaUpdateService.InitializeAsync();
+            await PeriodicSyncService.InitializeAsync();
+        }
     }
 }

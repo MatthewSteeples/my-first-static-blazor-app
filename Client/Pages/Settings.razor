@@ -1,10 +1,13 @@
 @page "/settings"
 @using BlazorApp.Shared
 @using BlazorApp.Client.Services
+@using System.Reflection
 
 @inject NavigationManager Navigation
 @inject IBrowserIdentityService identityService
 @inject IAppSettingsService AppSettingsService
+@inject PwaUpdateService PwaUpdateService
+@implements IDisposable
 
 <PageTitle>Settings</PageTitle>
 
@@ -87,24 +90,107 @@
 </div>
 
 <div class="mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h5>About</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-3">
+                <dt class="col-sm-4">Version:</dt>
+                <dd class="col-sm-8"><code>@appVersion</code></dd>
+            </dl>
+            @if (updateAvailable)
+            {
+                <div class="alert alert-info d-flex align-items-center gap-2 mb-3" role="alert">
+                    <span>🔄</span>
+                    <span>A new version is available!</span>
+                    <button type="button" class="btn btn-primary btn-sm ms-auto" @onclick="ReloadApp">Reload to update</button>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-3">@updateStatusMessage</p>
+            }
+            <button type="button" class="btn btn-outline-secondary btn-sm" @onclick="CheckForUpdates" disabled="@isCheckingForUpdates">
+                @if (isCheckingForUpdates)
+                {
+                    <span>Checking...</span>
+                }
+                else
+                {
+                    <span>Check for Updates</span>
+                }
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
     <a href="/" class="btn btn-secondary">
         <span class="bi bi-arrow-left" aria-hidden="true"></span> Back to Home
     </a>
 </div>
 
 @code {
+    private const int UpdateCheckDelayMs = 3000;
+
     private BrowserIdentity? identity;
     private bool experimentalApiPostingEnabled;
+    private string appVersion = string.Empty;
+    private bool updateAvailable = false;
+    private bool isCheckingForUpdates = false;
+    private string updateStatusMessage = "You're up to date.";
 
     protected override async Task OnInitializedAsync()
     {
         identity = await identityService.GetOrCreateIdentityAsync();
         experimentalApiPostingEnabled = await AppSettingsService.GetExperimentalCloudflareApiPostingEnabledAsync();
+
+        appVersion = typeof(Program).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
+
+        PwaUpdateService.UpdateAvailable += OnUpdateAvailable;
+        updateAvailable = PwaUpdateService.IsUpdateAvailable;
+        if (updateAvailable)
+        {
+            updateStatusMessage = "A new version is available!";
+        }
+    }
+
+    private void OnUpdateAvailable()
+    {
+        updateAvailable = true;
+        isCheckingForUpdates = false;
+        updateStatusMessage = "A new version is available!";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task CheckForUpdates()
+    {
+        isCheckingForUpdates = true;
+        updateStatusMessage = "Checking for updates...";
+        await PwaUpdateService.CheckForUpdatesAsync();
+        await Task.Delay(UpdateCheckDelayMs);
+        if (!updateAvailable)
+        {
+            updateStatusMessage = "You're up to date.";
+        }
+        isCheckingForUpdates = false;
+    }
+
+    private async Task ReloadApp()
+    {
+        await PwaUpdateService.ReloadApplicationAsync();
     }
 
     private async Task OnExperimentalApiPostingChanged(ChangeEventArgs e)
     {
         experimentalApiPostingEnabled = e.Value is bool enabled && enabled;
         await AppSettingsService.SetExperimentalCloudflareApiPostingEnabledAsync(experimentalApiPostingEnabled);
+    }
+
+    public void Dispose()
+    {
+        PwaUpdateService.UpdateAvailable -= OnUpdateAvailable;
     }
 }
