@@ -20,6 +20,6 @@
     "@types/service-worker-mock": "^2.0.4",
     "drizzle-kit": "^0.31.10",
     "typescript": "^6.0.3",
-    "wrangler": "^4.83.0"
+    "wrangler": "^4.85.0"
   }
 }
