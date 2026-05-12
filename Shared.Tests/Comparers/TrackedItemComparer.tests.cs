@@ -1,12 +1,38 @@
 ﻿using BlazorApp.Shared;
 using BlazorApp.Shared.Comparers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Shared.Tests.Comparers
 {
     [TestClass]
     public class TrackedItemComparerTests
     {
+        [TestMethod]
+        public void Test_TrackedIdenticalInstances_AreEqual()
+        {
+            var x = new TrackedItem();
+
+            var comparer = new TrackedItemComparer();
+
+            Assert.AreEqual(0, comparer.Compare(x, x));
+        }
+
+        [TestMethod]
+        public void Test_TrackedNullInstances_AreEqual()
+        {
+            var comparer = new TrackedItemComparer();
+
+            Assert.AreEqual(0, comparer.Compare(null, null));
+        }
+
+        [TestMethod]
+        public void Test_TrackedOneNullInstance_AreNotEqual()
+        {
+            var comparer = new TrackedItemComparer();
+
+            Assert.AreEqual(-1, comparer.Compare(null, new TrackedItem()));
+            Assert.AreEqual(1, comparer.Compare(new TrackedItem(), null));
+        }
+
         [TestMethod]
         public void Test_TrackedItemsWithNoOccurrences_AreEqual()
         {

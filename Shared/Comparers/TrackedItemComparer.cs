@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BlazorApp.Shared.Comparers
 {
     public class TrackedItemComparerDescending : IComparer<TrackedItem>
     {
-        private readonly TrackedItemComparer _comparer = new TrackedItemComparer();
+        private readonly TrackedItemComparer _comparer = new();
 
-        public int Compare(TrackedItem x, TrackedItem y)
+        public int Compare(TrackedItem? x, TrackedItem? y)
         {
             return 0 - _comparer.Compare(x, y);
         }
@@ -17,8 +16,17 @@ namespace BlazorApp.Shared.Comparers
 
     public class TrackedItemComparer : IComparer<TrackedItem>
     {
-        public int Compare(TrackedItem x, TrackedItem y)
+        public int Compare(TrackedItem? x, TrackedItem? y)
         {
+            if (x == null && y == null) 
+                return 0;
+
+            if (x == null) 
+                return -1;
+
+            if (y == null) 
+                return 1;
+
             if (x.Favourite && y.Favourite is false)
             {
                 return 1;
