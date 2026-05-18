@@ -13,7 +13,7 @@
     "chanfana": "^3.3.0",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.19",
-    "zod": "^4.4.2"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "25.8.0",
