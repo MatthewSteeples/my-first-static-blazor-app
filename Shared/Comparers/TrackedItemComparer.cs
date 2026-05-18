@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace BlazorApp.Shared.Comparers
 {
-    public class TrackedItemComparerDescending : IComparer<TrackedItem>
+    public class TrackedItemComparerDescending(DateTime referenceTime) : IComparer<TrackedItem>
     {
-        private readonly TrackedItemComparer _comparer = new();
+        private readonly TrackedItemComparer _comparer = new(referenceTime);
 
         public int Compare(TrackedItem? x, TrackedItem? y)
         {
@@ -14,7 +14,7 @@ namespace BlazorApp.Shared.Comparers
         }
     }
 
-    public class TrackedItemComparer : IComparer<TrackedItem>
+    public class TrackedItemComparer(DateTime referenceTime) : IComparer<TrackedItem>
     {
         public int Compare(TrackedItem? x, TrackedItem? y)
         {
@@ -55,8 +55,8 @@ namespace BlazorApp.Shared.Comparers
                     }
                     else
                     {
-                        var nextX = x.GetFutureOccurrences(DateTime.UtcNow, 1).DefaultIfEmpty(DateTime.MaxValue).First();
-                        var nextY = y.GetFutureOccurrences(DateTime.UtcNow, 1).DefaultIfEmpty(DateTime.MaxValue).First();
+                        var nextX = x.GetFutureOccurrences(referenceTime, 1).DefaultIfEmpty(DateTime.MaxValue).First();
+                        var nextY = y.GetFutureOccurrences(referenceTime, 1).DefaultIfEmpty(DateTime.MaxValue).First();
 
                         return 0 - nextX.CompareTo(nextY); //Intentionally reversed as we want the next occurrence to be top of the list
                     }

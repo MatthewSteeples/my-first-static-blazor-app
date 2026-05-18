@@ -27,7 +27,7 @@
                 allItems.Add(item);
         }
 
-        allItems.Sort(new TrackedItemComparerDescending());
+        allItems.Sort(new TrackedItemComparerDescending(DateTime.UtcNow));
 
         items = allItems;
     }
