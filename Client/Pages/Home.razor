@@ -36,8 +36,14 @@
 <div class="page-toolbar">
     @if (allItems.Any())
     {
-        <FluentTextField @oninput=searchChange Placeholder="Search..." class="search-field">
-            <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="end" />
+        <FluentTextField @oninput=searchChange Value="@_searchFilter" Placeholder="Search..." class="search-field">
+            <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="start" />
+            @if (!string.IsNullOrEmpty(_searchFilter))
+            {
+                <button type="button" Slot="end" title="Clear search" aria-label="Clear search" style="background:transparent;border:0;padding:0;cursor:pointer" @onclick="clearSearch">
+                    <FluentIcon Value="@(new Size16.Dismiss())" Color="@Color.Neutral" />
+                </button>
+            }
         </FluentTextField>
     }
     <button class="btn btn-primary btn-sm" @onclick="AddItem">+ Add New</button>
@@ -106,6 +112,11 @@ else
     }
 
     private string _searchFilter = "";
+
+    private void clearSearch()
+    {
+        searchChange(string.Empty);
+    }
 
     private void AddItem()
     {
