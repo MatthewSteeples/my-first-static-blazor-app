@@ -40,7 +40,9 @@
             <FluentIcon Value="@(new Size16.Search())" Color="@Color.Neutral" Slot="start" />
             @if (!string.IsNullOrEmpty(_searchFilter))
             {
-                <FluentIcon Value="@(new Size16.Dismiss())" Color="@Color.Neutral" Slot="end" title="Clear search" style="cursor:pointer" @onclick="clearSearch" />
+                <button type="button" Slot="end" title="Clear search" aria-label="Clear search" style="background:transparent;border:0;padding:0;cursor:pointer" @onclick="clearSearch">
+                    <FluentIcon Value="@(new Size16.Dismiss())" Color="@Color.Neutral" />
+                </button>
             }
         </FluentTextField>
     }
