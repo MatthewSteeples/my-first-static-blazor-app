@@ -7,6 +7,6 @@ namespace BlazorApp.Shared
     {
         public BrowserIdentity Identity { get; set; } = new();
         
-        public List<string> TrackedItems { get; set; } = new();
+        public List<TrackedItem> TrackedItems { get; set; } = new();
     }
 }

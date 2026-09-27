@@ -272,53 +272,17 @@
     {
         try
         {
-            // First try parsing as new format
-            var document = JsonDocument.Parse(fileContent);
-            var root = document.RootElement;
-            
-            TrackedItem[] trackedItems;
-            BrowserIdentity? importedIdentity = null;
-            
-            // First try to deserialize as new ExportData format
-            var exportData = JsonSerializer.Deserialize<ExportData>(fileContent, SerializationContext.Default.ExportData);
-            if (exportData != null)
+            var exportData = JsonSerializer.Deserialize(fileContent, SerializationContext.Default.ExportData);
+            if (exportData == null)
             {
-                // New format with ExportData
-                importedIdentity = exportData.Identity;
-                trackedItems = exportData.TrackedItems
-                    .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
-                    .OfType<TrackedItem>()
-                    .ToArray();
+                return Task.FromResult(new ImportAnalysisResult { IsValid = false, ErrorMessage = "Invalid file format. Expected an export file with Identity and TrackedItems." });
             }
-            else if (root.ValueKind == JsonValueKind.Object && 
-                root.TryGetProperty("trackedItems", out var trackedItemsElement) && 
-                root.TryGetProperty("identity", out var identityElement))
-            {
-                // Legacy object format with identity and trackedItems
-                var trackedItemsJson = trackedItemsElement.GetRawText();
-                trackedItems = JsonSerializer.Deserialize<string[]>(trackedItemsJson, SerializationContext.Default.StringArray)?
-                    .Select(json => JsonSerializer.Deserialize<TrackedItem>(json, SerializationContext.Default.TrackedItem))
-                    .OfType<TrackedItem>()
-                    .ToArray() ?? Array.Empty<TrackedItem>();
-                
-                // Parse identity
-                importedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText(), SerializationContext.Default.BrowserIdentity);
-            }
-            else if (root.ValueKind == JsonValueKind.Array)
-            {
-                // Legacy format - array of TrackedItems
-                trackedItems = JsonSerializer.Deserialize<TrackedItem[]>(fileContent, SerializationContext.Default.TrackedItemArray) ?? Array.Empty<TrackedItem>();
-            }
-            else
-            {
-                return Task.FromResult(new ImportAnalysisResult { IsValid = false, ErrorMessage = "Invalid file format. Expected array of TrackedItems or object with identity and trackedItems." });
-            }
-            
+
             return Task.FromResult(new ImportAnalysisResult 
             { 
                 IsValid = true, 
-                TrackedItems = trackedItems,
-                ImportedIdentity = importedIdentity
+                TrackedItems = exportData.TrackedItems.Where(i => i != null).ToArray(),
+                ImportedIdentity = exportData.Identity
             });
         }
         catch (JsonException ex)

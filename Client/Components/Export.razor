@@ -29,15 +29,15 @@
 @code {
     private async Task<Stream> GetFileStream()
     {
-        var items = new List<string>();
+        var items = new List<TrackedItem>();
 
         var keys = (await localStorage.KeysAsync()).Where(a => a.StartsWith(nameof(TrackedItem)));
 
         foreach (var key in keys)
         {
-            var item = await localStorage.GetItemAsStringAsync(key);
+            var item = await localStorage.GetItemAsync<TrackedItem>(key);
 
-            if (!string.IsNullOrEmpty(item))
+            if (item != null)
                 items.Add(item);
         }
 

@@ -8,107 +8,57 @@ namespace BlazorApp.Shared.Tests
     [TestClass]
     public class BrowserIdentityIntegrationTests
     {
-        [TestMethod]
-        public void ExportFormat_ShouldIncludeIdentityField()
+        private static ExportData CreateExportData() => new()
         {
-            // Arrange
-            var identity = new BrowserIdentity
-            {
-                PublicKey = "test-public-key",
-                PrivateKey = "test-private-key"
-            };
-            
-            var trackedItems = new[] { "item1", "item2" };
-            
-            var exportData = new
-            {
-                identity = identity,
-                trackedItems = trackedItems
-            };
-
-            // Act
-            var exportJson = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
-            var deserializedData = JsonSerializer.Deserialize<JsonElement>(exportJson);
-
-            // Assert
-            Assert.IsTrue(deserializedData.TryGetProperty("identity", out var identityElement));
-            Assert.IsTrue(deserializedData.TryGetProperty("trackedItems", out var trackedItemsElement));
-            
-            Assert.IsTrue(identityElement.TryGetProperty("Id", out var idElement));
-            Assert.IsTrue(identityElement.TryGetProperty("PublicKey", out var publicKeyElement));
-            Assert.IsTrue(identityElement.TryGetProperty("PrivateKey", out var privateKeyElement));
-            
-            Assert.AreEqual(identity.Id, idElement.GetString());
-            Assert.AreEqual("test-public-key", publicKeyElement.GetString());
-            Assert.AreEqual("test-private-key", privateKeyElement.GetString());
-            
-            Assert.AreEqual(JsonValueKind.Array, trackedItemsElement.ValueKind);
-            Assert.AreEqual(2, trackedItemsElement.GetArrayLength());
-        }
-
-        [TestMethod]
-        public void ImportFormat_CanParseNewFormatWithIdentity()
-        {
-            // Arrange
-            var identity = new BrowserIdentity
+            Identity = new BrowserIdentity
             {
                 Id = "test-id-123",
                 PublicKey = "test-public-key",
                 PrivateKey = "test-private-key"
-            };
-            
-            var trackedItems = new[] { "{\"Id\":\"00000000-0000-0000-0000-000000000001\",\"Name\":\"Test Item\"}" };
-            
-            var exportData = new
-            {
-                identity = identity,
-                trackedItems = trackedItems
-            };
+            },
+            TrackedItems =
+            [
+                new TrackedItem
+                {
+                    Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                    Name = "Test Item",
+                    Targets = [new Target { Qty = 2, Frequency = TimeSpan.FromHours(4) }]
+                }
+            ]
+        };
 
-            var exportJson = JsonSerializer.Serialize(exportData, new JsonSerializerOptions { WriteIndented = true });
+        [TestMethod]
+        public void ExportFormat_ShouldContainTrackedItemsAsObjects()
+        {
+            var json = JsonSerializer.Serialize(CreateExportData(), SerializationContext.Default.ExportData);
 
-            // Act
-            var document = JsonDocument.Parse(exportJson);
+            using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
 
-            // Assert - Can parse new format
-            Assert.IsTrue(root.TryGetProperty("identity", out var identityElement));
-            Assert.IsTrue(root.TryGetProperty("trackedItems", out var trackedItemsElement));
-            
-            var parsedIdentity = JsonSerializer.Deserialize<BrowserIdentity>(identityElement.GetRawText(), SerializationContext.Default.BrowserIdentity);
-            Assert.IsNotNull(parsedIdentity);
-            Assert.AreEqual("test-id-123", parsedIdentity.Id);
-            Assert.AreEqual("test-public-key", parsedIdentity.PublicKey);
-            Assert.AreEqual("test-private-key", parsedIdentity.PrivateKey);
-            
-            Assert.AreEqual(JsonValueKind.Array, trackedItemsElement.ValueKind);
-            Assert.AreEqual(1, trackedItemsElement.GetArrayLength());
+            Assert.IsTrue(root.TryGetProperty("Identity", out var identityElement));
+            Assert.AreEqual("test-public-key", identityElement.GetProperty("PublicKey").GetString());
+
+            var items = root.GetProperty("TrackedItems");
+            Assert.AreEqual(JsonValueKind.Array, items.ValueKind);
+            Assert.AreEqual(1, items.GetArrayLength());
+            Assert.AreEqual(JsonValueKind.Object, items[0].ValueKind);
+            Assert.AreEqual("Test Item", items[0].GetProperty("Name").GetString());
         }
 
         [TestMethod]
-        public void ImportFormat_CanParseLegacyArrayFormat()
+        public void ExportFormat_ShouldRoundTrip()
         {
-            // Arrange
-            var trackedItems = new[]
-            {
-                new TrackedItem { Id = Guid.Parse("00000000-0000-0000-0000-000000000001"), Name = "Test Item 1" },
-                new TrackedItem { Id = Guid.Parse("00000000-0000-0000-0000-000000000002"), Name = "Test Item 2" }
-            };
+            var json = JsonSerializer.Serialize(CreateExportData(), SerializationContext.Default.ExportData);
 
-            var legacyJson = JsonSerializer.Serialize(trackedItems, SerializationContext.Default.TrackedItemArray);
+            var parsed = JsonSerializer.Deserialize(json, SerializationContext.Default.ExportData);
 
-            // Act
-            var document = JsonDocument.Parse(legacyJson);
-            var root = document.RootElement;
-
-            // Assert - Should be an array without identity property
-            Assert.AreEqual(JsonValueKind.Array, root.ValueKind);
-            
-            var parsedItems = JsonSerializer.Deserialize<TrackedItem[]>(legacyJson, SerializationContext.Default.TrackedItemArray);
-            Assert.IsNotNull(parsedItems);
-            Assert.AreEqual(2, parsedItems.Length);
-            Assert.AreEqual("Test Item 1", parsedItems[0].Name);
-            Assert.AreEqual("Test Item 2", parsedItems[1].Name);
+            Assert.IsNotNull(parsed);
+            Assert.AreEqual("test-id-123", parsed.Identity.Id);
+            Assert.AreEqual("test-public-key", parsed.Identity.PublicKey);
+            Assert.AreEqual("test-private-key", parsed.Identity.PrivateKey);
+            Assert.AreEqual(1, parsed.TrackedItems.Count);
+            Assert.AreEqual("Test Item", parsed.TrackedItems[0].Name);
+            Assert.AreEqual(TimeSpan.FromHours(4), parsed.TrackedItems[0].Targets[0].Frequency);
         }
     }
 }
