@@ -6,11 +6,12 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "weathered-base-bad8",
 	"main": "src/index.ts",
-	"compatibility_date": "2026-02-24",
+	"compatibility_date": "2026-09-26",
 	"observability": {
 		"enabled": true
 	},
 	"preview_urls": true,
+	"previews": {},
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
