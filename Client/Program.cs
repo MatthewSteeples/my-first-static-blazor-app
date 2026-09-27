@@ -4,14 +4,13 @@ using BlazorApp.Client;
 using BlazorApp.Client.Services;
 using Blazored.LocalStorage;
 using Microsoft.FluentUI.AspNetCore.Components;
-using System.Net.Http;
+using BlazorApp.Shared;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-//builder.Services.AddBlazoredLocalStorage(options => { options.JsonSerializerOptions.TypeInfoResolver = SerializationContext.Default; }); //Need to wait for https://github.com/Blazored/LocalStorage/pull/241
-builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazoredLocalStorage(options => { options.JsonSerializerOptions.TypeInfoResolver = SerializationContext.Default; });
 
 builder.Services.AddFluentUIComponents(options => options.Toast.MaxToastCount = 10);
 builder.Services.AddSingleton<PwaUpdateService>();

@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+using BlazorApp.Shared;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
 
@@ -9,12 +9,6 @@ public interface IAppSettingsService
     Task<AppSettings> GetAsync();
     Task<bool> GetExperimentalCloudflareApiPostingEnabledAsync();
     Task SetExperimentalCloudflareApiPostingEnabledAsync(bool enabled);
-}
-
-public sealed class AppSettings
-{
-    [JsonPropertyName("experimentalCloudflareApiPostingEnabled")]
-    public bool ExperimentalCloudflareApiPostingEnabled { get; set; }
 }
 
 public sealed class AppSettingsService : IAppSettingsService
