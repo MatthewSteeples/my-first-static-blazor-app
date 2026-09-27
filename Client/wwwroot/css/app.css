@@ -201,6 +201,15 @@ code {
 /* ========================
    Tracked item card
    ======================== */
+
+/* FluentGrid rows default to align-items: stretch, so every card in a wrapped
+   row stretches to match the tallest sibling. That makes expanding one card's
+   accordion (Past/Next Occurrences) resize unrelated cards in the same row.
+   Align items to the top instead so each card sizes to its own content. */
+.tracked-grid {
+    align-items: flex-start;
+}
+
 .tracked-card {
     background: var(--bs-body-bg);
     color: var(--bs-body-color);
@@ -208,7 +217,6 @@ code {
     border-radius: 8px;
     padding: 0.75rem 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    height: 100%;
     display: flex;
     flex-direction: column;
 }
