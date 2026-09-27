@@ -46,10 +46,10 @@
                     {
                         <tr>
                             <td>
-                                <FluentDatePicker TValue="DateTime?" Value="@GetOccurrenceLocalDateTime(occurrence)" ValueChanged="@(e => UpdateOccurrenceDate(occurrence, e))" />
+                                <FluentDatePicker TValue="DateTime?" Value="@OccurrenceTimestampHelper.GetEditableLocalTimestamp(occurrence.ActualTimestamp)" ValueChanged="@(e => UpdateOccurrenceDate(occurrence, e))" />
                             </td>
                             <td>
-                                <FluentTimePicker TValue="DateTime?" RenderStyle="DatePickerRenderStyle.Native" Increment="60" Value="@GetOccurrenceLocalDateTime(occurrence)" ValueChanged="@(e => UpdateOccurrenceTime(occurrence, e))" />
+                                <FluentTimePicker TValue="DateTime?" RenderStyle="DatePickerRenderStyle.Native" Increment="60" Value="@OccurrenceTimestampHelper.GetEditableLocalTimestamp(occurrence.ActualTimestamp)" ValueChanged="@(e => UpdateOccurrenceTime(occurrence, e))" />
                             </td>
                             <td class="col-narrow">
                                 <InputNumber @bind-Value="occurrence.StockUsed" class="form-control form-control-sm narrow-input" />
@@ -154,12 +154,6 @@
     private int showHistoryCount = 5;
     private bool _isNewItem;
 
-    private static DateTime GetOccurrenceLocalDateTime(Occurrence occurrence)
-    {
-        var localTime = occurrence.ActualTimestamp.ToLocalTime();
-        return new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour, localTime.Minute, 0, localTime.Kind);
-    }
-
     private static void UpdateOccurrenceDate(Occurrence occurrence, DateTime? localDate)
     {
         if (localDate is null)
@@ -167,10 +161,7 @@
             return;
         }
 
-        var currentLocalTime = GetOccurrenceLocalDateTime(occurrence);
-        var selectedLocalDate = localDate.Value;
-
-        occurrence.ActualTimestamp = new DateTime(selectedLocalDate.Year, selectedLocalDate.Month, selectedLocalDate.Day, currentLocalTime.Hour, currentLocalTime.Minute, 0, DateTimeKind.Local).ToUniversalTime();
+        occurrence.ActualTimestamp = OccurrenceTimestampHelper.ApplyLocalDate(occurrence.ActualTimestamp, localDate.Value);
     }
 
     private static void UpdateOccurrenceTime(Occurrence occurrence, DateTime? localTime)
@@ -180,10 +171,7 @@
             return;
         }
 
-        var currentLocalTime = GetOccurrenceLocalDateTime(occurrence);
-        var selectedLocalTime = localTime.Value;
-
-        occurrence.ActualTimestamp = new DateTime(currentLocalTime.Year, currentLocalTime.Month, currentLocalTime.Day, selectedLocalTime.Hour, selectedLocalTime.Minute, 0, DateTimeKind.Local).ToUniversalTime();
+        occurrence.ActualTimestamp = OccurrenceTimestampHelper.ApplyLocalTime(occurrence.ActualTimestamp, localTime.Value);
     }
 
     protected override async Task OnInitializedAsync()
