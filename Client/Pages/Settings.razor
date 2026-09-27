@@ -2,11 +2,14 @@
 @using BlazorApp.Shared
 @using BlazorApp.Client.Services
 @using System.Reflection
+@using ThemeMode = Microsoft.FluentUI.AspNetCore.Components.ThemeMode
 
 @inject NavigationManager Navigation
 @inject IBrowserIdentityService identityService
 @inject IAppSettingsService AppSettingsService
 @inject PwaUpdateService PwaUpdateService
+@inject Microsoft.FluentUI.AspNetCore.Components.IThemeService ThemeService
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @implements IDisposable
 
 <PageTitle>Settings</PageTitle>
@@ -92,6 +95,28 @@
 <div class="mt-4">
     <div class="card">
         <div class="card-header">
+            <h5>Appearance</h5>
+        </div>
+        <div class="card-body">
+            <div class="btn-group" role="group" aria-label="Theme">
+                @foreach (var option in themeOptions)
+                {
+                    var id = "theme-" + option.Mode.ToString().ToLowerInvariant();
+                    <input type="radio" class="btn-check" name="theme" id="@id" autocomplete="off"
+                           checked="@(themeMode == option.Mode)" @onchange="() => SetThemeMode(option.Mode)" />
+                    <label class="btn btn-outline-primary" for="@id">@option.Label</label>
+                }
+            </div>
+            <p class="text-muted mt-2 mb-0">
+                <small>Auto follows your device's light or dark setting.</small>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <div class="card">
+        <div class="card-header">
             <h5>About</h5>
         </div>
         <div class="card-body">
@@ -134,6 +159,18 @@
 @code {
     private const int UpdateCheckDelayMs = 3000;
 
+    // Fluent UI persists the selected theme mode under this localStorage key (also read by js/theme-sync.js).
+    private const string FluentThemeStorageKey = "fluentui-blazor:theme-settings";
+
+    private static readonly (ThemeMode Mode, string Label)[] themeOptions =
+    [
+        (ThemeMode.System, "Auto"),
+        (ThemeMode.Light, "Light"),
+        (ThemeMode.Dark, "Dark"),
+    ];
+
+    private ThemeMode themeMode = ThemeMode.System;
+
     private BrowserIdentity? identity;
     private bool experimentalApiPostingEnabled;
     private string appVersion = string.Empty;
@@ -145,6 +182,7 @@
     {
         identity = await identityService.GetOrCreateIdentityAsync();
         experimentalApiPostingEnabled = await AppSettingsService.GetExperimentalCloudflareApiPostingEnabledAsync();
+        themeMode = await GetStoredThemeModeAsync();
 
         appVersion = typeof(Program).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "Unknown";
@@ -187,6 +225,38 @@
     {
         experimentalApiPostingEnabled = e.Value is bool enabled && enabled;
         await AppSettingsService.SetExperimentalCloudflareApiPostingEnabledAsync(experimentalApiPostingEnabled);
+    }
+
+    private async Task<ThemeMode> GetStoredThemeModeAsync()
+    {
+        try
+        {
+            var json = await LocalStorage.GetItemAsStringAsync(FluentThemeStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("mode", out var mode))
+                {
+                    return mode.GetString() switch
+                    {
+                        "light" => ThemeMode.Light,
+                        "dark" => ThemeMode.Dark,
+                        _ => ThemeMode.System,
+                    };
+                }
+            }
+        }
+        catch (System.Text.Json.JsonException)
+        {
+        }
+
+        return ThemeMode.System;
+    }
+
+    private async Task SetThemeMode(ThemeMode mode)
+    {
+        themeMode = mode;
+        await ThemeService.SetThemeAsync(mode);
     }
 
     public void Dispose()

@@ -46,10 +46,10 @@
                     {
                         <tr>
                             <td>
-                                <FluentDatePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                <FluentDatePicker TValue="DateTime?" Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
                             </td>
                             <td>
-                                <FluentTimePicker Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
+                                <FluentTimePicker TValue="DateTime?" RenderStyle="DatePickerRenderStyle.Native" Value="@occurrence.ActualTimestamp.ToLocalTime()" ValueChanged="@(e => occurrence.ActualTimestamp = e.GetValueOrDefault().ToUniversalTime())" />
                             </td>
                             <td class="col-narrow">
                                 <InputNumber @bind-Value="occurrence.StockUsed" class="form-control form-control-sm narrow-input" />
@@ -109,7 +109,7 @@
                     {
                         <tr>
                             <td>
-                                <FluentDatePicker Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
+                                <FluentDatePicker TValue="DateTime?" Value="@acquisition.DateAcquired.ToLocalTime()" ValueChanged="@(e => acquisition.DateAcquired = e.GetValueOrDefault().ToUniversalTime())" />
                             </td>
                             <td class="col-narrow">
                                 <InputNumber @bind-Value="acquisition.Quantity" class="form-control form-control-sm narrow-input" />

@@ -1,10 +1,10 @@
-﻿@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components
 @using BlazorApp.Client.Services
 @using BlazorApp.Shared
 @using Regular = Microsoft.FluentUI.AspNetCore.Components.Icons.Regular
 @using Filled = Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 
-@inject IToastService ToastService
+@inject INotificationService NotificationService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager Navigation
 @inject ISyncEventService syncEventService
@@ -84,7 +84,7 @@
     <Microsoft.FluentUI.AspNetCore.Components.FluentAccordion>
         @if (ItemToTrack.PastOccurrences.Any())
         {
-            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Past Occurrences">
+            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Header="Past Occurrences">
                 <ul class="occurrence-list">
                     @foreach (var occurrences in ItemToTrack.PastOccurrences.TakeLast(showHistoryCount).ToLookup(a => a.ActualTimestamp.ToLocalTime().Date).OrderByDescending(a => a.Key))
                     {
@@ -105,7 +105,7 @@
 
         @if (ItemToTrack.Targets.Any())
         {
-            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Heading="Next Occurrences">
+            <Microsoft.FluentUI.AspNetCore.Components.FluentAccordionItem Header="Next Occurrences">
                 <ol class="occurrence-list">
                     @foreach (var occurrence in ItemToTrack.GetFutureOccurrences(DateTime.UtcNow, showFutureCount))
                     {
@@ -119,7 +119,7 @@
 </div>
 
 @code {
-    async void OnClick()
+    async Task OnClick()
     {
         ItemToTrack.AddOccurrence(DateTime.UtcNow);
         await localStorage.SetItemAsync(nameof(TrackedItem) + ItemToTrack.Id, ItemToTrack);
@@ -132,7 +132,11 @@
             Payload = payload
         });
 
-        ToastService.ShowToast(ToastIntent.Success, "Tracked " + ItemToTrack.Name, 5000, "Edit Time", EventCallback.Factory.Create<ToastResult>(this, e => edit()));
+        await NotificationService.ShowSuccessToastAsync("Tracked " + ItemToTrack.Name, string.Empty, 5, "Edit Time", _ =>
+        {
+            edit();
+            return Task.CompletedTask;
+        });
     }
 
     void edit()

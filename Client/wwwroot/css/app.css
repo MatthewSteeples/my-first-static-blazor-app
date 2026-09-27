@@ -1,5 +1,35 @@
+/* ========================
+   Theme bridge
+   Bootstrap's colour mode (data-bs-theme) is kept in sync with Fluent UI by js/theme-sync.js.
+   The core Bootstrap surface/text variables are mapped to Fluent tokens so both libraries share
+   one palette. Fallbacks are Bootstrap's defaults, used before Fluent has applied its tokens.
+   App styles should use these variables rather than hard-coded colours.
+   ======================== */
+:root,
+[data-bs-theme=light] {
+    --bs-body-bg: var(--colorNeutralBackground1, #fff);
+    --bs-body-color: var(--colorNeutralForeground1, #212529);
+    --bs-secondary-color: var(--colorNeutralForeground3, rgba(33, 37, 41, 0.75));
+    --bs-border-color: var(--colorNeutralStroke2, #dee2e6);
+}
+
+[data-bs-theme=dark] {
+    --bs-body-bg: var(--colorNeutralBackground1, #212529);
+    --bs-body-color: var(--colorNeutralForeground1, #dee2e6);
+    --bs-secondary-color: var(--colorNeutralForeground3, rgba(222, 226, 230, 0.75));
+    --bs-border-color: var(--colorNeutralStroke2, #495057);
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Fluent v5's injected default styles fix the body to the viewport with overflow hidden (intended for
+   FluentLayout). This app uses normal document scrolling, so restore it. Higher specificity is needed
+   because Fluent's adopted stylesheet otherwise wins the cascade. */
+html body {
+    height: auto;
+    overflow: visible;
 }
 
 h1:focus {
@@ -7,7 +37,7 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: var(--colorBrandForegroundLink, var(--bs-link-color));
 }
 
 .btn-primary {
@@ -17,7 +47,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem var(--bs-body-bg), 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -33,11 +63,12 @@ a, .btn-link {
 }
 
 .validation-message {
-    color: red;
+    color: var(--bs-form-invalid-color);
 }
 
 #blazor-error-ui {
-    background: lightyellow;
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
     bottom: 0;
     box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
     display: none;
@@ -75,7 +106,7 @@ a, .btn-link {
 
     .loading-progress circle {
         fill: none;
-        stroke: #e0e0e0;
+        stroke: var(--bs-border-color);
         stroke-width: 0.6rem;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
@@ -99,13 +130,13 @@ a, .btn-link {
     }
 
 code {
-    color: #c02d76;
+    color: var(--bs-code-color);
 }
 
 /* PWA Update Notification Styles */
 .update-notification {
-    background-color: #e3f2fd;
-    border: 1px solid #2196f3;
+    background-color: var(--bs-primary-bg-subtle);
+    border: 1px solid var(--bs-primary-border-subtle);
     border-radius: 4px;
     padding: 8px 12px;
     margin-bottom: 10px;
@@ -115,7 +146,7 @@ code {
 
 .update-notification p {
     margin: 0;
-    color: #1976d2;
+    color: var(--bs-primary-text-emphasis);
 }
 
 .update-icon {
@@ -124,7 +155,7 @@ code {
 }
 
 .update-link {
-    color: #1976d2;
+    color: var(--bs-primary-text-emphasis);
     text-decoration: underline;
     font-weight: 500;
     margin-left: 8px;
@@ -132,7 +163,7 @@ code {
 }
 
 .update-link:hover {
-    color: #0d47a1;
+    color: var(--bs-emphasis-color);
     text-decoration: none;
 }
 
@@ -164,15 +195,16 @@ code {
 .empty-state {
     padding: 2rem 1rem;
     text-align: center;
-    color: #666;
+    color: var(--bs-secondary-color);
 }
 
 /* ========================
    Tracked item card
    ======================== */
 .tracked-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -182,11 +214,11 @@ code {
 }
 
 .tracked-card.status-at-limit {
-    border-left: 4px solid #ffc107;
+    border-left: 4px solid var(--bs-warning);
 }
 
 .tracked-card.status-over-limit {
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid var(--bs-danger);
 }
 
 .tracked-card-header {
@@ -246,7 +278,7 @@ code {
 }
 
 .stat-label {
-    color: #666;
+    color: var(--bs-secondary-color);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -257,7 +289,7 @@ code {
 }
 
 .stat-note {
-    color: #888;
+    color: var(--bs-secondary-color);
     font-weight: 400;
     font-size: 0.8em;
 }
@@ -295,7 +327,7 @@ code {
 .form-label {
     font-size: 0.85rem;
     font-weight: 500;
-    color: #444;
+    color: var(--bs-body-color);
     margin-bottom: 0;
 }
 
@@ -315,7 +347,7 @@ code {
 
 .section-hint {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--bs-secondary-color);
     margin-bottom: 0.5rem;
 }
 
@@ -375,8 +407,9 @@ code {
 
 .stats-summary-card,
 .usage-chart-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
     border-radius: 8px;
     padding: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -389,8 +422,9 @@ code {
 }
 
 .stats-table-card {
-    background: #fff;
-    border: 1px solid #e0e0e0;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    border: 1px solid var(--bs-border-color);
     border-radius: 8px;
     padding: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
@@ -420,7 +454,7 @@ code {
 .stats-summary-label,
 .stats-summary-note,
 .usage-chart-label {
-    color: #666;
+    color: var(--bs-secondary-color);
     font-size: 0.85rem;
 }
 
@@ -450,7 +484,7 @@ code {
     justify-content: space-between;
     text-align: right;
     font-size: 0.75rem;
-    color: #666;
+    color: var(--bs-secondary-color);
 }
 
 .usage-chart-body {
@@ -473,7 +507,7 @@ code {
 }
 
 .usage-chart-grid-lines span {
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid var(--bs-border-color-translucent);
 }
 
 .usage-chart-bars {
@@ -500,7 +534,7 @@ code {
 }
 
 .usage-chart-bar.is-zero {
-    background: #dbe6f4;
+    background: var(--bs-primary-bg-subtle);
 }
 
 .usage-chart-axis {
@@ -509,7 +543,7 @@ code {
     gap: 0.5rem;
     margin-top: 0.5rem;
     font-size: 0.75rem;
-    color: #666;
+    color: var(--bs-secondary-color);
 }
 
 .usage-chart-empty {
@@ -520,8 +554,8 @@ code {
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: #666;
-    background: rgba(255, 255, 255, 0.8);
+    color: var(--bs-secondary-color);
+    background: color-mix(in srgb, var(--bs-body-bg) 80%, transparent);
     padding: 1rem;
 }
 
