@@ -6,12 +6,14 @@ namespace Shared.Tests.Comparers
     [TestClass]
     public class TrackedItemComparerTests
     {
+        private static readonly DateTime ReferenceTime = new(2024, 2, 28, 12, 0, 0, DateTimeKind.Utc);
+
         [TestMethod]
         public void Test_TrackedIdenticalInstances_AreEqual()
         {
             var x = new TrackedItem();
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(x, x));
         }
@@ -19,7 +21,7 @@ namespace Shared.Tests.Comparers
         [TestMethod]
         public void Test_TrackedNullInstances_AreEqual()
         {
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(null, null));
         }
@@ -27,7 +29,7 @@ namespace Shared.Tests.Comparers
         [TestMethod]
         public void Test_TrackedOneNullInstance_AreNotEqual()
         {
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(-1, comparer.Compare(null, new TrackedItem()));
             Assert.AreEqual(1, comparer.Compare(new TrackedItem(), null));
@@ -39,7 +41,7 @@ namespace Shared.Tests.Comparers
             var x = new TrackedItem();
             var y = new TrackedItem();
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(x, y));
             Assert.AreEqual(0, comparer.Compare(y, x));
@@ -49,11 +51,11 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSomeOccurrences_AreDifferent()
         {
             var x = new TrackedItem();
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem();
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(1, comparer.Compare(x, y));
             Assert.AreEqual(-1, comparer.Compare(y, x));
@@ -63,12 +65,12 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSameOccurrences_AreEqual()
         {
             var x = new TrackedItem();
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem();
-            y.AddOccurrence(DateTime.UtcNow);
+            y.AddOccurrence(ReferenceTime);
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(x, y));
             Assert.AreEqual(0, comparer.Compare(y, x));
@@ -78,12 +80,12 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSingleDifferentOccurrences_OnSameDay_AreEqual()
         {
             var x = new TrackedItem();
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem();
-            y.AddOccurrence(DateTime.UtcNow.AddMinutes(5));
+            y.AddOccurrence(ReferenceTime.AddMinutes(5));
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(x, y));
             Assert.AreEqual(0, comparer.Compare(y, x));
@@ -93,12 +95,12 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSingleDifferentOccurrences_OnDifferentDays_AreEqual()
         {
             var x = new TrackedItem();
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem();
-            y.AddOccurrence(DateTime.UtcNow.AddDays(2));
+            y.AddOccurrence(ReferenceTime.AddDays(2));
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(-1, comparer.Compare(x, y));
             Assert.AreEqual(1, comparer.Compare(y, x));
@@ -108,14 +110,14 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithMultipleDifferentOccurrences_OnDifferentDays_AreEqual()
         {
             var x = new TrackedItem();
-            x.AddOccurrence(DateTime.UtcNow);
-            x.AddOccurrence(DateTime.UtcNow.AddDays(2));
+            x.AddOccurrence(ReferenceTime);
+            x.AddOccurrence(ReferenceTime.AddDays(2));
 
             var y = new TrackedItem();
-            y.AddOccurrence(DateTime.UtcNow);
-            y.AddOccurrence(DateTime.UtcNow.AddDays(2));
+            y.AddOccurrence(ReferenceTime);
+            y.AddOccurrence(ReferenceTime.AddDays(2));
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(0, comparer.Compare(x, y));
             Assert.AreEqual(0, comparer.Compare(y, x));
@@ -125,12 +127,12 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSameOccurrences_AndDifferentFutureOccurrences_AreNotEqual()
         {
             var x = new TrackedItem() { Targets = [new() { Frequency = TimeSpan.FromHours(4), Qty = 1 }] };
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem();
-            y.AddOccurrence(DateTime.UtcNow);
+            y.AddOccurrence(ReferenceTime);
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(1, comparer.Compare(x, y));
             Assert.AreEqual(-1, comparer.Compare(y, x));
@@ -140,12 +142,12 @@ namespace Shared.Tests.Comparers
         public void Test_TrackedItemsWithSameOccurrences_AndDifferentFutureOccurrences2_AreNotEqual()
         {
             var x = new TrackedItem() { Targets = [new() { Frequency = TimeSpan.FromHours(4), Qty = 1 }] };
-            x.AddOccurrence(DateTime.UtcNow);
+            x.AddOccurrence(ReferenceTime);
 
             var y = new TrackedItem() { Targets = [new() { Frequency = TimeSpan.FromHours(6), Qty = 1 }] };
-            y.AddOccurrence(DateTime.UtcNow);
+            y.AddOccurrence(ReferenceTime);
 
-            var comparer = new TrackedItemComparer();
+            var comparer = new TrackedItemComparer(ReferenceTime);
 
             Assert.AreEqual(1, comparer.Compare(x, y));
             Assert.AreEqual(-1, comparer.Compare(y, x));
@@ -154,7 +156,7 @@ namespace Shared.Tests.Comparers
         [TestMethod]
         public void Test_TrackedItemsSorting_Scenario1()
         {
-            var now = DateTime.UtcNow;
+            var now = ReferenceTime;
 
             var a = new TrackedItem() { Targets = [new() { Frequency = TimeSpan.FromHours(4), Qty = 1 }, new() { Frequency = TimeSpan.FromDays(1), Qty = 4 }] };
             a.AddOccurrence(now);
@@ -185,7 +187,7 @@ namespace Shared.Tests.Comparers
 
             List<TrackedItem> items = [a, b, c, d, e, f, g, h];
 
-            items.Sort(new TrackedItemComparer());
+            items.Sort(new TrackedItemComparer(now));
             items.Reverse();
 
             Assert.AreEqual(d, items[0]);
