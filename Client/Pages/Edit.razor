@@ -49,7 +49,7 @@
                                 <FluentDatePicker TValue="DateTime?" Value="@OccurrenceTimestampHelper.GetEditableLocalTimestamp(occurrence.ActualTimestamp)" ValueChanged="@(e => UpdateOccurrenceDate(occurrence, e))" />
                             </td>
                             <td>
-                                <FluentTimePicker TValue="DateTime?" RenderStyle="DatePickerRenderStyle.Native" Increment="60" Value="@OccurrenceTimestampHelper.GetEditableLocalTimestamp(occurrence.ActualTimestamp)" ValueChanged="@(e => UpdateOccurrenceTime(occurrence, e))" />
+                                <input type="time" step="60" class="form-control form-control-sm" value="@OccurrenceTimestampHelper.GetEditableLocalTimeText(occurrence.ActualTimestamp)" @onchange="@(e => UpdateOccurrenceTime(occurrence, e.Value?.ToString() ?? string.Empty))" />
                             </td>
                             <td class="col-narrow">
                                 <InputNumber @bind-Value="occurrence.StockUsed" class="form-control form-control-sm narrow-input" />
@@ -164,14 +164,9 @@
         occurrence.ActualTimestamp = OccurrenceTimestampHelper.ApplyLocalDate(occurrence.ActualTimestamp, localDate.Value);
     }
 
-    private static void UpdateOccurrenceTime(Occurrence occurrence, DateTime? localTime)
+    private static void UpdateOccurrenceTime(Occurrence occurrence, string localTime)
     {
-        if (localTime is null)
-        {
-            return;
-        }
-
-        occurrence.ActualTimestamp = OccurrenceTimestampHelper.ApplyLocalTime(occurrence.ActualTimestamp, localTime.Value);
+        occurrence.ActualTimestamp = OccurrenceTimestampHelper.ApplyLocalTimeText(occurrence.ActualTimestamp, localTime);
     }
 
     protected override async Task OnInitializedAsync()
@@ -197,7 +192,7 @@
 
         foreach (var occurrence in occurrences)
         {
-            Item.AddOccurrence(occurrence.ActualTimestamp, occurrence.StockUsed);
+            Item.AddOccurrence(OccurrenceTimestampHelper.TruncateToMinute(occurrence.ActualTimestamp), occurrence.StockUsed);
         }
 
         await localStorage.SetItemAsync(nameof(TrackedItem) + Item.Id, Item);
