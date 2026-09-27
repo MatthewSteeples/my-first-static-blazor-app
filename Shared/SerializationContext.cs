@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace BlazorApp.Shared
 {
-    [JsonSourceGenerationOptions(WriteIndented = false)]
+    [JsonSourceGenerationOptions(WriteIndented = false, Converters = [typeof(TimeSpanJsonConverter)])]
 
     [JsonSerializable(typeof(TrackedItem))]
     [JsonSerializable(typeof(TrackedItem[]))]
