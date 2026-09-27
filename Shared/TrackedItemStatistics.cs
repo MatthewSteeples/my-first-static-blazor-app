@@ -8,14 +8,9 @@ namespace BlazorApp.Shared
     {
         public static List<DailyUsagePoint> GetDailyUsage(TrackedItem item, DateTime utcNow, int days, TimeZoneInfo timeZone)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
-
-            if (timeZone == null)
-                throw new ArgumentNullException(nameof(timeZone));
-
-            if (days <= 0)
-                throw new ArgumentOutOfRangeException(nameof(days));
+            ArgumentNullException.ThrowIfNull(item);
+            ArgumentNullException.ThrowIfNull(timeZone);
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(days);
 
             var endDate = ConvertFromUtc(utcNow, timeZone).Date;
             var startDate = endDate.AddDays(-(days - 1));
@@ -43,8 +38,7 @@ namespace BlazorApp.Shared
 
         public static List<UsageSummaryPoint> GetUsageSummary(IEnumerable<DailyUsagePoint> points, UsageGroupingPeriod period, DayOfWeek firstDayOfWeek)
         {
-            if (points == null)
-                throw new ArgumentNullException(nameof(points));
+            ArgumentNullException.ThrowIfNull(points);
 
             if (!Enum.IsDefined(period))
                 throw new ArgumentOutOfRangeException(nameof(period));
@@ -68,8 +62,7 @@ namespace BlazorApp.Shared
 
         public static bool HasStockTracking(TrackedItem item)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
+            ArgumentNullException.ThrowIfNull(item);
 
             return item.DefaultStockUsage.GetValueOrDefault() > 0
                 || (item.StockAcquisitions?.Any() ?? false)
