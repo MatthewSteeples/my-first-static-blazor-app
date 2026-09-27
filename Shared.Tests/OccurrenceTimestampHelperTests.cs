@@ -16,6 +16,16 @@ namespace BlazorApp.Shared.Tests
         }
 
         [TestMethod]
+        public void GetEditableLocalTimeText_FormatsToMinutePrecision()
+        {
+            var utcTimestamp = new DateTime(2026, 9, 27, 13, 44, 38, DateTimeKind.Local).ToUniversalTime();
+
+            var editableTimeText = OccurrenceTimestampHelper.GetEditableLocalTimeText(utcTimestamp);
+
+            Assert.AreEqual("13:44", editableTimeText);
+        }
+
+        [TestMethod]
         public void ApplyLocalDate_PreservesTimeOfDay()
         {
             var utcTimestamp = new DateTime(2026, 9, 27, 13, 44, 38, DateTimeKind.Local).ToUniversalTime();
@@ -35,6 +45,26 @@ namespace BlazorApp.Shared.Tests
             var updatedTimestamp = OccurrenceTimestampHelper.ApplyLocalTime(utcTimestamp, localTime).ToLocalTime();
 
             Assert.AreEqual(new DateTime(2026, 9, 27, 16, 7, 0, DateTimeKind.Local), updatedTimestamp);
+        }
+
+        [TestMethod]
+        public void ApplyLocalTimeText_SilentlyTruncatesSeconds()
+        {
+            var utcTimestamp = new DateTime(2026, 9, 27, 13, 44, 38, DateTimeKind.Local).ToUniversalTime();
+
+            var updatedTimestamp = OccurrenceTimestampHelper.ApplyLocalTimeText(utcTimestamp, "16:07:52").ToLocalTime();
+
+            Assert.AreEqual(new DateTime(2026, 9, 27, 16, 7, 0, DateTimeKind.Local), updatedTimestamp);
+        }
+
+        [TestMethod]
+        public void TruncateToMinute_RemovesSecondsWithoutChangingKind()
+        {
+            var utcTimestamp = new DateTime(2026, 9, 27, 13, 44, 38, DateTimeKind.Utc);
+
+            var truncatedTimestamp = OccurrenceTimestampHelper.TruncateToMinute(utcTimestamp);
+
+            Assert.AreEqual(new DateTime(2026, 9, 27, 13, 44, 0, DateTimeKind.Utc), truncatedTimestamp);
         }
     }
 }
