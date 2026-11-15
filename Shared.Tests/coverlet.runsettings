@@ -13,6 +13,6 @@
     </DataCollectors>
   </DataCollectionRunSettings>
   <RunConfiguration>
-    <TargetFrameworkVersion>net9.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>net11.0</TargetFrameworkVersion>
   </RunConfiguration>
 </RunSettings>

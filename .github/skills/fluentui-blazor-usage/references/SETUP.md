@@ -150,5 +150,5 @@ complete.
 | Components render as plain HTML | Missing CSS/JS assets | Add the stylesheet link |
 | Dialog doesn't appear | Missing providers | Add `<FluentProviders />` to layout |
 | `InvalidOperationException` on component render | Missing service registration | Call `AddFluentUIComponents()` in Program.cs |
-| Build error: `net8.0 not supported` | Wrong TFM | Change to `net9.0` or `net10.0` |
+| Build error: `net8.0 not supported` | Wrong TFM | Change to `net9.0`, `net10.0`, or `net11.0` |
 | `Appearance.Accent` doesn't compile | v4 enum removed | Use `ButtonAppearance.Primary` |

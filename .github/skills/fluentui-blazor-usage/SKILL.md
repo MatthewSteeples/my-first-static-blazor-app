@@ -47,7 +47,7 @@ The `<FluentProviders />` component replaces the need to manually add
 
 | Area | v4 | v5 |
 |---|---|---|
-| Target framework | net8.0 | net9.0 / net10.0 |
+| Target framework | net8.0 | net9.0 / net10.0 / net11.0 |
 | Theming | `<FluentDesignTheme>` component | CSS custom properties via JS (`setTheme`), `body[data-theme]` attribute |
 | Toast / MessageBar | `IToastService`, `IMessageService` | **Removed** — use `FluentToast` component directly or custom solution |
 | Navigation | `FluentNavMenu`, `FluentNavLink`, `FluentNavGroup` | `FluentNav`, `FluentNavItem`, `FluentNavCategory`, `FluentNavSectionHeader` |
